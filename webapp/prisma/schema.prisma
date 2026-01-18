@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String      @id @default(cuid())
+  email     String      @unique
+  devices   Device[]
+  vaultData VaultData[]
+  purchases Purchase[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model Device {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  deviceFingerprint String   @unique
+  name             String?
+  registeredAt     DateTime @default(now())
+  lastSeen         DateTime @updatedAt
+}
+
+model VaultData {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  ownerName String
+  data      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Template {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String
+  price       Int      // in cents
+  category    String
+  purchases   Purchase[]
+  createdAt   DateTime @default(now())
+}
+
+model Purchase {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  templateId String
+  template   Template @relation(fields: [templateId], references: [id])
+  status     String   // "PENDING", "ACTIVE", "REVOKED"
+  stripeSessionId String? @unique
+  createdAt  DateTime @default(now())
+}

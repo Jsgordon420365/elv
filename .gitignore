@@ -10,6 +10,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Prisma / Databases
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
 # Python
 __pycache__/
 *.py[cod]
@@ -25,6 +31,10 @@ env/
 .DS_Store
 Thumbs.db
 
+# Office Temp Files
+~$*
+
 # Project Specific
+.claude/
 temp_*/
 *.log

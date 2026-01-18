@@ -6,20 +6,24 @@ This document outlines the phased development of the **Encrypted Legal Vault (EL
 
 *Goal: Prove core loop of payment, encryption, and document generation.*
 
-- [ ] **Core Authentication**
-  - [ ] Implement passphrase-based key derivation (PBKDF2/Argon2).
-  - [ ] Device registration and local token management.
-- [ ] **Vault Engine**
-  - [ ] Secure storage implementation (IndexedDB).
-  - [ ] Client-side encryption/decryption utilities (WebCrypto).
-  - [ ] Field-level sensitivity tagging.
-- [ ] **Template & Marketplace Foundation**
-  - [/] Initial template catalog (Independent Contractor refined).
-  - [ ] Stripe Checkout integration.
-  - [ ] Entitlement state machine (Active/Pending/Revoked).
-- [ ] **Backend (FastAPI)**
-  - [ ] API for catalog, entitlements, and encrypted blob storage.
-  - [ ] Secure S3 sync for encrypted vault backups.
+- [x] **Core Authentication**
+  - [x] Implement passphrase-based key derivation (PBKDF2/Argon2).
+  - [x] Device registration and local token management.
+- [x] **Vault Engine**
+  - [x] Secure storage implementation (IndexedDB).
+  - [x] Client-side encryption/decryption utilities (WebCrypto).
+  - [x] Field-level sensitivity tagging.
+- [x] **Template & Marketplace Foundation**
+  - [x] Initial template catalog (Independent Contractor refined).
+  - [x] Stripe Checkout integration.
+  - [x] Entitlement state machine (Active/Pending/Revoked).
+- [x] **Document Merge logic**
+  - [x] Integrate `docxtemplater` for in-memory merging.
+  - [x] Implement browser-side generation and download (`file-saver`).
+  - [x] Host base templates in public directory.
+- [x] **Backend (FastAPI)**
+  - [x] API for catalog, entitlements, and encrypted blob storage.
+  - [x] Secure S3/R2 sync for encrypted vault backups.
 
 ## Phase 2: Growth & Retention
 
