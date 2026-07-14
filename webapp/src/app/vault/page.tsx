@@ -1,13 +1,14 @@
-// ver 20260714134000.0
+// ver 20260714134000.1
 
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Edit3, Link2, Plus, RefreshCw, Save, ShieldCheck } from "lucide-react";
+import { Archive, Edit3, Link2, Plus, RefreshCw, Save, ShieldCheck, Siren } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { UnlockOverlay } from "@/components/UnlockOverlay";
 import { useVault } from "@/lib/VaultContext";
+import { buildPortableExport } from "@/lib/export";
 import {
     AssuranceRecord,
     Party,
@@ -36,6 +37,7 @@ export default function VaultPage() {
     const [fromPartyId, setFromPartyId] = useState("");
     const [toPartyId, setToPartyId] = useState("");
     const [notice, setNotice] = useState("");
+    const [exporting, setExporting] = useState(false);
 
     const reload = useCallback(async () => {
         if (!masterKey) return;
@@ -85,6 +87,21 @@ export default function VaultPage() {
     };
 
     const partyName = (id: string) => parties.find((party) => party.id === id)?.name ?? id;
+
+    const handleExport = async () => {
+        if (!masterKey) return;
+        setExporting(true);
+        try {
+            const portable = await buildPortableExport(masterKey);
+            const { saveAs } = await import("file-saver");
+            saveAs(portable.blob, portable.fileName);
+            setNotice(`Portable customer archive created: ${portable.fileName}`);
+        } catch (caught) {
+            setNotice(caught instanceof Error ? caught.message : "Portable export failed.");
+        } finally {
+            setExporting(false);
+        }
+    };
 
     return (
         <main className="min-h-screen bg-[#0a0a0c] text-slate-100">
@@ -138,7 +155,13 @@ export default function VaultPage() {
 
                 <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
                     <h2 className="text-lg font-bold">Generations</h2>
-                    <div className="mt-4 space-y-3">{generations.length === 0 && <p className="text-sm text-slate-500">No assurance records yet.</p>}{generations.map((generation) => <div key={generation.generationId} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-950 p-4"><div><p className="font-semibold text-white">{generation.fileName}</p><p className="mt-1 font-mono text-xs text-slate-500">{generation.outputSha256}</p></div><div className="flex gap-2"><Link href={`/confirmation/${generation.generationId}`} className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-bold">Assurance</Link><Link href="/workflow/independent-contractor?regenerate=1" className="flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-xs font-bold"><RefreshCw className="h-3.5 w-3.5" />Regenerate</Link></div></div>)}</div>
+                    <div className="mt-4 space-y-3">{generations.length === 0 && <p className="text-sm text-slate-500">No assurance records yet.</p>}{generations.map((generation) => <div key={generation.generationId} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-950 p-4"><div><p className="font-semibold text-white">{generation.fileName}</p><p className="mt-1 font-mono text-xs text-slate-500">{generation.outputSha256}</p></div><div className="flex flex-wrap gap-2"><Link href={`/confirmation/${generation.generationId}`} className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-bold">Assurance</Link><Link href="/workflow/independent-contractor?regenerate=1" className="flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-xs font-bold"><RefreshCw className="h-3.5 w-3.5" />Regenerate</Link><Link href={`/recourse/${generation.generationId}`} className="flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-xs font-bold"><Siren className="h-3.5 w-3.5" />Report failure</Link></div></div>)}</div>
+                </section>
+
+                <section className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-6">
+                    <h2 className="flex items-center gap-2 text-lg font-bold text-amber-100"><Archive className="h-5 w-5" />Portable customer export</h2>
+                    <p className="mt-3 text-sm leading-6 text-amber-100/80">Warning: Export decrypts and packages the vault's selected customer data, including names, addresses, facts, provenance, assurance records, incidents, and the latest DOCX. Clicking Export is your explicit authorization to create this plaintext ZIP archive.</p>
+                    <button onClick={handleExport} disabled={exporting || generations.length === 0} className="mt-5 rounded-xl bg-amber-500 px-5 py-3 text-sm font-bold text-slate-950 hover:bg-amber-400 disabled:opacity-40">{exporting ? "Creating archive…" : "Export customer ZIP"}</button>
                 </section>
             </div>
             <UnlockOverlay />
@@ -148,3 +171,4 @@ export default function VaultPage() {
 
 // Version history
 // 20260714134000.0 - Added encrypted party, relationship, reusable-fact, provenance, and generation vault UI.
+// 20260714134000.1 - Added recourse access and explicit-authority portable ZIP export with plaintext warning.

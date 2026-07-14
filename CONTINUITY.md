@@ -173,3 +173,37 @@
 ### NEXT EXECUTABLE ACTION
 
 2026-07-14T14:04:00-04:00 — Commit Phase 4, then implement portable ZIP export and the complete recourse incident path with integrity tests.
+
+## PHASE 5 — COMPLETE
+
+### FOUND
+
+2026-07-14T14:18:30-04:00 — The proof had assurance and encrypted DOCX persistence but no portable archive, incident constructor, incident UI, or customer-downloadable recourse evidence.
+
+### CHOSE
+
+2026-07-14T14:18:30-04:00 — Treat the visible Export button as explicit authorization to decrypt and package selected customer data. Display a persistent warning immediately above the button naming the plaintext data included.
+
+2026-07-14T14:18:30-04:00 — Bind each incident to a full embedded assurance record and duplicate the key lookup fields—generation ID, output hash, provider, form/intake versions, and warnings—so the portable JSON remains interpretable without the browser database.
+
+### CHANGED
+
+2026-07-14T14:18:30-04:00 — Added one-ZIP customer export with `vault-export.json`, `latest-generated-document.docx`, `latest-assurance-record.json`, conditional `incidents.json`, and `README.txt`; added visible plaintext-export authorization; added recourse access from confirmation and every generation row; and added the live incident form, encrypted persistence, first-response owner, remedy path, policy banner, and incident JSON download.
+
+### TESTED
+
+2026-07-14T14:18:30-04:00 — `npm test` exit code 0: 9 tests, 9 passed, 0 failed. The recourse integrity test confirms generation ID, document hash, provider, template/intake versions, warnings, user-entered failure narrative/challenger/date/evidence, embedded assurance, and the exact demonstration remedy policy.
+
+2026-07-14T14:18:30-04:00 — `npx tsc --noEmit` exit code 0.
+
+### UNRESOLVED
+
+2026-07-14T14:18:30-04:00 — Technical: launchers, lint/build cleanup, stable demo-output artifacts, and full browser acceptance remain Phase 6 work.
+
+### CONFLICTS
+
+2026-07-14T14:18:30-04:00 — None within Phase 5.
+
+### NEXT EXECUTABLE ACTION
+
+2026-07-14T14:18:30-04:00 — Commit Phase 5, create launchers and DEMO.md, fix relevant lint/build failures, launch the app, execute the full browser acceptance path, copy verified DOCX/ZIP artifacts into `demo-output`, and leave the server running.
