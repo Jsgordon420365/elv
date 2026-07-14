@@ -137,3 +137,39 @@
 ### NEXT EXECUTABLE ACTION
 
 2026-07-14T13:18:45-04:00 — Commit Phase 3, then implement demo-only unlock, vault UI, the bounded intake, provenance, resolved-warning audit, generation, and confirmation assurance flow using the registry gate.
+
+## PHASE 4 — COMPLETE
+
+### FOUND
+
+2026-07-14T14:04:00-04:00 — The legacy root editor always attempted server backup, the vault unlock always registered a device through an API, and the dashboard/marketplace depended on server entitlement/Stripe paths. Those paths were incompatible with a zero-service demo and could transmit user identity or vault data.
+
+### CHOSE
+
+2026-07-14T14:04:00-04:00 — In `NEXT_PUBLIC_DEMO_MODE=1`, derive the existing AES-GCM master key locally from the passphrase and a local identity salt, without device registration. Grant the bounded workflow locally by routing the legacy dashboard and marketplace surfaces into the vault/workflow proof path.
+
+2026-07-14T14:04:00-04:00 — Treat the six party name/address fields as reusable vault facts. Keep forum state and county as separate intake answers and compute `forum_county_comma_state` only for the template merge. Persist transaction-specific answers and scope events in the encrypted matter record.
+
+### CHANGED
+
+2026-07-14T14:04:00-04:00 — Added local unlock, shared proof navigation, encrypted party/relationship/fact vault UI, the verified plaintext-boundary statement, provider/form header, vault-prefill provenance, missing-only intake, `whyWeAsk`, scope blocking, active-to-resolved audit history, deterministic maintained generation, encrypted DOCX persistence, assurance confirmation, completion checklist, stored-DOCX download, and direct regeneration using current vault facts.
+
+2026-07-14T14:04:00-04:00 — Created ignored local configuration `webapp/.env.local` with `NEXT_PUBLIC_DEMO_MODE=1`. No secret is present and the file is intentionally excluded by the existing Git ignore rule.
+
+### TESTED
+
+2026-07-14T14:04:00-04:00 — `npm test` exit code 0: 8 tests, 8 passed, 0 failed. The added workflow test proves a California/out-of-state scope event is stored as active and becomes resolved rather than erased after correction.
+
+2026-07-14T14:04:00-04:00 — `npx tsc --noEmit` exit code 0 after replacing the legacy server-dependent dashboard/marketplace routes and correcting strict answer-map typing.
+
+### UNRESOLVED
+
+2026-07-14T14:04:00-04:00 — Technical: ZIP export, recourse persistence/download, and browser acceptance are Phase 5/6 work. Browser rendering and interaction have not yet been claimed.
+
+### CONFLICTS
+
+2026-07-14T14:04:00-04:00 — The prior workflow used a combined forum value. The mandatory correction controls; the UI now stores `North Carolina` in the state field and `Guilford County` separately.
+
+### NEXT EXECUTABLE ACTION
+
+2026-07-14T14:04:00-04:00 — Commit Phase 4, then implement portable ZIP export and the complete recourse incident path with integrity tests.

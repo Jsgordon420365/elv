@@ -1,10 +1,10 @@
-// ver 20260714125800.0
+// ver 20260714125800.2
 
 import { deleteDB, openDB, IDBPDatabase } from "idb";
 import { decryptField, encryptField, EncryptedField } from "./crypto";
 
 const DB_NAME = "ELV_VAULT";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 export const VAULT_STORES = {
     vaultItems: "vault_items",
@@ -14,6 +14,7 @@ export const VAULT_STORES = {
     matters: "matters",
     generations: "generations",
     incidents: "incidents",
+    documents: "documents",
 } as const;
 
 type VaultStoreName = typeof VAULT_STORES[keyof typeof VAULT_STORES];
@@ -142,6 +143,11 @@ interface StoredIncident extends SecureEnvelope {
     outputSha256: string;
 }
 
+interface StoredDocument extends SecureEnvelope {
+    generationId: string;
+    createdAt: string;
+}
+
 function isEncryptedField(value: unknown): value is EncryptedField {
     return Boolean(value && typeof value === "object" && "ciphertext" in value && "iv" in value);
 }
@@ -169,6 +175,9 @@ async function getDB(): Promise<IDBPDatabase> {
             }
             if (!db.objectStoreNames.contains(VAULT_STORES.incidents)) {
                 db.createObjectStore(VAULT_STORES.incidents, { keyPath: "id" });
+            }
+            if (!db.objectStoreNames.contains(VAULT_STORES.documents)) {
+                db.createObjectStore(VAULT_STORES.documents, { keyPath: "generationId" });
             }
         },
     });
@@ -337,6 +346,25 @@ export async function getIncident(id: string, masterKey: CryptoKey): Promise<Inc
     return stored ? decryptJson<IncidentRecord>(stored.payload, masterKey) : null;
 }
 
+export async function saveGeneratedDocument(generationId: string, bytes: Uint8Array, masterKey: CryptoKey): Promise<void> {
+    const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join("");
+    const stored: StoredDocument = {
+        generationId,
+        createdAt: new Date().toISOString(),
+        payload: await encryptJson({ base64: btoa(binary) }, masterKey),
+    };
+    const db = await getDB();
+    await db.put(VAULT_STORES.documents, stored);
+}
+
+export async function getGeneratedDocument(generationId: string, masterKey: CryptoKey): Promise<Uint8Array | null> {
+    const db = await getDB();
+    const stored = await db.get(VAULT_STORES.documents, generationId) as StoredDocument | undefined;
+    if (!stored) return null;
+    const { base64 } = await decryptJson<{ base64: string }>(stored.payload, masterKey);
+    return Uint8Array.from(atob(base64), (character) => character.charCodeAt(0));
+}
+
 export async function getStoredRecordsForVerification(storeName: VaultStoreName): Promise<unknown[]> {
     const db = await getDB();
     return db.getAll(storeName) as Promise<unknown[]>;
@@ -355,3 +383,5 @@ export async function resetVaultDatabaseForTests(): Promise<void> {
 
 // Version history
 // 20260714125800.0 - Added encrypted parties, facts, matters, assurances, and incidents while retaining the encrypted key-value API.
+// 20260714125800.1 - Added encrypted generated-DOCX persistence for regeneration and portable export.
+// 20260714125800.2 - Advanced the IndexedDB version so existing Phase 2 databases receive the document store upgrade.
