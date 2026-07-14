@@ -71,3 +71,39 @@
 ### NEXT EXECUTABLE ACTION
 
 2026-07-14T12:51:30-04:00 — Commit Phase 1, then upgrade IndexedDB without breaking the existing key-value store and test encryption-at-rest for fact values, transaction answers, and incident narratives.
+
+## PHASE 2 — COMPLETE
+
+### FOUND
+
+2026-07-14T13:08:30-04:00 — The original IndexedDB schema had only `vault_items` at database version 1 and encrypted values only when a small sensitivity registry explicitly marked their keys. That implementation could not support the required broad browser-only encryption statement.
+
+### CHOSE
+
+2026-07-14T13:08:30-04:00 — Upgrade the database in place to version 2 and retain `vault_items`. Encrypt all newly written legacy key-value values regardless of sensitivity. Store lookup metadata in plaintext only where needed, while encrypting party names/addresses, fact values/notes, matter answers, assurance payloads containing input values, and incident narratives/evidence.
+
+2026-07-14T13:08:30-04:00 — Add a `matters` store beyond the minimum named stores because transaction-specific answers and resolved-warning audit history must persist for regeneration without being mixed into reusable facts.
+
+### CHANGED
+
+2026-07-14T13:08:30-04:00 — Added IndexedDB stores for parties, relationships, facts, matters, generations, and incidents; typed persistence APIs; encrypted JSON envelopes using the existing non-extractable AES-GCM master key; full-store clearing; raw-record verification support for tests; and `fake-indexeddb` as a test-only dependency.
+
+### TESTED
+
+2026-07-14T13:08:30-04:00 — `npm test` exit code 0: 3 tests, 3 passed, 0 failed. The raw IndexedDB assertion scanned key-value, party, fact, matter, generation, and incident records and found none of the sentinel plaintext values. Decrypted reads reproduced the party, relationship, fact, matter, incident, and retained key-value data.
+
+2026-07-14T13:08:30-04:00 — `npx tsc --noEmit` reached the legacy application and reported one remaining pre-existing UI error after strict buffer typing was repaired: `src/app/dashboard/page.tsx(135,69): error TS2304: Cannot find name 'Loader2'.` This is queued for the application rewrite/Phase 6 cleanup.
+
+2026-07-14T13:08:30-04:00 — Dependency installation completed and reported 32 audit findings (25 moderate, 6 high, 1 critical). No automatic audit fix was applied because it could make unrelated or breaking dependency changes.
+
+### UNRESOLVED
+
+2026-07-14T13:08:30-04:00 — Technical: browser UI does not yet display or exercise the new stores; the legacy `Loader2` TypeScript failure remains; phases 3 through 6 remain incomplete.
+
+### CONFLICTS
+
+2026-07-14T13:08:30-04:00 — The original sensitivity registry allowed plaintext public fields, while the mandatory correction requires every stored fact value and related user-authored workflow data to be encrypted. The mandatory correction controls for all new writes.
+
+### NEXT EXECUTABLE ACTION
+
+2026-07-14T13:08:30-04:00 — Commit Phase 2, then add the local provider/form registry and executable scope/approval gating tests.

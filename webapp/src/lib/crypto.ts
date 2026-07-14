@@ -1,3 +1,5 @@
+// ver 20260714130700.0
+
 /**
  * Core cryptographic utilities for the Encrypted Legal Vault (ELV).
  * This module uses the WebCrypto API for secure key derivation and encryption.
@@ -77,7 +79,7 @@ export async function encryptField(plaintext: string, masterKey: CryptoKey): Pro
 
     return {
         ciphertext: bufferToBase64(ciphertext),
-        iv: bufferToBase64(iv)
+        iv: bufferToBase64(iv.buffer as ArrayBuffer)
     };
 }
 
@@ -129,3 +131,6 @@ export function base64ToBuffer(base64: string): ArrayBuffer {
     }
     return bytes.buffer;
 }
+
+// Version history
+// 20260714130700.0 - Clarified the generated IV's owned ArrayBuffer for strict TypeScript WebCrypto typing.

@@ -1,94 +1,357 @@
-import { openDB, IDBPDatabase } from 'idb';
-import { encryptField, decryptField, EncryptedField } from './crypto';
-import { isSensitive } from './sensitivity';
+// ver 20260714125800.0
 
-const DB_NAME = 'ELV_VAULT';
-const STORE_NAME = 'vault_items';
-const DB_VERSION = 1;
+import { deleteDB, openDB, IDBPDatabase } from "idb";
+import { decryptField, encryptField, EncryptedField } from "./crypto";
 
-/**
- * Opens the IndexedDB database.
- */
+const DB_NAME = "ELV_VAULT";
+const DB_VERSION = 2;
+
+export const VAULT_STORES = {
+    vaultItems: "vault_items",
+    parties: "parties",
+    relationships: "relationships",
+    facts: "facts",
+    matters: "matters",
+    generations: "generations",
+    incidents: "incidents",
+} as const;
+
+type VaultStoreName = typeof VAULT_STORES[keyof typeof VAULT_STORES];
+
+export interface Party {
+    id: string;
+    kind: "person" | "business";
+    name: string;
+    address1: string;
+    address2: string;
+    createdAt: string;
+}
+
+export interface Relationship {
+    id: string;
+    fromPartyId: string;
+    toPartyId: string;
+    type: "company-contractor" | "company-authorized-rep";
+    createdAt: string;
+}
+
+export interface VaultFact {
+    id: string;
+    partyId?: string;
+    fieldId: string;
+    value: string;
+    source: "user-entered" | "imported";
+    lastConfirmedAt: string;
+    notes: string;
+}
+
+export interface MatterAuditEvent {
+    id: string;
+    timestamp: string;
+    code: string;
+    message: string;
+    status: "active" | "resolved" | "informational";
+}
+
+export interface MatterRecord {
+    id: string;
+    workflowId: string;
+    answers: Record<string, string>;
+    auditHistory: MatterAuditEvent[];
+    updatedAt: string;
+}
+
+export interface AssuranceInput {
+    value: string;
+    provenance: string;
+}
+
+export interface AssuranceRecord {
+    generationId: string;
+    timestamp: string;
+    templateId: string;
+    formVersion: string;
+    intakeVersion: string;
+    providerId: string;
+    inputsUsed: Record<string, AssuranceInput>;
+    activeWarnings: string[];
+    resolvedWarnings: string[];
+    blockingConditions: string[];
+    informationalNotices: string[];
+    warnings: string[];
+    exclusions: string[];
+    outputSha256: string;
+    fileName: string;
+    matterId: string;
+    approvalRepresentation: "demo-approved" | "blocked" | "diagnostic-draft";
+}
+
+export interface IncidentRecord {
+    id: string;
+    generationId: string;
+    createdAt: string;
+    whatHappened: string;
+    whoRejectedOrChallenged: string;
+    dateOfFailure: string;
+    evidenceReferences: string[];
+    firstResponseOwner: string;
+    remedyPolicy: string;
+    assuranceRecord: AssuranceRecord;
+    outputSha256: string;
+    providerId: string;
+    formVersion: string;
+    intakeVersion: string;
+    warnings: string[];
+}
+
+interface SecureEnvelope {
+    payload: EncryptedField;
+}
+
+interface StoredParty extends SecureEnvelope {
+    id: string;
+    kind: Party["kind"];
+    createdAt: string;
+}
+
+interface StoredFact extends SecureEnvelope {
+    id: string;
+    partyId?: string;
+    fieldId: string;
+    source: VaultFact["source"];
+    lastConfirmedAt: string;
+}
+
+interface StoredMatter extends SecureEnvelope {
+    id: string;
+    workflowId: string;
+    updatedAt: string;
+}
+
+interface StoredGeneration extends SecureEnvelope {
+    generationId: string;
+    timestamp: string;
+    outputSha256: string;
+    matterId: string;
+}
+
+interface StoredIncident extends SecureEnvelope {
+    id: string;
+    generationId: string;
+    createdAt: string;
+    outputSha256: string;
+}
+
+function isEncryptedField(value: unknown): value is EncryptedField {
+    return Boolean(value && typeof value === "object" && "ciphertext" in value && "iv" in value);
+}
+
 async function getDB(): Promise<IDBPDatabase> {
     return openDB(DB_NAME, DB_VERSION, {
         upgrade(db) {
-            if (!db.objectStoreNames.contains(STORE_NAME)) {
-                db.createObjectStore(STORE_NAME);
+            if (!db.objectStoreNames.contains(VAULT_STORES.vaultItems)) {
+                db.createObjectStore(VAULT_STORES.vaultItems);
+            }
+            if (!db.objectStoreNames.contains(VAULT_STORES.parties)) {
+                db.createObjectStore(VAULT_STORES.parties, { keyPath: "id" });
+            }
+            if (!db.objectStoreNames.contains(VAULT_STORES.relationships)) {
+                db.createObjectStore(VAULT_STORES.relationships, { keyPath: "id" });
+            }
+            if (!db.objectStoreNames.contains(VAULT_STORES.facts)) {
+                db.createObjectStore(VAULT_STORES.facts, { keyPath: "id" });
+            }
+            if (!db.objectStoreNames.contains(VAULT_STORES.matters)) {
+                db.createObjectStore(VAULT_STORES.matters, { keyPath: "id" });
+            }
+            if (!db.objectStoreNames.contains(VAULT_STORES.generations)) {
+                db.createObjectStore(VAULT_STORES.generations, { keyPath: "generationId" });
+            }
+            if (!db.objectStoreNames.contains(VAULT_STORES.incidents)) {
+                db.createObjectStore(VAULT_STORES.incidents, { keyPath: "id" });
             }
         },
     });
 }
 
-/**
- * Saves a single field to the vault, encrypting it if necessary.
- * 
- * @param key The field name/key
- * @param value The plaintext value
- * @param masterKey The master key for encryption
- */
+async function encryptJson(value: unknown, masterKey: CryptoKey): Promise<EncryptedField> {
+    return encryptField(JSON.stringify(value), masterKey);
+}
+
+async function decryptJson<T>(payload: EncryptedField, masterKey: CryptoKey): Promise<T> {
+    return JSON.parse(await decryptField(payload, masterKey)) as T;
+}
+
+export function createVaultId(prefix: string): string {
+    return `${prefix}-${crypto.randomUUID()}`;
+}
+
 export async function saveVaultItem(key: string, value: string, masterKey: CryptoKey): Promise<void> {
     const db = await getDB();
-
-    if (isSensitive(key)) {
-        const encrypted = await encryptField(value, masterKey);
-        await db.put(STORE_NAME, encrypted, key);
-    } else {
-        await db.put(STORE_NAME, value, key);
-    }
+    await db.put(VAULT_STORES.vaultItems, await encryptField(value, masterKey), key);
 }
 
-/**
- * Retrieves a single field from the vault, decrypting it if necessary.
- * 
- * @param key The field name/key
- * @param masterKey The master key for decryption
- * @returns The plaintext value
- */
 export async function getVaultItem(key: string, masterKey: CryptoKey): Promise<string | null> {
     const db = await getDB();
-    const data = await db.get(STORE_NAME, key);
-
-    if (!data) return null;
-
-    // Check if the data is an EncryptedField (has ciphertext and iv)
-    if (typeof data === 'object' && 'ciphertext' in data && 'iv' in data) {
-        return await decryptField(data as EncryptedField, masterKey);
-    }
-
-    return data as string;
+    const data: unknown = await db.get(VAULT_STORES.vaultItems, key);
+    if (data === undefined || data === null) return null;
+    if (isEncryptedField(data)) return decryptField(data, masterKey);
+    return String(data);
 }
 
-/**
- * Saves a full data object to the vault.
- * 
- * @param data Object containing key-value pairs
- * @param masterKey The master key for encryption
- */
 export async function syncToVault(data: Record<string, string>, masterKey: CryptoKey): Promise<void> {
     for (const [key, value] of Object.entries(data)) {
         await saveVaultItem(key, value, masterKey);
     }
 }
 
-/**
- * Retrieves all items from the local vault (as stored).
- */
-export async function getAllVaultItems(): Promise<Record<string, any>> {
+export async function getAllVaultItems(): Promise<Record<string, unknown>> {
     const db = await getDB();
-    const tx = db.transaction(STORE_NAME, 'readonly');
-    const store = tx.objectStore(STORE_NAME);
-    const keys = await store.getAllKeys();
-    const items: Record<string, any> = {};
-    for (const key of keys) {
-        items[key as string] = await store.get(key);
-    }
-    return items;
+    const keys = await db.getAllKeys(VAULT_STORES.vaultItems);
+    const values = await db.getAll(VAULT_STORES.vaultItems);
+    return Object.fromEntries(keys.map((key, index) => [String(key), values[index] as unknown]));
 }
 
-/**
- * Clears the local vault storage.
- */
+export async function saveParty(party: Party, masterKey: CryptoKey): Promise<void> {
+    const stored: StoredParty = {
+        id: party.id,
+        kind: party.kind,
+        createdAt: party.createdAt,
+        payload: await encryptJson({ name: party.name, address1: party.address1, address2: party.address2 }, masterKey),
+    };
+    const db = await getDB();
+    await db.put(VAULT_STORES.parties, stored);
+}
+
+export async function listParties(masterKey: CryptoKey): Promise<Party[]> {
+    const db = await getDB();
+    const stored = await db.getAll(VAULT_STORES.parties) as StoredParty[];
+    return Promise.all(stored.map(async (item) => ({
+        id: item.id,
+        kind: item.kind,
+        createdAt: item.createdAt,
+        ...await decryptJson<Pick<Party, "name" | "address1" | "address2">>(item.payload, masterKey),
+    })));
+}
+
+export async function saveRelationship(relationship: Relationship): Promise<void> {
+    const db = await getDB();
+    await db.put(VAULT_STORES.relationships, relationship);
+}
+
+export async function listRelationships(): Promise<Relationship[]> {
+    const db = await getDB();
+    return db.getAll(VAULT_STORES.relationships) as Promise<Relationship[]>;
+}
+
+export async function saveFact(fact: VaultFact, masterKey: CryptoKey): Promise<void> {
+    const stored: StoredFact = {
+        id: fact.id,
+        partyId: fact.partyId,
+        fieldId: fact.fieldId,
+        source: fact.source,
+        lastConfirmedAt: fact.lastConfirmedAt,
+        payload: await encryptJson({ value: fact.value, notes: fact.notes }, masterKey),
+    };
+    const db = await getDB();
+    await db.put(VAULT_STORES.facts, stored);
+}
+
+export async function listFacts(masterKey: CryptoKey): Promise<VaultFact[]> {
+    const db = await getDB();
+    const stored = await db.getAll(VAULT_STORES.facts) as StoredFact[];
+    return Promise.all(stored.map(async (item) => ({
+        id: item.id,
+        partyId: item.partyId,
+        fieldId: item.fieldId,
+        source: item.source,
+        lastConfirmedAt: item.lastConfirmedAt,
+        ...await decryptJson<Pick<VaultFact, "value" | "notes">>(item.payload, masterKey),
+    })));
+}
+
+export async function saveMatter(matter: MatterRecord, masterKey: CryptoKey): Promise<void> {
+    const stored: StoredMatter = {
+        id: matter.id,
+        workflowId: matter.workflowId,
+        updatedAt: matter.updatedAt,
+        payload: await encryptJson({ answers: matter.answers, auditHistory: matter.auditHistory }, masterKey),
+    };
+    const db = await getDB();
+    await db.put(VAULT_STORES.matters, stored);
+}
+
+export async function getMatter(id: string, masterKey: CryptoKey): Promise<MatterRecord | null> {
+    const db = await getDB();
+    const stored = await db.get(VAULT_STORES.matters, id) as StoredMatter | undefined;
+    if (!stored) return null;
+    const payload = await decryptJson<Pick<MatterRecord, "answers" | "auditHistory">>(stored.payload, masterKey);
+    return { id: stored.id, workflowId: stored.workflowId, updatedAt: stored.updatedAt, ...payload };
+}
+
+export async function saveGeneration(record: AssuranceRecord, masterKey: CryptoKey): Promise<void> {
+    const stored: StoredGeneration = {
+        generationId: record.generationId,
+        timestamp: record.timestamp,
+        outputSha256: record.outputSha256,
+        matterId: record.matterId,
+        payload: await encryptJson(record, masterKey),
+    };
+    const db = await getDB();
+    await db.put(VAULT_STORES.generations, stored);
+}
+
+export async function listGenerations(masterKey: CryptoKey): Promise<AssuranceRecord[]> {
+    const db = await getDB();
+    const stored = await db.getAll(VAULT_STORES.generations) as StoredGeneration[];
+    return Promise.all(stored.map((item) => decryptJson<AssuranceRecord>(item.payload, masterKey)));
+}
+
+export async function getGeneration(id: string, masterKey: CryptoKey): Promise<AssuranceRecord | null> {
+    const db = await getDB();
+    const stored = await db.get(VAULT_STORES.generations, id) as StoredGeneration | undefined;
+    return stored ? decryptJson<AssuranceRecord>(stored.payload, masterKey) : null;
+}
+
+export async function saveIncident(record: IncidentRecord, masterKey: CryptoKey): Promise<void> {
+    const stored: StoredIncident = {
+        id: record.id,
+        generationId: record.generationId,
+        createdAt: record.createdAt,
+        outputSha256: record.outputSha256,
+        payload: await encryptJson(record, masterKey),
+    };
+    const db = await getDB();
+    await db.put(VAULT_STORES.incidents, stored);
+}
+
+export async function listIncidents(masterKey: CryptoKey): Promise<IncidentRecord[]> {
+    const db = await getDB();
+    const stored = await db.getAll(VAULT_STORES.incidents) as StoredIncident[];
+    return Promise.all(stored.map((item) => decryptJson<IncidentRecord>(item.payload, masterKey)));
+}
+
+export async function getIncident(id: string, masterKey: CryptoKey): Promise<IncidentRecord | null> {
+    const db = await getDB();
+    const stored = await db.get(VAULT_STORES.incidents, id) as StoredIncident | undefined;
+    return stored ? decryptJson<IncidentRecord>(stored.payload, masterKey) : null;
+}
+
+export async function getStoredRecordsForVerification(storeName: VaultStoreName): Promise<unknown[]> {
+    const db = await getDB();
+    return db.getAll(storeName) as Promise<unknown[]>;
+}
+
 export async function clearVault(): Promise<void> {
     const db = await getDB();
-    await db.clear(STORE_NAME);
+    const transaction = db.transaction(Object.values(VAULT_STORES), "readwrite");
+    await Promise.all(Object.values(VAULT_STORES).map((storeName) => transaction.objectStore(storeName).clear()));
+    await transaction.done;
 }
+
+export async function resetVaultDatabaseForTests(): Promise<void> {
+    await deleteDB(DB_NAME);
+}
+
+// Version history
+// 20260714125800.0 - Added encrypted parties, facts, matters, assurances, and incidents while retaining the encrypted key-value API.

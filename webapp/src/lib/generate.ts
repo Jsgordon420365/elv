@@ -1,4 +1,4 @@
-// ver 20260714124000.0
+// ver 20260714124000.1
 
 import Docxtemplater from "docxtemplater";
 import PizZip from "pizzip";
@@ -39,13 +39,18 @@ export function readDocumentXml(docxBytes: ArrayBuffer | Uint8Array): string {
     return documentXml;
 }
 
+function copyToArrayBuffer(value: ArrayBuffer | Uint8Array): ArrayBuffer {
+    const source = value instanceof Uint8Array ? value : new Uint8Array(value);
+    const copy = new Uint8Array(source.byteLength);
+    copy.set(source);
+    return copy.buffer;
+}
+
 export async function sha256Hex(value: string | ArrayBuffer | Uint8Array): Promise<string> {
-    const bytes = typeof value === "string"
+    const valueBytes = typeof value === "string"
         ? new TextEncoder().encode(value)
-        : value instanceof Uint8Array
-            ? value
-            : new Uint8Array(value);
-    const digest = await crypto.subtle.digest("SHA-256", bytes);
+        : value;
+    const digest = await crypto.subtle.digest("SHA-256", copyToArrayBuffer(valueBytes));
     return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
@@ -57,7 +62,7 @@ export async function buildDocument(
     const bytes = mergeTemplateBytes(template, data);
     const documentXml = readDocumentXml(bytes);
     const outputSha256 = await sha256Hex(documentXml);
-    const blob = new Blob([bytes], { type: DOCX_MIME_TYPE });
+    const blob = new Blob([copyToArrayBuffer(bytes)], { type: DOCX_MIME_TYPE });
     return { bytes, blob, documentXml, outputSha256, fileName };
 }
 
@@ -91,3 +96,4 @@ export async function generateDocument(
 
 // Version history
 // 20260714124000.0 - Added double-brace delimiters, deterministic merge helpers, package validation, and document.xml hashing.
+// 20260714124000.1 - Copied typed-array data into owned ArrayBuffers for strict WebCrypto and Blob typing.
