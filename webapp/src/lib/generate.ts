@@ -1,52 +1,93 @@
+// ver 20260714124000.0
+
 import Docxtemplater from "docxtemplater";
 import PizZip from "pizzip";
-import { saveAs } from "file-saver";
 
-/**
- * Generates a DOCX document by merging data into a template and triggers a download.
- * 
- * @param templatePath Path to the template in the public folder (e.g., '/templates/independent-contractor.docx')
- * @param data The data object to merge into the template
- * @param fileName The name of the file to be downloaded
- */
-export async function generateDocument(templatePath: string, data: Record<string, any>, fileName: string) {
+export const DOCX_MIME_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+export interface GeneratedDocument {
+    bytes: Uint8Array;
+    blob: Blob;
+    documentXml: string;
+    outputSha256: string;
+    fileName: string;
+}
+
+export function mergeTemplateBytes(template: ArrayBuffer | Uint8Array, data: Record<string, string>): Uint8Array {
+    const zip = new PizZip(template);
+    const doc = new Docxtemplater(zip, {
+        paragraphLoop: true,
+        linebreaks: true,
+        delimiters: { start: "{{", end: "}}" },
+    });
+
+    doc.render(data);
+
+    return doc.getZip().generate({
+        type: "uint8array",
+        compression: "DEFLATE",
+        mimeType: DOCX_MIME_TYPE,
+    });
+}
+
+export function readDocumentXml(docxBytes: ArrayBuffer | Uint8Array): string {
+    const zip = new PizZip(docxBytes);
+    const documentXml = zip.file("word/document.xml")?.asText();
+    if (!documentXml) {
+        throw new Error("Invalid DOCX package: word/document.xml is missing.");
+    }
+    return documentXml;
+}
+
+export async function sha256Hex(value: string | ArrayBuffer | Uint8Array): Promise<string> {
+    const bytes = typeof value === "string"
+        ? new TextEncoder().encode(value)
+        : value instanceof Uint8Array
+            ? value
+            : new Uint8Array(value);
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+export async function buildDocument(
+    template: ArrayBuffer | Uint8Array,
+    data: Record<string, string>,
+    fileName: string,
+): Promise<GeneratedDocument> {
+    const bytes = mergeTemplateBytes(template, data);
+    const documentXml = readDocumentXml(bytes);
+    const outputSha256 = await sha256Hex(documentXml);
+    const blob = new Blob([bytes], { type: DOCX_MIME_TYPE });
+    return { bytes, blob, documentXml, outputSha256, fileName };
+}
+
+export async function generateDocument(
+    templatePath: string,
+    data: Record<string, string>,
+    fileName: string,
+    download = true,
+): Promise<GeneratedDocument> {
+    const response = await fetch(templatePath);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch template: ${templatePath}`);
+    }
+
     try {
-        // 1. Fetch the template file
-        const response = await fetch(templatePath);
-        if (!response.ok) throw new Error(`Failed to fetch template: ${templatePath}`);
-        const content = await response.arrayBuffer();
-
-        // 2. Load the binary content into PizZip
-        const zip = new PizZip(content);
-
-        // 3. Initialize Docxtemplater
-        const doc = new Docxtemplater(zip, {
-            paragraphLoop: true,
-            linebreaks: true,
-        });
-
-        // 4. Render the document (replace placeholders with data)
-        doc.render(data);
-
-        // 5. Generate the output as a blob
-        const out = doc.getZip().generate({
-            type: "blob",
-            mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        });
-
-        // 6. Trigger the download
-        saveAs(out, fileName);
-
-        return { success: true };
-    } catch (error: any) {
-        console.error("Document Generation Error:", error);
-
-        // Handle docxtemplater multi-errors
-        if (error.properties && error.properties.errors instanceof Array) {
-            const errorMessages = error.properties.errors.map((e: any) => e.message).join("\n");
-            throw new Error(`Template Error: ${errorMessages}`);
+        const generated = await buildDocument(await response.arrayBuffer(), data, fileName);
+        if (download) {
+            const { saveAs } = await import("file-saver");
+            saveAs(generated.blob, fileName);
         }
-
+        return generated;
+    } catch (error: unknown) {
+        const templateError = error as { properties?: { errors?: Array<{ message: string }> } };
+        if (Array.isArray(templateError.properties?.errors)) {
+            const messages = templateError.properties.errors.map((item) => item.message).join("\n");
+            throw new Error(`Template Error: ${messages}`);
+        }
         throw error;
     }
 }
+
+// Version history
+// 20260714124000.0 - Added double-brace delimiters, deterministic merge helpers, package validation, and document.xml hashing.
