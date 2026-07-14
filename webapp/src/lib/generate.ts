@@ -1,7 +1,8 @@
-// ver 20260714124000.1
+// ver 20260714124000.2
 
 import Docxtemplater from "docxtemplater";
 import PizZip from "pizzip";
+import { downloadBlob } from "./download";
 
 export const DOCX_MIME_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
@@ -80,8 +81,7 @@ export async function generateDocument(
     try {
         const generated = await buildDocument(await response.arrayBuffer(), data, fileName);
         if (download) {
-            const { saveAs } = await import("file-saver");
-            saveAs(generated.blob, fileName);
+            downloadBlob(generated.blob, fileName);
         }
         return generated;
     } catch (error: unknown) {
@@ -97,3 +97,4 @@ export async function generateDocument(
 // Version history
 // 20260714124000.0 - Added double-brace delimiters, deterministic merge helpers, package validation, and document.xml hashing.
 // 20260714124000.1 - Copied typed-array data into owned ArrayBuffers for strict WebCrypto and Blob typing.
+// 20260714124000.2 - Routed downloads through a static file-saver interop boundary.

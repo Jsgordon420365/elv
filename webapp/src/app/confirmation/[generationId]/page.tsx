@@ -1,4 +1,4 @@
-// ver 20260714135400.0
+// ver 20260714135400.1
 
 "use client";
 
@@ -10,6 +10,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { UnlockOverlay } from "@/components/UnlockOverlay";
 import { useVault } from "@/lib/VaultContext";
 import { DOCX_MIME_TYPE } from "@/lib/generate";
+import { downloadBlob } from "@/lib/download";
 import { AssuranceRecord, getGeneratedDocument, getGeneration } from "@/lib/vault";
 import { generateWorkflowDocument, loadWorkflowState } from "@/lib/workflow";
 
@@ -39,10 +40,9 @@ export default function ConfirmationPage() {
         if (!masterKey || !assurance) return;
         const bytes = await getGeneratedDocument(assurance.generationId, masterKey);
         if (!bytes) return setError("The encrypted document bytes were not found.");
-        const { saveAs } = await import("file-saver");
         const copy = new Uint8Array(bytes.byteLength);
         copy.set(bytes);
-        saveAs(new Blob([copy.buffer], { type: DOCX_MIME_TYPE }), assurance.fileName);
+        downloadBlob(new Blob([copy.buffer], { type: DOCX_MIME_TYPE }), assurance.fileName);
     };
 
     const regenerate = async () => {
@@ -80,3 +80,4 @@ export default function ConfirmationPage() {
 
 // Version history
 // 20260714135400.0 - Added assurance evidence, completion checklist, encrypted DOCX download, and direct fact-aware regeneration.
+// 20260714135400.1 - Routed stored-DOCX downloads through the shared static file-saver boundary.

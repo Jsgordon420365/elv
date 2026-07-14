@@ -1,3 +1,5 @@
+// ver 20260714143000.0
+
 import { getAllVaultItems } from './vault';
 import { encryptField } from './crypto';
 
@@ -9,6 +11,9 @@ import { encryptField } from './crypto';
  * @param ownerName The name of the vault owner (public metadata)
  */
 export async function backupVaultToServer(userId: string, masterKey: CryptoKey, ownerName: string): Promise<{ success: boolean; id?: string; error?: string }> {
+    if (process.env.NEXT_PUBLIC_DEMO_MODE === "1") {
+        return { success: false, error: "Server sync is disabled in local demo mode." };
+    }
     try {
         // 1. Get all items from local storage
         const vaultItems = await getAllVaultItems();
@@ -42,8 +47,13 @@ export async function backupVaultToServer(userId: string, masterKey: CryptoKey, 
  * (To be implemented in a future step)
  */
 export async function restoreVaultFromServer(userId: string, masterKey: CryptoKey): Promise<void> {
+    void userId;
+    void masterKey;
     // 1. Fetch from /api/vault by userId
     // 2. Decrypt the master bundle
     // 3. Populate IndexedDB
     throw new Error("Not implemented yet");
 }
+
+// Version history
+// 20260714143000.0 - Added a hard demo-mode sync boundary and clarified intentionally unused restore parameters.

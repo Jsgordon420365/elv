@@ -38,3 +38,4 @@ Thumbs.db
 .claude/
 temp_*/
 *.log
+webapp/test-results/

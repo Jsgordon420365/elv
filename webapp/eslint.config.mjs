@@ -1,4 +1,4 @@
-// ver 20260714124630.1
+// ver 20260714124630.2
 
 import { defineConfig, globalIgnores } from "eslint/config";
 import { FlatCompat } from "@eslint/eslintrc";
@@ -17,6 +17,7 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "*.cjs",
   ]),
 ]);
 
@@ -25,3 +26,4 @@ export default eslintConfig;
 // Version history
 // 20260714124630.0 - Added explicit module extensions required by the installed Node.js ESM resolver.
 // 20260714124630.1 - Adapted the installed Next.js 15 legacy shareable configs through FlatCompat.
+// 20260714124630.2 - Excluded retained one-off CommonJS recovery helpers from application linting.

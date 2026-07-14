@@ -1,7 +1,12 @@
+// ver 20260714160800.0
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
+    if (process.env.NEXT_PUBLIC_DEMO_MODE === "1") {
+        return NextResponse.json({ success: false, error: "Device registration is disabled in local demo mode." }, { status: 403 });
+    }
     try {
         const body = await request.json();
         const { email, deviceFingerprint, deviceName } = body;
@@ -47,3 +52,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, error: "Failed to register device" }, { status: 500 });
     }
 }
+
+// Version history
+// 20260714160800.0 - Added a hard demo-mode device-registration boundary.

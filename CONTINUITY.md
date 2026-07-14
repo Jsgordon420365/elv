@@ -207,3 +207,49 @@
 ### NEXT EXECUTABLE ACTION
 
 2026-07-14T14:18:30-04:00 — Commit Phase 5, create launchers and DEMO.md, fix relevant lint/build failures, launch the app, execute the full browser acceptance path, copy verified DOCX/ZIP artifacts into `demo-output`, and leave the server running.
+
+## PHASE 6 — FUNCTIONALLY COMPLETE / EXACT-PORT BLOCKED
+
+### FOUND
+
+2026-07-14T16:31:00-04:00 — Unrelated Node PID `59884`, started 2026-07-13, owns port 3000. An HTTP GET to that listener returned a page identifying itself as `Remotion Studio` with project `XylephoneVideo`. The process was not terminated because it is outside the ELV repository and acceptance scope.
+
+2026-07-14T16:31:00-04:00 — The first launcher attempt therefore caused Next.js to report: `Port 3000 is in use by an unknown process, using available port 3001 instead.` The launchers were corrected to probe the exact IPv6 bind address and stop safely rather than opening or masking the unrelated application.
+
+### CHOSE
+
+2026-07-14T16:31:00-04:00 — Execute all functional browser acceptance on port 3001 while preserving port 3000 as an explicit external blocker. Use installed Chrome after installed Edge exited before Playwright could attach. Do not weaken the acceptance assertions or terminate unrelated work.
+
+### CHANGED
+
+2026-07-14T16:31:00-04:00 — Added `START_DEMO.cmd`, `RUN_DEMO.ps1`, `DEMO.md`, Playwright configuration and a full end-to-end test; added hard demo-mode boundaries for device registration, server/database/S3 save, Stripe checkout/webhook, and server sync; repaired `file-saver` CommonJS interop; fixed mobile navigation and long-hash overflow; and wrote verified artifacts and screenshots to `demo-output`.
+
+2026-07-14T16:31:00-04:00 — The corrected launcher now emits the exact blocker output and exits 1: `ERROR: Port 3000 is already in use. Stop the existing listener, then run START_DEMO.cmd again.`
+
+### TESTED
+
+2026-07-14T16:31:00-04:00 — `npm run test:e2e` with `ELV_DEMO_URL=http://localhost:3001` exit code 0: 1 full-path test passed in 5.8 minutes. It created/unlocked the vault; displayed the exact boundary; created Acme and Jane; related them; verified fact value/source/confirmation/role; verified registry metadata and provenance; blocked California; resolved North Carolina plus Guilford County without erasing audit history; generated and inspected a real DOCX; regenerated after changing Acme's address; saved/downloaded an incident; produced/inspected the required ZIP; asserted no state-changing network requests; and passed 390-pixel overflow validation.
+
+2026-07-14T16:31:00-04:00 — Browser artifact inspection proved both generated files are ZIP-based DOCX packages with `word/document.xml`, zero unresolved double-brace tags, expected party/forum values, and the regenerated `999 Updated Avenue` value. The portable ZIP contains `vault-export.json`, `latest-generated-document.docx`, `latest-assurance-record.json`, `incidents.json`, and `README.txt`; its latest DOCX contains the updated address and no unresolved tags.
+
+2026-07-14T16:31:00-04:00 — Final `npm test` exit code 0: 9 passed, 0 failed. Final `npm run lint` exit code 0. Final `npm run build` exit code 0 with 14 routes generated. The only build notice is Next.js workspace-root inference due to the unrelated higher-level `C:\Users\jsgor\package-lock.json` plus the repository lockfile.
+
+2026-07-14T16:31:00-04:00 — Desktop and 390-pixel mobile screenshots were inspected directly. Required copy and controls are readable, the existing dark styling is consistent, generation evidence wraps within its containers, and no horizontal overflow remains.
+
+2026-07-14T16:31:00-04:00 — After the production build invalidated the running development cache, only the ELV-owned listener was restarted. The healthy server is running at `http://localhost:3001` on Node PID `37400`, address `::`, and returned HTTP 200.
+
+### UNRESOLVED
+
+2026-07-14T16:31:00-04:00 — Technical blocker: acceptance step 1 cannot pass at the exact required `http://localhost:3000` while unrelated Remotion Studio PID `59884` owns that port. Functional acceptance steps 2 through 12 pass on the running ELV URL `http://localhost:3001`.
+
+2026-07-14T16:31:00-04:00 — Policy: this remains a demonstration. No insurance, indemnification, commercial remedy, legal remedy, attorney-client relationship, or suitability beyond the stated scope is approved or promised.
+
+### CONFLICTS
+
+2026-07-14T16:31:00-04:00 — The required final URL conflicts with an unrelated active application. Preserving unrelated work controls over forcibly terminating PID `59884`; the exact launcher now reports the blocker honestly.
+
+## READY FOR HUMAN REVIEW
+
+2026-07-14T16:31:00-04:00 — Phases 0 through 5 are complete. Phase 6 implementation, tests, build, functional browser acceptance, artifacts, documentation, and running-server handoff are complete; only the external exact-port condition above remains blocked. Stable artifacts are in `C:\Users\jsgor\Projects-Arc\elv\demo-output`.
+
+2026-07-14T16:31:00-04:00 — Stable artifact SHA-256 receipts: `accepted-generation-1.docx` = `BF590CE124CA2EFBBED4A240BFDAB2B20A1EA6143571DBE5CA20179CBC397608`; `accepted-generation-2-regenerated.docx` = `57D6580E353A9154B58495245A255D738433CF66991FF144DB7D0ABF0E5AA4FD`; `accepted-incident-record.json` = `F67AB6BA59D23B4D95D6A9FBA208E264280321BC53D78B8365ACCBC4ED74606A`; `accepted-portable-export.zip` = `499DFFCA06629732D6574D83035AB3168AE3D5F698743E346E0777D3FD7DF306`; `acceptance-desktop.png` = `4AEEF1521C04FAA39F6F875F4AB03F82E24F5A28BFDBDF944B7DEE2E75ECA1EC`; `acceptance-mobile.png` = `891147A8E99889447EBD08A2994F9FBD88669257F8D4D557106075C5AA430E7D`.

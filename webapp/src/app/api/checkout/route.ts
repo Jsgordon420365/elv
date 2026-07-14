@@ -1,12 +1,15 @@
+// ver 20260714143000.0
+
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock', {
-    apiVersion: '2025-01-27.acacia' as any, // Use latest or matching version
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock');
 
 export async function POST(request: Request) {
+    if (process.env.NEXT_PUBLIC_DEMO_MODE === "1") {
+        return NextResponse.json({ error: "Stripe checkout is disabled in local demo mode." }, { status: 403 });
+    }
     try {
         const { templateId, userId } = await request.json();
 
@@ -49,8 +52,11 @@ export async function POST(request: Request) {
         });
 
         return NextResponse.json({ url: session.url });
-    } catch (err: any) {
+    } catch (err: unknown) {
         console.error('Stripe Checkout Error:', err);
-        return NextResponse.json({ error: err.message }, { status: 500 });
+        return NextResponse.json({ error: err instanceof Error ? err.message : "Stripe checkout failed." }, { status: 500 });
     }
 }
+
+// Version history
+// 20260714143000.0 - Disabled Stripe in demo mode and replaced legacy any-typed Stripe error handling.

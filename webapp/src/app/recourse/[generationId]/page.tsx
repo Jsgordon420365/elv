@@ -1,4 +1,4 @@
-// ver 20260714141100.0
+// ver 20260714141100.1
 
 "use client";
 
@@ -8,6 +8,7 @@ import { Download, Save, Siren } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { UnlockOverlay } from "@/components/UnlockOverlay";
 import { useVault } from "@/lib/VaultContext";
+import { downloadBlob } from "@/lib/download";
 import { RECOURSE_DEMO_POLICY, createIncidentRecord } from "@/lib/recourse";
 import { AssuranceRecord, IncidentRecord, getGeneration, saveIncident } from "@/lib/vault";
 
@@ -47,8 +48,7 @@ export default function RecoursePage() {
 
     const downloadIncident = async () => {
         if (!incident) return;
-        const { saveAs } = await import("file-saver");
-        saveAs(new Blob([JSON.stringify(incident, null, 2)], { type: "application/json" }), `${incident.id}.json`);
+        downloadBlob(new Blob([JSON.stringify(incident, null, 2)], { type: "application/json" }), `${incident.id}.json`);
     };
 
     return (
@@ -75,3 +75,4 @@ export default function RecoursePage() {
 
 // Version history
 // 20260714141100.0 - Added live encrypted incident capture, bound generation evidence, remedy disclosure, and portable JSON download.
+// 20260714141100.1 - Routed incident JSON downloads through the shared static file-saver boundary.

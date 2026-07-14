@@ -1,9 +1,14 @@
+// ver 20260714160800.0
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { s3Client } from "@/lib/s3";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 
 export async function POST(request: Request) {
+    if (process.env.NEXT_PUBLIC_DEMO_MODE === "1") {
+        return NextResponse.json({ success: false, error: "Server, database, and S3 save are disabled in local demo mode." }, { status: 403 });
+    }
     try {
         const body = await request.json();
         const { ownerName, data, userId } = body;
@@ -51,3 +56,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, error: "Failed to save data" }, { status: 500 });
     }
 }
+
+// Version history
+// 20260714160800.0 - Added a hard demo-mode Prisma, S3, and server-save boundary.
