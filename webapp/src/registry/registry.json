@@ -1,0 +1,54 @@
+{
+  "providers": [
+    {
+      "id": "legalflownc-demo-provider",
+      "name": "LegalFlowNC Demonstration Publisher",
+      "type": "law-firm-maintained-template-publisher",
+      "professionalStatus": "Demonstration provider record; no attorney-client relationship is created",
+      "goodStanding": true,
+      "effectiveDate": "2026-01-01",
+      "expirationDate": "2027-12-31",
+      "contactEmail": "support@legalflownc.example",
+      "escalationContact": "demo-escalation@legalflownc.example",
+      "responsibleMaintainer": "LegalFlowNC Demonstration Review Team",
+      "requiredAttestations": [
+        "Provider confirms the recovered template version and intake mapping were reviewed for this demonstration.",
+        "Provider confirms unsupported circumstances are disclosed and gated in the demonstration interface."
+      ],
+      "insuranceOrIndemnification": {
+        "configured": false,
+        "note": "DEMONSTRATION POLICY — no insurance or indemnity benefit exists or is promised"
+      }
+    }
+  ],
+  "forms": [
+    {
+      "id": "independent-contractor-nc",
+      "providerId": "legalflownc-demo-provider",
+      "templateId": "independent-contractor-fixed2.docx",
+      "jurisdiction": "North Carolina, USA",
+      "scope": "Engagement of an independent contractor by a business owner for defined services",
+      "formVersion": "1.0-recovered-20251231",
+      "intakeVersion": "1.0",
+      "approvalStatus": "demo-approved",
+      "maintenanceStatus": "maintained-demo",
+      "effectiveDate": "2026-01-01",
+      "expirationDate": "2027-12-31",
+      "supportedCircumstances": [
+        "A business owner engages an independent contractor for defined services.",
+        "The selected forum and arbitration state are North Carolina.",
+        "All parties are adults or valid business entities able to sign."
+      ],
+      "unsupportedCircumstances": [
+        "Employee relationships",
+        "Out-of-North-Carolina forum",
+        "Minors as parties"
+      ],
+      "executionRequirements": [
+        "Both parties sign and date the agreement.",
+        "No notarization is required by the recovered template."
+      ],
+      "lifecycle": "active"
+    }
+  ]
+}
