@@ -1,7 +1,7 @@
 {
-  "id": "incident-1a05064a-0493-4ebb-9b74-403e594bd37c",
-  "generationId": "321b4543-4d35-44a6-87c7-7521a4f65e8c",
-  "createdAt": "2026-07-14T06:48:48.912Z",
+  "id": "incident-f42d42a6-9d1c-4fbe-888d-b766713fad61",
+  "generationId": "eafc09d5-644a-4465-b8cb-e1abf14f6783",
+  "createdAt": "2026-07-15T22:30:56.734Z",
   "whatHappened": "The recipient rejected the agreement during onboarding.",
   "whoRejectedOrChallenged": "Recipient onboarding team",
   "dateOfFailure": "2026-07-14",
@@ -12,8 +12,8 @@
   "firstResponseOwner": "demo-escalation@legalflownc.example",
   "remedyPolicy": "DEMONSTRATION POLICY — the following support, correction, reissue, refund/credit, review, and escalation paths illustrate the mechanism; no commercial or legal remedy has been approved or is promised.",
   "assuranceRecord": {
-    "generationId": "321b4543-4d35-44a6-87c7-7521a4f65e8c",
-    "timestamp": "2026-07-14T06:48:31.491Z",
+    "generationId": "eafc09d5-644a-4465-b8cb-e1abf14f6783",
+    "timestamp": "2026-07-15T22:30:52.720Z",
     "templateId": "independent-contractor-fixed2.docx",
     "formVersion": "1.0-recovered-20251231",
     "intakeVersion": "1.0",
@@ -21,11 +21,11 @@
     "inputsUsed": {
       "owner_name": {
         "value": "Acme Widgets LLC",
-        "provenance": "user-entered · confirmed 7/14/2026"
+        "provenance": "canonical encrypted vault projection"
       },
       "contractor_name": {
         "value": "Jane Q. Contractor",
-        "provenance": "user-entered · confirmed 7/14/2026"
+        "provenance": "canonical encrypted vault projection"
       },
       "owner_business_description": {
         "value": "Manufacture and sell commercial widgets.",
@@ -53,19 +53,19 @@
       },
       "owner_add1": {
         "value": "999 Updated Avenue",
-        "provenance": "user-entered · confirmed 7/14/2026"
+        "provenance": "canonical encrypted vault projection"
       },
       "owner_add2": {
-        "value": "Greensboro, NC 27401",
-        "provenance": "user-entered · confirmed 7/14/2026"
+        "value": "Greensboro, North Carolina 27401",
+        "provenance": "canonical encrypted vault projection"
       },
       "contr_add1": {
         "value": "456 Contractor Court",
-        "provenance": "user-entered · confirmed 7/14/2026"
+        "provenance": "canonical encrypted vault projection"
       },
       "contr_add2": {
-        "value": "High Point, NC 27260",
-        "provenance": "user-entered · confirmed 7/14/2026"
+        "value": "High Point, North Carolina 27260",
+        "provenance": "canonical encrypted vault projection"
       },
       "forum_county_comma_state": {
         "value": "Guilford County, North Carolina",
@@ -152,12 +152,12 @@
       "Out-of-North-Carolina forum",
       "Minors as parties"
     ],
-    "outputSha256": "3e0966277648cd3fe27ad0dc1e036baaab5294411e83a8b7da19962c429341fd",
-    "fileName": "ELV-Independent-Contractor-Acme-Widgets-LLC-321b4543.docx",
+    "outputSha256": "e9faead88af611620ee22baf5c8a4cfd63c78235dfc51ae84261a8013b84780e",
+    "fileName": "ELV-Independent-Contractor-Acme-Widgets-LLC-eafc09d5.docx",
     "matterId": "independent-contractor-demo-matter",
     "approvalRepresentation": "demo-approved"
   },
-  "outputSha256": "3e0966277648cd3fe27ad0dc1e036baaab5294411e83a8b7da19962c429341fd",
+  "outputSha256": "e9faead88af611620ee22baf5c8a4cfd63c78235dfc51ae84261a8013b84780e",
   "providerId": "legalflownc-demo-provider",
   "formVersion": "1.0-recovered-20251231",
   "intakeVersion": "1.0",

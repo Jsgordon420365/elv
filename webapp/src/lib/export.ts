@@ -1,9 +1,10 @@
-// ver 20260714141100.0
+// ver 20260714141100.1
 
 import PizZip from "pizzip";
 import { DOCX_MIME_TYPE } from "./generate";
 import {
     getGeneratedDocument,
+    getCanonicalSnapshot,
     listFacts,
     listGenerations,
     listIncidents,
@@ -19,8 +20,9 @@ export interface PortableExport {
 }
 
 export async function buildPortableExport(masterKey: CryptoKey): Promise<PortableExport> {
-    const [parties, relationships, facts, generations, incidents] = await Promise.all([
+    const [parties, canonical, relationships, facts, generations, incidents] = await Promise.all([
         listParties(masterKey),
+        getCanonicalSnapshot(masterKey),
         listRelationships(),
         listFacts(masterKey),
         listGenerations(masterKey),
@@ -37,6 +39,11 @@ export async function buildPortableExport(masterKey: CryptoKey): Promise<Portabl
         generatedAt,
         authorization: "The user explicitly initiated Export, authorizing local decryption and packaging.",
         parties,
+        canonicalParties: canonical.parties,
+        persons: canonical.persons,
+        businesses: canonical.businesses,
+        addresses: canonical.addresses,
+        signatories: canonical.signatories,
         relationships,
         facts,
         assuranceRecords: generations,
@@ -75,3 +82,4 @@ export function isDocxMimeType(value: string): boolean {
 
 // Version history
 // 20260714141100.0 - Added one-click ZIP packaging of decrypted customer data, latest DOCX, assurance evidence, incidents, and README.
+// 20260714141100.1 - Included canonical people, businesses, structured addresses, parties, and signatories in the explicitly authorized portable export.

@@ -1,4 +1,4 @@
-// ver 20260714134800.2
+// ver 20260714134800.3
 
 "use client";
 
@@ -19,6 +19,7 @@ import {
     updateScopeAudit,
 } from "@/lib/workflow";
 import { MatterAuditEvent } from "@/lib/vault";
+import { ConsistencyResult } from "@/lib/canonical";
 
 const reusableFieldIds = new Set(["owner_name", "owner_add1", "owner_add2", "contractor_name", "contr_add1", "contr_add2"]);
 
@@ -60,6 +61,7 @@ export default function IndependentContractorWorkflow() {
     const [answers, setAnswers] = useState<Record<string, string>>({});
     const [provenance, setProvenance] = useState<Record<string, string>>({});
     const [auditHistory, setAuditHistory] = useState<MatterAuditEvent[]>([]);
+    const [baseConsistencyChecks, setBaseConsistencyChecks] = useState<ConsistencyResult[]>([]);
     const [loaded, setLoaded] = useState(false);
     const [generating, setGenerating] = useState(false);
     const [error, setError] = useState("");
@@ -70,6 +72,7 @@ export default function IndependentContractorWorkflow() {
         setAnswers(state.answers);
         setProvenance(state.provenance);
         setAuditHistory(state.matter.auditHistory);
+        setBaseConsistencyChecks(state.consistencyChecks);
         setLoaded(true);
     }, [masterKey]);
 
@@ -82,6 +85,13 @@ export default function IndependentContractorWorkflow() {
     }), [answers]);
     const missing = INDEPENDENT_CONTRACTOR_FIELDS.filter((field) => !mergedAnswers[field.id]?.trim()).map((field) => field.id);
     const visibleFields = INDEPENDENT_CONTRACTOR_FIELDS.filter((field) => field.id !== "forum_county_comma_state" && (!reusableFieldIds.has(field.id) || !provenance[field.id]));
+    const consistencyChecks = useMemo(() => {
+        const withoutDescriptionCheck = baseConsistencyChecks.filter((check) => check.code !== "DBA_EMBEDDED_IN_DESCRIPTION");
+        return /\b(?:d\/?b\/?a|dba|doing business as)\b/i.test(answers.owner_business_description ?? "")
+            ? [...withoutDescriptionCheck, { code: "DBA_EMBEDDED_IN_DESCRIPTION", classification: "CONFIRMATION_REQUIRED" as const, message: "DBA language appears in the business-description field; use the separate trade-name record instead." }]
+            : withoutDescriptionCheck;
+    }, [answers.owner_business_description, baseConsistencyChecks]);
+    const consistencyBlocking = consistencyChecks.filter((check) => check.classification === "BLOCKING");
 
     const persist = async (nextAnswers: Record<string, string>, nextAudit: MatterAuditEvent[]) => {
         if (!masterKey) return;
@@ -143,6 +153,8 @@ export default function IndependentContractorWorkflow() {
 
                 {auditHistory.some((event) => event.status === "resolved") && <section className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5"><h2 className="font-bold text-amber-100">Resolved scope events retained in matter history</h2>{auditHistory.filter((event) => event.status === "resolved").map((event) => <p key={event.id} className="mt-2 text-sm text-amber-100/80">Resolved {new Date(event.timestamp).toLocaleString()}: {event.message}</p>)}</section>}
 
+                {consistencyChecks.length > 0 && <section className="rounded-2xl border border-slate-700 bg-slate-900/60 p-6"><h2 className="text-lg font-bold">Pre-generation consistency checks</h2><p className="mt-2 text-sm text-slate-400">Canonical party, address, trade-name, notice, and signatory records are checked before the unchanged DOCX tags are merged.</p><div className="mt-4 space-y-3">{consistencyChecks.map((check, index) => <div key={`${check.code}-${check.partyId ?? index}`} role={check.classification === "BLOCKING" ? "alert" : undefined} className={`rounded-xl border p-4 ${check.classification === "BLOCKING" ? "border-red-500/40 bg-red-500/10 text-red-100" : check.classification === "CONFIRMATION_REQUIRED" ? "border-amber-500/30 bg-amber-500/10 text-amber-100" : check.classification === "AUTO_NORMALIZED" ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-100" : "border-indigo-500/30 bg-indigo-500/10 text-indigo-100"}`}><p className="text-xs font-bold tracking-wide">{check.classification}</p><p className="mt-1 text-sm">{check.message}</p></div>)}</div></section>}
+
                 <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
                     <div className="flex flex-wrap items-center justify-between gap-4"><div><h2 className="text-lg font-bold">Vault-prefilled values</h2><p className="mt-1 text-sm text-slate-400">These are reused from encrypted facts and are not asked again.</p></div><button onClick={fillDemoValues} className="rounded-xl border border-indigo-500/40 bg-indigo-500/10 px-4 py-2 text-sm font-bold text-indigo-200 hover:bg-indigo-500/20">Fill remaining demo values</button></div>
                     <div className="mt-5 grid gap-3 md:grid-cols-2">{INDEPENDENT_CONTRACTOR_FIELDS.filter((field) => provenance[field.id] && reusableFieldIds.has(field.id)).map((field) => <div key={field.id} className="rounded-xl border border-slate-800 bg-slate-950 p-4"><p className="text-xs font-semibold uppercase text-slate-500">{field.label}</p><p className="mt-2 font-semibold text-white">{answers[field.id]}</p><span className="mt-3 inline-block rounded-full bg-indigo-500/10 px-2.5 py-1 text-xs text-indigo-200">{provenance[field.id]}</span></div>)}</div>
@@ -164,7 +176,7 @@ export default function IndependentContractorWorkflow() {
                     <div className="mt-6 grid gap-5 md:grid-cols-2">{visibleFields.map((field) => <label key={field.id} className="block text-xs font-semibold text-slate-300">{field.label}{field.type === "textarea" ? <textarea aria-label={field.label} value={answers[field.id] ?? ""} onChange={(event) => void updateAnswer(field.id, event.target.value)} className="mt-2 min-h-28 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-3 text-sm" /> : <input aria-label={field.label} type={field.type === "number" ? "number" : field.type === "date" ? "date" : "text"} value={answers[field.id] ?? ""} onChange={(event) => void updateAnswer(field.id, event.target.value)} className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-3 text-sm" />}<span className="mt-2 flex gap-2 text-xs font-normal leading-5 text-slate-500"><Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />{field.whyWeAsk}</span>{answers[field.id] && <span className="mt-2 inline-block rounded-full bg-slate-800 px-2 py-1 text-[11px] font-normal text-slate-300">{provenance[field.id] ?? "transaction-specific user entry"}</span>}</label>)}</div>
                 </section>
 
-                <section className="sticky bottom-4 rounded-2xl border border-slate-700 bg-slate-950/95 p-5 shadow-2xl backdrop-blur"><div className="flex flex-wrap items-center justify-between gap-4"><div>{gate.canRepresentAsApproved && missing.length === 0 ? <p className="flex items-center gap-2 text-sm font-bold text-emerald-300"><CheckCircle2 className="h-5 w-5" />Ready to generate a maintained demo output</p> : <p className="text-sm text-slate-300">{gate.blockingConditions.length} blocking condition(s); {missing.length} required template field(s) missing.</p>}{error && <p role="alert" className="mt-2 text-sm text-red-300">{error}</p>}</div><button onClick={handleGenerate} disabled={!loaded || isLocked || generating || !gate.canRepresentAsApproved || missing.length > 0} className="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40">{generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileDown className="h-4 w-4" />}Generate maintained DOCX</button></div></section>
+                <section className="sticky bottom-4 rounded-2xl border border-slate-700 bg-slate-950/95 p-5 shadow-2xl backdrop-blur"><div className="flex flex-wrap items-center justify-between gap-4"><div>{gate.canRepresentAsApproved && missing.length === 0 && consistencyBlocking.length === 0 ? <p className="flex items-center gap-2 text-sm font-bold text-emerald-300"><CheckCircle2 className="h-5 w-5" />Ready to generate a maintained demo output</p> : <p className="text-sm text-slate-300">{gate.blockingConditions.length + consistencyBlocking.length} blocking condition(s); {missing.length} required template field(s) missing.</p>}{error && <p role="alert" className="mt-2 text-sm text-red-300">{error}</p>}</div><button onClick={handleGenerate} disabled={!loaded || isLocked || generating || !gate.canRepresentAsApproved || consistencyBlocking.length > 0 || missing.length > 0} className="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40">{generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileDown className="h-4 w-4" />}Generate maintained DOCX</button></div></section>
             </div>
             <UnlockOverlay />
         </main>
@@ -175,3 +187,4 @@ export default function IndependentContractorWorkflow() {
 // 20260714134800.0 - Added registry header, vault provenance, missing-only intake, scope audit, blocking, and maintained generation UI.
 // 20260714134800.1 - Made demo fill preserve existing user answers while filling only blank values.
 // 20260714134800.2 - Declared the merged answer map explicitly for strict indexed field access.
+// 20260714134800.3 - Displayed classified canonical consistency checks and blocked generation for canonical data defects.

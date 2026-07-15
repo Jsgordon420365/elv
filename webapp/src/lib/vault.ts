@@ -1,10 +1,22 @@
-// ver 20260714125800.2
+// ver 20260714125800.3
 
 import { deleteDB, openDB, IDBPDatabase } from "idb";
 import { decryptField, encryptField, EncryptedField } from "./crypto";
+import {
+    AddressRecord,
+    BusinessRecord,
+    CanonicalParty,
+    CanonicalSnapshot,
+    FactProvenance,
+    PersonRecord,
+    SignatoryRecord,
+    makeProvenance,
+    normalizeUnitedStatesState,
+    parseLegacyCombinedAddressLine2,
+} from "./canonical";
 
 const DB_NAME = "ELV_VAULT";
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 
 export const VAULT_STORES = {
     vaultItems: "vault_items",
@@ -15,6 +27,11 @@ export const VAULT_STORES = {
     generations: "generations",
     incidents: "incidents",
     documents: "documents",
+    canonicalParties: "canonical_parties",
+    persons: "persons",
+    businesses: "businesses",
+    addresses: "addresses",
+    signatories: "signatories",
 } as const;
 
 type VaultStoreName = typeof VAULT_STORES[keyof typeof VAULT_STORES];
@@ -41,7 +58,7 @@ export interface VaultFact {
     partyId?: string;
     fieldId: string;
     value: string;
-    source: "user-entered" | "imported";
+    source: FactProvenance | "imported";
     lastConfirmedAt: string;
     notes: string;
 }
@@ -148,6 +165,12 @@ interface StoredDocument extends SecureEnvelope {
     createdAt: string;
 }
 
+interface StoredCanonicalRecord extends SecureEnvelope {
+    id: string;
+    recordType: "canonical-party" | "person" | "business" | "address" | "signatory";
+    createdAt: string;
+}
+
 function isEncryptedField(value: unknown): value is EncryptedField {
     return Boolean(value && typeof value === "object" && "ciphertext" in value && "iv" in value);
 }
@@ -178,6 +201,9 @@ async function getDB(): Promise<IDBPDatabase> {
             }
             if (!db.objectStoreNames.contains(VAULT_STORES.documents)) {
                 db.createObjectStore(VAULT_STORES.documents, { keyPath: "generationId" });
+            }
+            for (const storeName of [VAULT_STORES.canonicalParties, VAULT_STORES.persons, VAULT_STORES.businesses, VAULT_STORES.addresses, VAULT_STORES.signatories]) {
+                if (!db.objectStoreNames.contains(storeName)) db.createObjectStore(storeName, { keyPath: "id" });
             }
         },
     });
@@ -241,6 +267,123 @@ export async function listParties(masterKey: CryptoKey): Promise<Party[]> {
         createdAt: item.createdAt,
         ...await decryptJson<Pick<Party, "name" | "address1" | "address2">>(item.payload, masterKey),
     })));
+}
+
+async function saveCanonicalRecord<T extends { id: string; createdAt: string }>(storeName: VaultStoreName, recordType: StoredCanonicalRecord["recordType"], record: T, masterKey: CryptoKey): Promise<void> {
+    const stored: StoredCanonicalRecord = { id: record.id, recordType, createdAt: record.createdAt, payload: await encryptJson(record, masterKey) };
+    const db = await getDB();
+    await db.put(storeName, stored);
+}
+
+async function listCanonicalRecords<T>(storeName: VaultStoreName, masterKey: CryptoKey): Promise<T[]> {
+    const db = await getDB();
+    const stored = await db.getAll(storeName) as StoredCanonicalRecord[];
+    return Promise.all(stored.map((item) => decryptJson<T>(item.payload, masterKey)));
+}
+
+export async function saveCanonicalParty(record: CanonicalParty, masterKey: CryptoKey): Promise<void> {
+    await saveCanonicalRecord(VAULT_STORES.canonicalParties, "canonical-party", record, masterKey);
+}
+
+export async function listCanonicalParties(masterKey: CryptoKey): Promise<CanonicalParty[]> {
+    return listCanonicalRecords<CanonicalParty>(VAULT_STORES.canonicalParties, masterKey);
+}
+
+export async function savePerson(record: PersonRecord, masterKey: CryptoKey): Promise<void> {
+    await saveCanonicalRecord(VAULT_STORES.persons, "person", record, masterKey);
+}
+
+export async function listPersons(masterKey: CryptoKey): Promise<PersonRecord[]> {
+    return listCanonicalRecords<PersonRecord>(VAULT_STORES.persons, masterKey);
+}
+
+export async function saveBusiness(record: BusinessRecord, masterKey: CryptoKey): Promise<void> {
+    await saveCanonicalRecord(VAULT_STORES.businesses, "business", record, masterKey);
+}
+
+export async function listBusinesses(masterKey: CryptoKey): Promise<BusinessRecord[]> {
+    return listCanonicalRecords<BusinessRecord>(VAULT_STORES.businesses, masterKey);
+}
+
+export async function saveAddress(record: AddressRecord, masterKey: CryptoKey): Promise<void> {
+    const normalized = normalizeUnitedStatesState(record.stateOrProvince);
+    const nextRecord = { ...record, stateOrProvince: normalized.recognized ? normalized.value : record.stateOrProvince };
+    await saveCanonicalRecord(VAULT_STORES.addresses, "address", nextRecord, masterKey);
+}
+
+export async function listAddresses(masterKey: CryptoKey): Promise<AddressRecord[]> {
+    return listCanonicalRecords<AddressRecord>(VAULT_STORES.addresses, masterKey);
+}
+
+export async function saveSignatory(record: SignatoryRecord, masterKey: CryptoKey): Promise<void> {
+    await saveCanonicalRecord(VAULT_STORES.signatories, "signatory", record, masterKey);
+}
+
+export async function listSignatories(masterKey: CryptoKey): Promise<SignatoryRecord[]> {
+    return listCanonicalRecords<SignatoryRecord>(VAULT_STORES.signatories, masterKey);
+}
+
+export async function getCanonicalSnapshot(masterKey: CryptoKey): Promise<CanonicalSnapshot> {
+    const [parties, persons, businesses, addresses, signatories] = await Promise.all([
+        listCanonicalParties(masterKey), listPersons(masterKey), listBusinesses(masterKey), listAddresses(masterKey), listSignatories(masterKey),
+    ]);
+    return { parties, persons, businesses, addresses, signatories };
+}
+
+export async function migrateLegacyParties(masterKey: CryptoKey): Promise<{ migrated: number; unresolved: number }> {
+    const [legacyParties, existingCanonical] = await Promise.all([listParties(masterKey), listCanonicalParties(masterKey)]);
+    const existingIds = new Set(existingCanonical.map((party) => party.id));
+    let migrated = 0;
+    let unresolved = 0;
+    for (const legacy of legacyParties) {
+        if (existingIds.has(legacy.id)) continue;
+        const now = new Date().toISOString();
+        const addressId = `address-${legacy.id}`;
+        const parsed = parseLegacyCombinedAddressLine2(legacy.address2);
+        const addressProvenance = parsed.deterministic ? "normalized-deterministically" : "inferred-awaiting-confirmation";
+        const address: AddressRecord = {
+            id: addressId,
+            addressLine1: legacy.address1,
+            addressLine2: undefined,
+            city: parsed.city,
+            stateOrProvince: parsed.stateOrProvince,
+            postalCode: parsed.postalCode,
+            country: "United States",
+            legacyCombinedAddressLine2: parsed.legacyCombinedAddressLine2,
+            structuredStatus: parsed.structuredStatus,
+            fieldProvenance: {
+                addressLine1: makeProvenance("migrated-unchanged", now, "Copied exactly from the legacy party record."),
+                legacyCombinedAddressLine2: makeProvenance("migrated-unchanged", now, "Original combined address text retained exactly."),
+                city: makeProvenance(addressProvenance, now, parsed.deterministic ? "Parsed from an unambiguous city, state, postal pattern." : "Awaiting user confirmation."),
+                stateOrProvince: makeProvenance(addressProvenance, now, parsed.deterministic ? "Recognized United States state normalized deterministically." : "Awaiting user confirmation."),
+                postalCode: makeProvenance(addressProvenance, now, parsed.deterministic ? "Parsed from an unambiguous city, state, postal pattern." : "Awaiting user confirmation."),
+            },
+            createdAt: legacy.createdAt,
+            updatedAt: now,
+        };
+        await saveAddress(address, masterKey);
+        if (legacy.kind === "person") {
+            const personId = `person-${legacy.id}`;
+            await savePerson({
+                id: personId, fullLegalName: legacy.name, addressId, legacyNameUnresolved: true,
+                fieldProvenance: { fullLegalName: makeProvenance("migrated-unchanged", now, "Preserved as authoritative full legal name; no name components were guessed.") },
+                createdAt: legacy.createdAt, updatedAt: now,
+            }, masterKey);
+            await saveCanonicalParty({ id: legacy.id, kind: "person", personId, createdAt: legacy.createdAt, provenance: "migrated-unchanged" }, masterKey);
+            unresolved += 1;
+        } else {
+            const businessId = `business-${legacy.id}`;
+            await saveBusiness({
+                id: businessId, legalName: legacy.name, principalAddressId: addressId,
+                fieldProvenance: { legalName: makeProvenance("migrated-unchanged", now, "Copied exactly; no entity type or DBA was inferred.") },
+                createdAt: legacy.createdAt, updatedAt: now,
+            }, masterKey);
+            await saveCanonicalParty({ id: legacy.id, kind: "business", businessId, createdAt: legacy.createdAt, provenance: "migrated-unchanged" }, masterKey);
+        }
+        if (!parsed.deterministic) unresolved += 1;
+        migrated += 1;
+    }
+    return { migrated, unresolved };
 }
 
 export async function saveRelationship(relationship: Relationship): Promise<void> {
@@ -385,3 +528,4 @@ export async function resetVaultDatabaseForTests(): Promise<void> {
 // 20260714125800.0 - Added encrypted parties, facts, matters, assurances, and incidents while retaining the encrypted key-value API.
 // 20260714125800.1 - Added encrypted generated-DOCX persistence for regeneration and portable export.
 // 20260714125800.2 - Advanced the IndexedDB version so existing Phase 2 databases receive the document store upgrade.
+// 20260714125800.3 - Added encrypted canonical party, person, business, address, and signatory stores plus idempotent legacy migration.

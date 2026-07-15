@@ -1,4 +1,4 @@
-// ver 20260714144000.3
+// ver 20260714144000.9
 
 import { expect, test } from "@playwright/test";
 import { readFile } from "node:fs/promises";
@@ -35,26 +35,30 @@ test("all twelve working-proof acceptance steps pass", async ({ page }) => {
     await expect(page.getByText("Demo mode: all of your information is stored and encrypted-at-rest in this browser only (IndexedDB + WebCrypto). Nothing you type is transmitted to any server.")).toBeVisible();
 
     await page.getByLabel("Party kind").selectOption("business");
-    await page.getByLabel("Legal name").fill("Acme Widgets LLC");
+    await page.getByLabel("Business legal name").fill("Acme Widgets LLC");
     await page.getByLabel("Address line 1").fill("123 Widget Way");
-    await page.getByLabel("Address line 2").fill("Greensboro, NC 27401");
-    await page.getByRole("button", { name: "Save encrypted party" }).click();
-    await expect(page.getByText(/Acme Widgets LLC and its reusable facts were encrypted/)).toBeVisible();
+    await page.getByLabel("City", { exact: true }).fill("Greensboro");
+    await page.getByLabel("State or province").fill("NC");
+    await page.getByLabel("Postal code").fill("27401");
+    await page.getByRole("button", { name: "Save canonical encrypted party" }).click();
+    await expect(page.getByText(/Acme Widgets LLC was saved as canonical encrypted records/)).toBeVisible();
 
     await page.getByLabel("Party kind").selectOption("person");
-    await page.getByLabel("Legal name").fill("Jane Q. Contractor");
+    await page.getByLabel("Full legal name").fill("Jane Q. Contractor");
     await page.getByLabel("Address line 1").fill("456 Contractor Court");
-    await page.getByLabel("Address line 2").fill("High Point, NC 27260");
-    await page.getByRole("button", { name: "Save encrypted party" }).click();
-    await expect(page.getByText(/Jane Q. Contractor and its reusable facts were encrypted/)).toBeVisible();
+    await page.getByLabel("City", { exact: true }).fill("High Point");
+    await page.getByLabel("State or province").fill("NC");
+    await page.getByLabel("Postal code").fill("27260");
+    await page.getByRole("button", { name: "Save canonical encrypted party" }).click();
+    await expect(page.getByText(/Jane Q. Contractor was saved as canonical encrypted records/)).toBeVisible();
 
-    await page.getByLabel("Company").selectOption({ label: "Acme Widgets LLC" });
+    await page.getByLabel("Company", { exact: true }).selectOption({ label: "Acme Widgets LLC" });
     await page.getByLabel("Contractor", { exact: true }).selectOption({ label: "Jane Q. Contractor" });
     await page.getByRole("button", { name: "Relate parties" }).click();
     await expect(page.getByText("Company-contractor relationship saved locally.")).toBeVisible();
     const ownerFactRow = page.getByRole("row").filter({ hasText: "owner_name" });
-    await expect(page.getByLabel("Fact owner_name")).toHaveValue("Acme Widgets LLC");
-    await expect(ownerFactRow).toContainText("user-entered");
+    await expect(ownerFactRow).toContainText("Acme Widgets LLC");
+    await expect(ownerFactRow).toContainText("normalized-deterministically");
     await expect(ownerFactRow).toContainText("Independent Contractor intake");
 
     await page.getByRole("link", { name: "Independent Contractor" }).click();
@@ -64,7 +68,7 @@ test("all twelve working-proof acceptance steps pass", async ({ page }) => {
     await expect(page.getByText("1.0-recovered-20251231")).toBeVisible();
     await expect(page.getByText("maintained-demo")).toBeVisible();
     await expect(page.getByText("Acme Widgets LLC")).toBeVisible();
-    await expect(page.getByText(/user-entered · confirmed/).first()).toBeVisible();
+    await expect(page.getByText("canonical encrypted vault projection").first()).toBeVisible();
 
     await page.getByLabel("Forum state").fill("California");
     await expect(page.getByRole("heading", { name: "Generation blocked by active scope conditions" })).toBeVisible();
@@ -94,10 +98,11 @@ test("all twelve working-proof acceptance steps pass", async ({ page }) => {
     expect(firstXml).toContain("Guilford County, North Carolina");
 
     await page.getByRole("link", { name: "Vault" }).click();
-    const addressFact = page.getByLabel("Fact owner_add1");
-    await addressFact.fill("999 Updated Avenue");
-    await addressFact.press("Tab");
-    await expect(addressFact).toHaveValue("999 Updated Avenue");
+    await page.getByRole("button", { name: "Edit Acme Widgets LLC" }).click();
+    const canonicalAddress = page.getByLabel("Address line 1");
+    await canonicalAddress.fill("999 Updated Avenue");
+    await page.getByRole("button", { name: "Save canonical encrypted party" }).click();
+    await expect(page.getByText(/Acme Widgets LLC was saved as canonical encrypted records/)).toBeVisible();
     await page.getByRole("link", { name: "Assurance" }).first().click();
     const regenerateDownloadPromise = page.waitForEvent("download");
     await page.getByRole("button", { name: "Regenerate with current vault facts" }).click();
@@ -161,3 +166,9 @@ test("all twelve working-proof acceptance steps pass", async ({ page }) => {
 // 20260714144000.1 - Waited on the explicit Open vault navigation target for cold development-route compilation.
 // 20260714144000.2 - Disambiguated the contractor relationship select from fact and edit labels.
 // 20260714144000.3 - Asserted the reusable fact's form value through its accessible input instead of row text content.
+// 20260714144000.4 - Adapted the working-proof path to canonical parties, optional address line 2, structured locality fields, and canonical regeneration edits.
+// 20260714144000.5 - Made City locators exact to avoid matching the signatory title-or-capacity control.
+// 20260714144000.6 - Made the Company relationship locator exact so it cannot match the canonical party edit button.
+// 20260714144000.7 - Expected the compatibility fact provenance to identify its deterministic canonical projection.
+// 20260714144000.8 - Expected workflow provenance to identify the canonical encrypted vault projection.
+// 20260714144000.9 - Asserted the read-only compatibility projection after canonical records became the only editable source.

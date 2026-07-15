@@ -253,3 +253,57 @@
 2026-07-14T16:31:00-04:00 — Phases 0 through 5 are complete. Phase 6 implementation, tests, build, functional browser acceptance, artifacts, documentation, and running-server handoff are complete; only the external exact-port condition above remains blocked. Stable artifacts are in `C:\Users\jsgor\Projects-Arc\elv\demo-output`.
 
 2026-07-14T16:31:00-04:00 — Stable artifact SHA-256 receipts: `accepted-generation-1.docx` = `BF590CE124CA2EFBBED4A240BFDAB2B20A1EA6143571DBE5CA20179CBC397608`; `accepted-generation-2-regenerated.docx` = `57D6580E353A9154B58495245A255D738433CF66991FF144DB7D0ABF0E5AA4FD`; `accepted-incident-record.json` = `F67AB6BA59D23B4D95D6A9FBA208E264280321BC53D78B8365ACCBC4ED74606A`; `accepted-portable-export.zip` = `499DFFCA06629732D6574D83035AB3168AE3D5F698743E346E0777D3FD7DF306`; `acceptance-desktop.png` = `4AEEF1521C04FAA39F6F875F4AB03F82E24F5A28BFDBDF944B7DEE2E75ECA1EC`; `acceptance-mobile.png` = `891147A8E99889447EBD08A2994F9FBD88669257F8D4D557106075C5AA430E7D`.
+
+## BOUNDED SCHEMA-NORMALIZATION PHASE — COMPLETE
+
+### FOUND
+
+2026-07-15T12:05:00-04:00 — The working proof stored party names and two address strings in the legacy `parties` store and copied six template-specific values into `facts`. Address line 2 was required by the UI and carried combined city/state/postal text. Signatories existed only as transaction fields rather than durable records.
+
+2026-07-15T12:05:00-04:00 — The existing 29 DOCX tags are a compatibility contract. No tag or template change was needed; normalization belongs before template merge.
+
+### CHOSE
+
+2026-07-15T12:05:00-04:00 — Keep the legacy `parties` and `facts` stores as compatibility adapters while adding encrypted `canonical_parties`, `persons`, `businesses`, `addresses`, and `signatories` stores at IndexedDB version 4. New canonical parties reuse the legacy party ID so existing relationships, matters, generations, and regeneration links remain valid.
+
+2026-07-15T12:05:00-04:00 — Treat `fullLegalName` as authoritative and never split a migrated name. Structured Western-name fields remain optional. Normalize recognized United States state abbreviations using a deterministic complete state table. Project address line 1 from street plus optional unit and address line 2 from city, full state name, and postal code.
+
+2026-07-15T12:05:00-04:00 — Legacy combined address text is always retained verbatim. Parse only the exact unambiguous `city, recognized-state postal-code` pattern. Otherwise leave city/state/postal blank, mark the address unresolved, and require confirmation. No DBA is inferred from a legal name or business description.
+
+2026-07-15T12:05:00-04:00 — Template-shaped compatibility values are read-only in the vault. People, businesses, structured addresses, and signatories are the only durable editing surface.
+
+### CHANGED
+
+2026-07-15T12:05:00-04:00 — Added canonical record types with per-field provenance categories `user-entered`, `migrated-unchanged`, `normalized-deterministically`, and `inferred-awaiting-confirmation`; idempotent encrypted migration; full United States state normalization; structured-person display helper; deterministic six-field and signatory projection; and classified pre-generation consistency checks.
+
+2026-07-15T12:05:00-04:00 — Added canonical person/business/address editing, optional address line 2, separate DBA, explicit signatory create/edit, title/capacity and authority fields, structured-address display, read-only compatibility projections, canonical export content, visible classified checks, and hard generation blocking for canonical `BLOCKING` results.
+
+2026-07-15T12:05:00-04:00 — Added browser and Node acceptance coverage using Dr. Joffry Alistair Von Thurstenburg III, Esq.; Jeff Gordon Company; Moon Possum Legal Logistics; and 2915 Starmount Farms Dr., Greensboro, NC 27408.
+
+### TESTED
+
+2026-07-15T12:05:00-04:00 — `npm run lint` exit code 0. `npm test` exit code 0 with 13 tests. The canonical tests prove optional address line 2, NC normalization to North Carolina, authoritative full-name rendering, DBA separation, business-signatory title blocking, idempotent safe migration, encrypted canonical values, 29/29 tag compatibility, zero unresolved tags, expected values, and deterministic repeated `word/document.xml` hashes.
+
+2026-07-15T12:05:00-04:00 — `npm run build` exit code 0 with all 14 routes generated. The only notice remains Next.js workspace-root inference caused by `C:\Users\jsgor\package-lock.json` plus the repository lockfile.
+
+2026-07-15T12:05:00-04:00 — `npm run test:e2e` with `ELV_DEMO_URL=http://localhost:3003` exit code 0: 2 tests passed. The original twelve-step proof still generates, regenerates from a canonical address edit, records recourse, exports the portable ZIP, and passes mobile overflow checks. The new path proves address line 2 is optional, NC becomes North Carolina, the exact full legal name renders, DBA remains separate, a title-less business signatory blocks generation, explicit signatory correction clears the block, and a real DOCX downloads.
+
+2026-07-15T12:05:00-04:00 — Independent artifact inspection of `demo-output/canonical-normalization-acceptance.docx` found a valid ZIP package, `word/document.xml`, zero unresolved tags, every expected acceptance value, no DBA substitution, document XML SHA-256 `18EDAE23D3952A441E7DF225F3E0B28609C90873D261845F93EF87C67A226E6C`, and file SHA-256 `3486BE1EDB2C5568BC3406446FBDD1E25935993D48DA5954EF41381300CD4137`.
+
+2026-07-15T12:05:00-04:00 — Desktop and 390-pixel mobile screenshots were inspected directly. The extension preserves the existing dark dashboard system, required controls remain readable, address line 2 is visibly optional, and the mobile page has no horizontal overflow.
+
+### UNRESOLVED
+
+2026-07-15T12:05:00-04:00 — Data ambiguity requiring human confirmation: migrated personal names remain authoritative opaque full names until a user supplies optional components. Legacy address line 2 remains unresolved unless it exactly matches the conservative deterministic parser. Notice addresses different from principal addresses and unconfirmed signatory authority remain `CONFIRMATION_REQUIRED` rather than silently changed.
+
+2026-07-15T12:05:00-04:00 — Technical: no schema-normalization defect remains in the requested scope. The pre-existing Next.js workspace-root warning remains informational. Port 3002 is occupied by an older ELV process that currently returns HTTP 500 after `.next` changed; this bounded phase leaves that pre-existing process untouched and serves the verified build on port 3003.
+
+2026-07-15T12:05:00-04:00 — Policy: legal suitability, approval beyond the maintained demonstration scope, insurance, indemnification, and commercial or legal remedies remain outside this technical normalization phase.
+
+### CONFLICTS
+
+2026-07-15T12:05:00-04:00 — None with the 29-tag template contract. The canonical model projects into the original tag names and does not add a template, cloud service, sync path, marketplace feature, Stripe path, or LLM call.
+
+## READY FOR HUMAN REVIEW — SCHEMA NORMALIZATION
+
+2026-07-15T12:05:00-04:00 — The bounded schema-normalization phase is complete. ELV is healthy at `http://localhost:3003` on Node PID `1272`; HTTP GET returned 200 and title `ELV | Encrypted Legal Vault`. Stable acceptance artifacts are `C:\Users\jsgor\Projects-Arc\elv\demo-output\canonical-normalization-acceptance.docx` and `C:\Users\jsgor\Projects-Arc\elv\demo-output\canonical-normalization-confirmation.png`.

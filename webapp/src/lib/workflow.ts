@@ -1,15 +1,19 @@
-// ver 20260714133400.0
+// ver 20260714133400.1
 
 import { generateDocument, GeneratedDocument } from "./generate";
 import { evaluateRegistryGate, getForm, getProvider } from "./registry";
 import { INDEPENDENT_CONTRACTOR_FIELD_IDS } from "./variables";
+import { ConsistencyResult, projectIndependentContractor } from "./canonical";
 import {
     AssuranceInput,
     AssuranceRecord,
     MatterAuditEvent,
     MatterRecord,
     getMatter,
+    getCanonicalSnapshot,
     listFacts,
+    listRelationships,
+    migrateLegacyParties,
     saveGeneratedDocument,
     saveGeneration,
     saveMatter,
@@ -22,6 +26,15 @@ export interface WorkflowState {
     matter: MatterRecord;
     answers: Record<string, string>;
     provenance: Record<string, string>;
+    consistencyChecks: ConsistencyResult[];
+}
+
+export async function loadCanonicalProjection(masterKey: CryptoKey, ownerBusinessDescription = "") {
+    await migrateLegacyParties(masterKey);
+    const [snapshot, relationships] = await Promise.all([getCanonicalSnapshot(masterKey), listRelationships()]);
+    const relationship = relationships.find((item) => item.type === "company-contractor");
+    if (!relationship) return { fields: {}, provenance: {}, checks: [] as ConsistencyResult[] };
+    return projectIndependentContractor(snapshot, relationship.fromPartyId, relationship.toPartyId, ownerBusinessDescription);
 }
 
 export async function loadWorkflowState(masterKey: CryptoKey): Promise<WorkflowState> {
@@ -41,7 +54,10 @@ export async function loadWorkflowState(masterKey: CryptoKey): Promise<WorkflowS
             provenance[fact.fieldId] = `${fact.source} · confirmed ${new Date(fact.lastConfirmedAt).toLocaleDateString()}`;
         }
     }
-    return { matter, answers, provenance };
+    const canonical = await loadCanonicalProjection(masterKey, answers.owner_business_description ?? "");
+    Object.assign(answers, canonical.fields);
+    Object.assign(provenance, canonical.provenance);
+    return { matter, answers, provenance, consistencyChecks: canonical.checks };
 }
 
 export async function persistMatter(
@@ -99,6 +115,9 @@ export async function generateWorkflowDocument(
     if (!gate.canRepresentAsApproved) {
         throw new Error(`Generation blocked. ${gate.blockingConditions.join(" ")}`);
     }
+    const canonical = await loadCanonicalProjection(masterKey, answers.owner_business_description ?? "");
+    const canonicalBlocking = canonical.checks.filter((check) => check.classification === "BLOCKING");
+    if (canonicalBlocking.length > 0) throw new Error(`Generation blocked. ${canonicalBlocking.map((check) => check.message).join(" ")}`);
     const inputs = Object.fromEntries(INDEPENDENT_CONTRACTOR_FIELD_IDS.map((fieldId) => [fieldId, answers[fieldId]?.trim() ?? ""]));
     const missing = Object.entries(inputs).filter(([, value]) => !value).map(([fieldId]) => fieldId);
     if (missing.length > 0) throw new Error(`Complete the missing fields before generation: ${missing.join(", ")}`);
@@ -122,7 +141,7 @@ export async function generateWorkflowDocument(
         activeWarnings: gate.activeWarnings,
         resolvedWarnings,
         blockingConditions: gate.blockingConditions,
-        informationalNotices: gate.informationalNotices,
+        informationalNotices: [...gate.informationalNotices, ...canonical.checks.filter((check) => check.classification !== "BLOCKING").map((check) => `${check.classification}: ${check.message}`)],
         warnings: [...gate.activeWarnings, ...resolvedWarnings],
         exclusions: form.unsupportedCircumstances,
         outputSha256: generated.outputSha256,
@@ -138,3 +157,4 @@ export async function generateWorkflowDocument(
 
 // Version history
 // 20260714133400.0 - Added vault-prefill provenance, persistent scope audit, gating, deterministic generation, and assurance persistence.
+// 20260714133400.1 - Projected canonical party records into unchanged template tags and enforced canonical pre-generation checks.
