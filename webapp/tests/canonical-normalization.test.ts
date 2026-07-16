@@ -1,4 +1,4 @@
-// ver 20260715110500.2
+// ver 20260715110500.3
 
 import "fake-indexeddb/auto";
 import assert from "node:assert/strict";
@@ -93,10 +93,10 @@ test("legacy migration preserves uncertain text, parses only unambiguous address
     for (const plaintext of ["Legacy Clear LLC", "Prince", "Greensboro", "Near the old mill"]) assert.equal(raw.includes(plaintext), false);
 });
 
-test("canonical projection merges through all unchanged 29 DOCX tags with no unresolved tags", async () => {
+test("canonical projection merges through all v1.1 32 DOCX tags with no unresolved tags", async () => {
     const projection = projectIndependentContractor(acceptanceSnapshot("Authorized Representative"), "party-jeff", "party-joffry");
     const payload = Object.fromEntries(INDEPENDENT_CONTRACTOR_FIELDS.map((field, index) => [field.id, projection.fields[field.id] ?? `CANONICAL_${index}_${field.id}`]));
-    const template = new Uint8Array(await readFile(path.resolve(process.cwd(), "public/templates/independent-contractor-fixed2.docx")));
+    const template = new Uint8Array(await readFile(path.resolve(process.cwd(), "public/templates/independent-contractor-v1.1.docx")));
     const generated = await buildDocument(template, payload, "canonical-acceptance.docx");
     const repeated = await buildDocument(template, payload, "canonical-acceptance-repeat.docx");
     assert.equal(generated.outputSha256, repeated.outputSha256);
@@ -118,3 +118,4 @@ test("legacy address parser refuses ambiguous combined text", () => {
 // 20260715110500.0 - Covered canonical acceptance data, state normalization, DBA separation, signatory blocking, safe encrypted migration, and unchanged DOCX tag compatibility.
 // 20260715110500.1 - Proved identical canonical projections produce identical normalized document XML and SHA-256 values.
 // 20260715110500.2 - Asserted encrypted snapshot creation and idempotent version-5 migration status.
+// 20260715110500.3 - Verified canonical projection against the permitted v1.1 32-tag template.

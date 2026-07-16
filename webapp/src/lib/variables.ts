@@ -1,4 +1,4 @@
-// ver 20260714124000.0
+// ver 20260714124000.1
 
 export interface ELVField {
     id: string;
@@ -36,12 +36,16 @@ export const INDEPENDENT_CONTRACTOR_FIELDS: ELVField[] = [
     { id: "non_solicit_employees_duration_years_num", label: "Employee non-solicit duration in years", type: "number", tooltip: "Enter the employee non-solicitation duration as a number.", category: "Restrictions", whyWeAsk: "This defines how long the employee non-solicitation provision lasts." },
     { id: "non_solicit_employees_duration_years_text", label: "Employee non-solicit duration in words", type: "text", tooltip: "Spell out the same employee non-solicitation duration.", category: "Restrictions", whyWeAsk: "The words provide a cross-check against the numeric duration." },
     { id: "owner_signatory_name", label: "Owner signatory name", type: "text", tooltip: "The person authorized to sign for the owner.", category: "Signatures", whyWeAsk: "This identifies the individual signing on the owner's behalf." },
+    { id: "owner_signatory_title", label: "Owner signatory title or capacity", type: "text", tooltip: "The confirmed title or legal capacity of the person signing for the owner.", category: "Signatures", whyWeAsk: "A business signs through a human whose authority and capacity must be clear." },
     { id: "owner_signatory_date", label: "Owner signature date", type: "date", tooltip: "The date the owner signs the agreement.", category: "Signatures", whyWeAsk: "The completion record needs the owner's signing date." },
     { id: "contractor_signatory_name", label: "Contractor signatory name", type: "text", tooltip: "The individual signing for the contractor.", category: "Signatures", whyWeAsk: "This identifies the individual accepting the agreement for the contractor." },
+    { id: "contractor_signatory_title", label: "Contractor signatory title or capacity", type: "text", tooltip: "The confirmed title or capacity of the contractor signatory.", category: "Signatures", whyWeAsk: "This keeps the contracting party separate from the human and capacity used to execute the agreement." },
     { id: "contractor_signatory_date", label: "Contractor signature date", type: "date", tooltip: "The date the contractor signs the agreement.", category: "Signatures", whyWeAsk: "The completion record needs the contractor's signing date." },
+    { id: "compensation_terms", label: "Confirmed compensation terms", type: "textarea", tooltip: "The compensation treatment selected and confirmed for this transaction.", category: "Compensation", whyWeAsk: "The agreement must state the selected compensation structure without relying on hidden commission or demo language." },
 ];
 
 export const INDEPENDENT_CONTRACTOR_FIELD_IDS = INDEPENDENT_CONTRACTOR_FIELDS.map((field) => field.id);
 
 // Version history
 // 20260714124000.0 - Completed the 29-field recovered template schema and added plain-language whyWeAsk guidance.
+// 20260714124000.1 - Added the three v1.1 fields for separate signatory capacities and explicit compensation terms.

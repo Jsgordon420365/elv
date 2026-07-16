@@ -1,4 +1,4 @@
-// ver 20260714125800.4
+// ver 20260714125800.5
 
 import { deleteDB, openDB, IDBPDatabase } from "idb";
 import { decryptField, encryptField, EncryptedField } from "./crypto";
@@ -15,6 +15,7 @@ import {
     parseLegacyCombinedAddressLine2,
 } from "./canonical";
 import { GenerationProvenanceEntry, SavedAnswerProvenance } from "./provenance";
+import { ReviewConfirmation } from "./review";
 
 const DB_NAME = "ELV_VAULT";
 const DB_VERSION = 5;
@@ -80,6 +81,7 @@ export interface MatterRecord {
     answers: Record<string, string>;
     auditHistory: MatterAuditEvent[];
     answerProvenance?: Record<string, SavedAnswerProvenance>;
+    reviewConfirmations?: Record<string, ReviewConfirmation>;
     updatedAt: string;
 }
 
@@ -108,9 +110,12 @@ export interface AssuranceRecord {
     warnings: string[];
     exclusions: string[];
     outputSha256: string;
+    packageSha256: string;
     fileName: string;
     matterId: string;
     approvalRepresentation: "demo-approved" | "blocked" | "diagnostic-draft";
+    documentLabel: "DEMONSTRATION DOCUMENT";
+    reviewConfirmations: Record<string, ReviewConfirmation>;
 }
 
 export interface IncidentRecord {
@@ -197,6 +202,10 @@ export interface MigrationSnapshotSummary {
     id: string;
     createdAt: string;
     sourceSchemaVersion: number;
+}
+
+export interface MigrationOptions {
+    simulateFailureAfterCanonicalWrites?: number;
 }
 
 function isEncryptedField(value: unknown): value is EncryptedField {
@@ -421,7 +430,7 @@ export async function restoreMigrationSnapshot(snapshotId: string, masterKey: Cr
     await transaction.done;
 }
 
-export async function migrateLegacyParties(masterKey: CryptoKey): Promise<MigrationResult> {
+export async function migrateLegacyParties(masterKey: CryptoKey, options: MigrationOptions = {}): Promise<MigrationResult> {
     if (masterKey.extractable) throw new Error("Migration stopped: the vault key must remain non-extractable.");
     const db = await getDB();
     const rawLegacy = await db.getAll(VAULT_STORES.parties) as StoredParty[];
@@ -487,14 +496,21 @@ export async function migrateLegacyParties(masterKey: CryptoKey): Promise<Migrat
     }
     const transaction = db.transaction([VAULT_STORES.canonicalParties, VAULT_STORES.persons, VAULT_STORES.businesses, VAULT_STORES.addresses, VAULT_STORES.migrationMeta], "readwrite");
     try {
-        for (const item of pending.canonicalParties) await transaction.objectStore(VAULT_STORES.canonicalParties).put(item);
-        for (const item of pending.persons) await transaction.objectStore(VAULT_STORES.persons).put(item);
-        for (const item of pending.businesses) await transaction.objectStore(VAULT_STORES.businesses).put(item);
-        for (const item of pending.addresses) await transaction.objectStore(VAULT_STORES.addresses).put(item);
+        let canonicalWrites = 0;
+        const putCanonical = async (storeName: typeof VAULT_STORES.canonicalParties | typeof VAULT_STORES.persons | typeof VAULT_STORES.businesses | typeof VAULT_STORES.addresses, item: StoredCanonicalRecord) => {
+            await transaction.objectStore(storeName).put(item);
+            canonicalWrites += 1;
+            if (options.simulateFailureAfterCanonicalWrites === canonicalWrites) throw new Error(`Simulated migration failure after ${canonicalWrites} canonical write(s).`);
+        };
+        for (const item of pending.canonicalParties) await putCanonical(VAULT_STORES.canonicalParties, item);
+        for (const item of pending.persons) await putCanonical(VAULT_STORES.persons, item);
+        for (const item of pending.businesses) await putCanonical(VAULT_STORES.businesses, item);
+        for (const item of pending.addresses) await putCanonical(VAULT_STORES.addresses, item);
         await transaction.objectStore(VAULT_STORES.migrationMeta).put({ id: "canonical-schema", status: "complete", snapshotId: snapshot.id, completedAt: new Date().toISOString() });
         await transaction.done;
     } catch (error) {
-        transaction.abort();
+        try { transaction.abort(); } catch { /* The transaction may already be inactive; legacy stores remain unchanged. */ }
+        try { await transaction.done; } catch { /* Consume the expected abort rejection before surfacing the safe-stop error. */ }
         throw new Error(`Canonical migration stopped safely; legacy stores remain unchanged and encrypted snapshot ${snapshot.id} is recoverable. ${error instanceof Error ? error.message : "Unknown migration error."}`);
     }
     return { migrated, unresolved, snapshotId: snapshot.id, status: "complete" };
@@ -541,7 +557,7 @@ export async function saveMatter(matter: MatterRecord, masterKey: CryptoKey): Pr
         id: matter.id,
         workflowId: matter.workflowId,
         updatedAt: matter.updatedAt,
-        payload: await encryptJson({ answers: matter.answers, auditHistory: matter.auditHistory, answerProvenance: matter.answerProvenance ?? {} }, masterKey),
+        payload: await encryptJson({ answers: matter.answers, auditHistory: matter.auditHistory, answerProvenance: matter.answerProvenance ?? {}, reviewConfirmations: matter.reviewConfirmations ?? {} }, masterKey),
     };
     const db = await getDB();
     await db.put(VAULT_STORES.matters, stored);
@@ -551,7 +567,7 @@ export async function getMatter(id: string, masterKey: CryptoKey): Promise<Matte
     const db = await getDB();
     const stored = await db.get(VAULT_STORES.matters, id) as StoredMatter | undefined;
     if (!stored) return null;
-    const payload = await decryptJson<Pick<MatterRecord, "answers" | "auditHistory" | "answerProvenance">>(stored.payload, masterKey);
+    const payload = await decryptJson<Pick<MatterRecord, "answers" | "auditHistory" | "answerProvenance" | "reviewConfirmations">>(stored.payload, masterKey);
     return { id: stored.id, workflowId: stored.workflowId, updatedAt: stored.updatedAt, ...payload };
 }
 
@@ -644,3 +660,4 @@ export async function resetVaultDatabaseForTests(): Promise<void> {
 // 20260714125800.2 - Advanced the IndexedDB version so existing Phase 2 databases receive the document store upgrade.
 // 20260714125800.3 - Added encrypted canonical party, person, business, address, and signatory stores plus idempotent legacy migration.
 // 20260714125800.4 - Added an additive version-5 schema, encrypted recovery snapshots, atomic canonical migration, restore support, and matter answer provenance.
+// 20260714125800.5 - Added review-confirmation persistence, package identity, demo labeling, and deterministic migration-failure injection for recovery proof.

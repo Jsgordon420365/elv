@@ -1,4 +1,4 @@
-// ver 20260714125800.3
+// ver 20260714125800.4
 
 import "fake-indexeddb/auto";
 import assert from "node:assert/strict";
@@ -55,6 +55,7 @@ test("all user-authored vault values are encrypted at rest and decrypt through t
         answers: { scope_agr_longtext: "TRANSACTION_SECRET_ANSWER" },
         auditHistory: [],
         answerProvenance: {},
+        reviewConfirmations: {},
         updatedAt: "2026-07-14T12:58:00.000Z",
     };
     const assurance: AssuranceRecord = {
@@ -72,9 +73,12 @@ test("all user-authored vault values are encrypted at rest and decrypt through t
         warnings: [],
         exclusions: [],
         outputSha256: "abc123",
+        packageSha256: "def456",
         fileName: "demo.docx",
         matterId: matter.id,
         approvalRepresentation: "demo-approved",
+        documentLabel: "DEMONSTRATION DOCUMENT",
+        reviewConfirmations: {},
     };
     const incident: IncidentRecord = {
         id: "incident-demo",
@@ -146,3 +150,4 @@ test("all user-authored vault values are encrypted at rest and decrypt through t
 // 20260714125800.1 - Covered relationship persistence and the retained encrypted key-value API.
 // 20260714125800.2 - Included retained key-value records in the raw-at-rest plaintext scan.
 // 20260714125800.3 - Included encrypted per-answer provenance in the matter persistence round trip.
+// 20260714125800.4 - Included encrypted review confirmations and dual generation identity metadata.

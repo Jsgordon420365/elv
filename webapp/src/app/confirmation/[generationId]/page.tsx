@@ -1,4 +1,4 @@
-// ver 20260714135400.2
+// ver 20260714135400.3
 
 "use client";
 
@@ -47,7 +47,7 @@ export default function ConfirmationPage() {
 
     const downloadProvenanceRecord = () => {
         if (!assurance?.provenanceReport) return;
-        downloadBlob(new Blob([JSON.stringify({ generationId: assurance.generationId, outputSha256: assurance.outputSha256, templateId: assurance.templateId, formVersion: assurance.formVersion, intakeVersion: assurance.intakeVersion, provenanceReport: assurance.provenanceReport }, null, 2)], { type: "application/json" }), `${assurance.fileName.replace(/\.docx$/i, "")}-provenance.json`);
+        downloadBlob(new Blob([JSON.stringify({ generationId: assurance.generationId, outputSha256: assurance.outputSha256, packageSha256: assurance.packageSha256, templateId: assurance.templateId, formVersion: assurance.formVersion, intakeVersion: assurance.intakeVersion, documentLabel: assurance.documentLabel, reviewConfirmations: assurance.reviewConfirmations, provenanceReport: assurance.provenanceReport }, null, 2)], { type: "application/json" }), `${assurance.fileName.replace(/\.docx$/i, "")}-provenance.json`);
     };
 
     const regenerate = async () => {
@@ -56,7 +56,7 @@ export default function ConfirmationPage() {
         setError("");
         try {
             const state = await loadWorkflowState(masterKey);
-            const result = await generateWorkflowDocument(masterKey, state.answers, state.provenance, state.matter.auditHistory, true);
+            const result = await generateWorkflowDocument(masterKey, state.answers, state.provenance, state.matter.auditHistory, state.reviewConfirmations, true);
             router.push(`/confirmation/${result.assurance.generationId}`);
         } catch (caught) {
             setError(caught instanceof Error ? caught.message : "Regeneration failed.");
@@ -88,3 +88,4 @@ export default function ConfirmationPage() {
 // 20260714135400.0 - Added assurance evidence, completion checklist, encrypted DOCX download, and direct fact-aware regeneration.
 // 20260714135400.1 - Routed stored-DOCX downloads through the shared static file-saver boundary.
 // 20260714135400.2 - Displayed and downloaded the complete 29-tag generation provenance report and clarified confirmed-record regeneration.
+// 20260714135400.3 - Added dual hash semantics, demo label, persisted review confirmations, and the v1.1 32-tag ledger.

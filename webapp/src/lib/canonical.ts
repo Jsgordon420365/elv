@@ -1,4 +1,4 @@
-// ver 20260715103800.2
+// ver 20260715103800.3
 
 import { GenerationProvenanceEntry } from "./provenance";
 
@@ -225,12 +225,14 @@ export function projectIndependentContractor(snapshot: CanonicalSnapshot, ownerP
     };
     if (ownerSignatory) {
         const name = signatoryName(ownerSignatory, snapshot);
-        fields.owner_signatory_name = ownerSignatory.titleOrCapacity ? `${name}\nTitle/Capacity: ${ownerSignatory.titleOrCapacity}` : name;
+        fields.owner_signatory_name = name;
+        fields.owner_signatory_title = ownerSignatory.titleOrCapacity;
         fields.owner_signatory_date = ownerSignatory.signatureDate;
     }
     if (contractorSignatory) {
         const name = signatoryName(contractorSignatory, snapshot);
-        fields.contractor_signatory_name = contractorSignatory.titleOrCapacity ? `${name}\nTitle/Capacity: ${contractorSignatory.titleOrCapacity}` : name;
+        fields.contractor_signatory_name = name;
+        fields.contractor_signatory_title = contractorSignatory.titleOrCapacity;
         fields.contractor_signatory_date = contractorSignatory.signatureDate;
     }
     const ownerNameRecord = owner.kind === "business" ? snapshot.businesses.find((item) => item.id === owner.businessId) : snapshot.persons.find((item) => item.id === owner.personId);
@@ -245,10 +247,12 @@ export function projectIndependentContractor(snapshot: CanonicalSnapshot, ownerP
     };
     if (ownerSignatory) {
         provenance.owner_signatory_name = canonicalProvenance(fields.owner_signatory_name, `signatory:${ownerSignatory.id}`, ownerSignatory.updatedAt, "joined human signatory name with confirmed title or capacity");
+        provenance.owner_signatory_title = canonicalProvenance(fields.owner_signatory_title, `signatory:${ownerSignatory.id}`, ownerSignatory.updatedAt, "projected confirmed title or capacity separately from signatory name");
         provenance.owner_signatory_date = canonicalProvenance(fields.owner_signatory_date, `signatory:${ownerSignatory.id}`, ownerSignatory.updatedAt, "blank or confirmed execution date");
     }
     if (contractorSignatory) {
         provenance.contractor_signatory_name = canonicalProvenance(fields.contractor_signatory_name, `signatory:${contractorSignatory.id}`, contractorSignatory.updatedAt, "joined human signatory name with title or capacity when supplied");
+        provenance.contractor_signatory_title = canonicalProvenance(fields.contractor_signatory_title, `signatory:${contractorSignatory.id}`, contractorSignatory.updatedAt, "projected confirmed title or capacity separately from signatory name");
         provenance.contractor_signatory_date = canonicalProvenance(fields.contractor_signatory_date, `signatory:${contractorSignatory.id}`, contractorSignatory.updatedAt, "blank or confirmed execution date");
     }
     return { fields, provenance, checks: evaluateCanonicalConsistency(snapshot, ownerPartyId, contractorPartyId, ownerBusinessDescription) };
@@ -258,3 +262,4 @@ export function projectIndependentContractor(snapshot: CanonicalSnapshot, ownerP
 // 20260715103800.0 - Added canonical party, person, business, address, signatory, provenance, migration parsing, consistency, and deterministic form projection primitives.
 // 20260715103800.1 - Added structured approved provenance and bound signatory title or capacity into the existing signature-name tags.
 // 20260715103800.2 - Blocked business-party generation until a human signatory record exists with confirmed capacity checks.
+// 20260715103800.3 - Projected signatory names and titles into separate v1.1 template fields.

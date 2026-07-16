@@ -1,4 +1,4 @@
-// ver 20260714131300.0
+// ver 20260714131300.1
 
 import registryData from "@/registry/registry.json";
 
@@ -36,6 +36,9 @@ export interface FormRecord {
     unsupportedCircumstances: string[];
     executionRequirements: string[];
     lifecycle: "active" | "suspended" | "expired";
+    tagMigrationMap: Record<string, string>;
+    addedTags: string[];
+    changelog: string[];
 }
 
 export interface RegistryData {
@@ -125,3 +128,4 @@ export function evaluateRegistryGate(
 
 // Version history
 // 20260714131300.0 - Added typed local registry access and executable provider, form-status, date, and intake-scope gating.
+// 20260714131300.1 - Added the v1.1 tag migration map, three-tag additions, and registry changelog.

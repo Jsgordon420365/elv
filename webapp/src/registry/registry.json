@@ -25,11 +25,52 @@
     {
       "id": "independent-contractor-nc",
       "providerId": "legalflownc-demo-provider",
-      "templateId": "independent-contractor-fixed2.docx",
+      "templateId": "independent-contractor-v1.1.docx",
       "jurisdiction": "North Carolina, USA",
       "scope": "Engagement of an independent contractor by a business owner for defined services",
-      "formVersion": "1.0-recovered-20251231",
-      "intakeVersion": "1.0",
+      "formVersion": "1.1",
+      "intakeVersion": "1.1",
+      "tagMigrationMap": {
+        "owner_name": "owner_name",
+        "contractor_name": "contractor_name",
+        "owner_business_description": "owner_business_description",
+        "scope_agr_longtext": "scope_agr_longtext",
+        "agreement_start_date": "agreement_start_date",
+        "agreement_duration_years_text": "agreement_duration_years_text",
+        "agreement_duration_years_num": "agreement_duration_years_num",
+        "termination_notice_days": "termination_notice_days",
+        "owner_add1": "owner_add1",
+        "owner_add2": "owner_add2",
+        "contr_add1": "contr_add1",
+        "contr_add2": "contr_add2",
+        "forum_county_comma_state": "forum_county_comma_state",
+        "arbitration_city": "arbitration_city",
+        "arbitration_state": "arbitration_state",
+        "court_amended_miles": "court_amended_miles",
+        "court_amended_years": "court_amended_years",
+        "hire_away_duration_years_num": "hire_away_duration_years_num",
+        "hire_away_duration_years_text": "hire_away_duration_years_text",
+        "non_compete_duration_years_num": "non_compete_duration_years_num",
+        "non_compete_duration_years_text": "non_compete_duration_years_text",
+        "non_compete_radius_miles": "non_compete_radius_miles",
+        "non_compete_states": "non_compete_states",
+        "non_solicit_employees_duration_years_num": "non_solicit_employees_duration_years_num",
+        "non_solicit_employees_duration_years_text": "non_solicit_employees_duration_years_text",
+        "owner_signatory_name": "owner_signatory_name",
+        "owner_signatory_date": "owner_signatory_date",
+        "contractor_signatory_name": "contractor_signatory_name",
+        "contractor_signatory_date": "contractor_signatory_date"
+      },
+      "addedTags": [
+        "owner_signatory_title",
+        "contractor_signatory_title",
+        "compensation_terms"
+      ],
+      "changelog": [
+        "v1.1 separates each signatory name from title or capacity.",
+        "v1.1 parameterizes confirmed compensation terms.",
+        "v1.1 enforces one execution-date treatment and corrects the enumerated grammar and punctuation artifacts."
+      ],
       "approvalStatus": "demo-approved",
       "maintenanceStatus": "maintained-demo",
       "effectiveDate": "2026-01-01",
@@ -45,7 +86,7 @@
         "Minors as parties"
       ],
       "executionRequirements": [
-        "Both parties sign and date the agreement.",
+        "Both parties use one confirmed execution-date treatment: both dates populated or both signature-date lines blank.",
         "No notarization is required by the recovered template."
       ],
       "lifecycle": "active"

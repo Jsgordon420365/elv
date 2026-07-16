@@ -1,4 +1,4 @@
-// ver 20260714124000.2
+// ver 20260714124000.3
 
 import Docxtemplater from "docxtemplater";
 import PizZip from "pizzip";
@@ -11,6 +11,7 @@ export interface GeneratedDocument {
     blob: Blob;
     documentXml: string;
     outputSha256: string;
+    packageSha256: string;
     fileName: string;
 }
 
@@ -63,8 +64,9 @@ export async function buildDocument(
     const bytes = mergeTemplateBytes(template, data);
     const documentXml = readDocumentXml(bytes);
     const outputSha256 = await sha256Hex(documentXml);
+    const packageSha256 = await sha256Hex(bytes);
     const blob = new Blob([copyToArrayBuffer(bytes)], { type: DOCX_MIME_TYPE });
-    return { bytes, blob, documentXml, outputSha256, fileName };
+    return { bytes, blob, documentXml, outputSha256, packageSha256, fileName };
 }
 
 export async function generateDocument(
@@ -98,3 +100,4 @@ export async function generateDocument(
 // 20260714124000.0 - Added double-brace delimiters, deterministic merge helpers, package validation, and document.xml hashing.
 // 20260714124000.1 - Copied typed-array data into owned ArrayBuffers for strict WebCrypto and Blob typing.
 // 20260714124000.2 - Routed downloads through a static file-saver interop boundary.
+// 20260714124000.3 - Recorded both normalized document XML and full DOCX package SHA-256 identities.

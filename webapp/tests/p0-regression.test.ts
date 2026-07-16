@@ -1,4 +1,4 @@
-// ver 20260715124500.0
+// ver 20260715124500.1
 
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -7,7 +7,7 @@ import test from "node:test";
 import PizZip from "pizzip";
 import { projectIndependentContractor } from "../src/lib/canonical";
 
-const templatePath = path.resolve(process.cwd(), "public/templates/independent-contractor-fixed2.docx");
+const templatePath = path.resolve(process.cwd(), "public/templates/independent-contractor-v1.1.docx");
 const intakePath = path.resolve(process.cwd(), "src/app/workflow/independent-contractor/page.tsx");
 
 function plainDocumentText(xml: string): string {
@@ -22,13 +22,13 @@ test("the essential intake contains no hidden demo prose", async () => {
     assert.doesNotMatch(source, /Fill remaining demo values/);
 });
 
-test("the maintained template contains 29 unique tags and none of the approved P0 artifacts", async () => {
+test("the maintained v1.1 template contains 32 unique tags and none of the approved P0 artifacts", async () => {
     const bytes = new Uint8Array(await readFile(templatePath));
     const xml = new PizZip(bytes).file("word/document.xml")?.asText();
     assert.ok(xml);
     const text = plainDocumentText(xml);
     const tags = Array.from(xml.matchAll(/\{\{([^{}]+)\}\}/g), (match) => match[1]);
-    assert.equal(new Set(tags).size, 29);
+    assert.equal(new Set(tags).size, 32);
     assert.doesNotMatch(text, /pay commissions as set forth in writing/i);
     assert.doesNotMatch(text, /shall assign not any right/i);
     assert.doesNotMatch(text, /_,_______/);
@@ -56,3 +56,4 @@ test("canonical projection exposes structured approved provenance instead of dis
 
 // Version history
 // 20260715124500.0 - Added failing P0 tests for hidden prose, template artifacts, signature binding, and structured canonical provenance.
+// 20260715124500.1 - Moved template-artifact coverage to v1.1 and required its 32 unique tags.

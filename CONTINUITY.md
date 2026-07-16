@@ -407,3 +407,19 @@
 2026-07-16T03:18:23-04:00 — Added tests only and ran `npx tsx --test tests/trust-closure.test.ts`. Exit code `1` was expected and captured verbatim in `proof-p0/test-red.txt`: 5 tests, 0 passed, 5 failed. T1 failed because migration ignored the simulated-failure request; T2 failed because prior-transaction scope remained approved; T3 failed because the v1.1 template does not exist; T4 failed because granular review/date-mode controls do not exist; fixture privacy failed because the old browser fixture still contains Basil Quince rather than Picklesworth.
 
 2026-07-16T03:18:23-04:00 — No production code or template was changed before this red run. The next executable action is the minimal green implementation for the recorded failures.
+
+### CHANGED — GREEN CONTRACT SLICE
+
+2026-07-16T03:29:00-04:00 — Added the separate permitted `independent-contractor-v1.1.docx` without overwriting the 29-tag predecessor. V1.1 has exactly 32 unique tags: the original 29 identity-mapped tags plus `owner_signatory_title`, `contractor_signatory_title`, and `compensation_terms`; it visibly identifies itself as a demonstration document, separates entity/name/title, uses one date block, and removes unconditional commission language.
+
+2026-07-16T03:29:00-04:00 — Bumped the registry form and intake versions to `1.1`, pointed the registry to v1.1, and added the complete 29-tag identity migration map, three added tags, and a bounded changelog.
+
+2026-07-16T03:29:00-04:00 — Added transaction-bound 32-tag ledger metadata, explicit compensation derivation, dual document/package SHA-256 identities, execution-date treatment enforcement, encrypted review-confirmation persistence, granular individual/grouped/stated-concern review items, stable-value fingerprints, and deterministic migration failure injection that aborts canonical writes while retaining legacy stores and the encrypted snapshot.
+
+### TESTED — GREEN CONTRACT SLICE
+
+2026-07-16T03:29:00-04:00 — Focused `npx tsx --test tests/trust-closure.test.ts` exit code 0: 5 passed. Full `npm test` exit code 0: 21 passed. `npm run build` exit code 0 with all 14 routes generated; the existing multiple-lockfile workspace-root warning remains informational.
+
+### UNRESOLVED — GREEN CONTRACT SLICE
+
+2026-07-16T03:29:00-04:00 — The prior-version-generated fixture archive, browser migration recovery/idempotence proof, browser review screenshot, full E2E compatibility updates, confirmation-page dual-hash display, and final `/proof-p0/` package remain incomplete. The production build has invalidated the running development cache; no listener will be stopped until the selected ELV PID is reverified.

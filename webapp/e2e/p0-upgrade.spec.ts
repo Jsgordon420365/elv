@@ -1,4 +1,4 @@
-// ver 20260715124500.7
+// ver 20260715124500.8
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -32,13 +32,16 @@ const oldMatterAnswers: Record<string, string> = {
     non_compete_states: "North Carolina",
     non_solicit_employees_duration_years_num: "1",
     non_solicit_employees_duration_years_text: "One",
-    owner_signatory_name: "Penelope Fizzlebottom",
+    owner_signatory_name: "Petunia Picklesworth",
+    owner_signatory_title: "Chief Marmalade Officer",
     owner_signatory_date: "2026-07-15",
-    contractor_signatory_name: "Basil Quince",
+    contractor_signatory_name: "Peregrine Picklesworth",
+    contractor_signatory_title: "Independent Contractor",
     contractor_signatory_date: "2026-07-15",
     relationship_characterization: "independent-contractor",
     includes_minor: "no",
     compensation_structure: "fixed-fee",
+    execution_date_treatment: "populated-dates",
 };
 
 test("version-3 encrypted records survive restart, schema upgrade, migration, and generation", async ({ page }) => {
@@ -71,16 +74,16 @@ test("version-3 encrypted records survive restart, schema upgrade, migration, an
         const createdAt = "2026-07-14T16:00:00.000Z";
         const parties = [
             { id: "party-moonshot", kind: "business", name: "Moonshot Marmalade Industries, LLC", address1: "2915 Starmount Farms Dr.", address2: "Greensboro, NC 27408", createdAt },
-            { id: "party-penelope", kind: "person", name: "Penelope Fizzlebottom", address1: "44 Effervescence Lane", address2: "Greensboro, NC 27408", createdAt },
-            { id: "party-basil", kind: "person", name: "Basil Quince", address1: "7 Pectin Place", address2: "High Point, NC 27260", createdAt },
+            { id: "party-petunia", kind: "person", name: "Petunia Picklesworth", address1: "44 Effervescence Lane", address2: "Greensboro, NC 27408", createdAt },
+            { id: "party-peregrine", kind: "person", name: "Peregrine Picklesworth", address1: "7 Preserves Place", address2: "High Point, NC 27260", createdAt },
         ];
         const transaction = db.transaction(["parties", "relationships", "facts", "matters"], "readwrite");
         for (const party of parties) transaction.objectStore("parties").put({ id: party.id, kind: party.kind, createdAt: party.createdAt, payload: await encrypt({ name: party.name, address1: party.address1, address2: party.address2 }) });
-        transaction.objectStore("relationships").put({ id: "relationship-moonshot-basil", fromPartyId: "party-moonshot", toPartyId: "party-basil", type: "company-contractor", createdAt });
-        transaction.objectStore("relationships").put({ id: "relationship-moonshot-penelope", fromPartyId: "party-moonshot", toPartyId: "party-penelope", type: "company-authorized-rep", createdAt });
+        transaction.objectStore("relationships").put({ id: "relationship-moonshot-peregrine", fromPartyId: "party-moonshot", toPartyId: "party-peregrine", type: "company-contractor", createdAt });
+        transaction.objectStore("relationships").put({ id: "relationship-moonshot-petunia", fromPartyId: "party-moonshot", toPartyId: "party-petunia", type: "company-authorized-rep", createdAt });
         const facts = [
             ["owner_name", "Moonshot Marmalade Industries, LLC", "party-moonshot"], ["owner_add1", "2915 Starmount Farms Dr.", "party-moonshot"], ["owner_add2", "Greensboro, NC 27408", "party-moonshot"],
-            ["contractor_name", "Basil Quince", "party-basil"], ["contr_add1", "7 Pectin Place", "party-basil"], ["contr_add2", "High Point, NC 27260", "party-basil"],
+            ["contractor_name", "Peregrine Picklesworth", "party-peregrine"], ["contr_add1", "7 Preserves Place", "party-peregrine"], ["contr_add2", "High Point, NC 27260", "party-peregrine"],
         ];
         for (const [fieldId, value, partyId] of facts) transaction.objectStore("facts").put({ id: `${partyId}:${fieldId}`, partyId, fieldId, source: "user-entered", lastConfirmedAt: createdAt, payload: await encrypt({ value, notes: "Legacy confirmed fact." }) });
         transaction.objectStore("matters").put({ id: "independent-contractor-demo-matter", workflowId: "independent-contractor-nc", updatedAt: createdAt, payload: await encrypt({ answers, auditHistory: [] }) });
@@ -91,10 +94,10 @@ test("version-3 encrypted records survive restart, schema upgrade, migration, an
     await page.goto("/vault");
     await page.getByRole("button", { name: "Unlock local vault" }).click();
     await expect(page.getByRole("button", { name: "Edit Moonshot Marmalade Industries, LLC" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Edit Penelope Fizzlebottom" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Edit Basil Quince" })).toBeVisible();
-    await expect(page.getByText(/Moonshot Marmalade Industries, LLC company-contractor Basil Quince/)).toBeVisible();
-    await expect(page.getByText(/Moonshot Marmalade Industries, LLC company-authorized-rep Penelope Fizzlebottom/)).toBeVisible();
+    await expect(page.getByRole("button", { name: "Edit Petunia Picklesworth" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Edit Peregrine Picklesworth" })).toBeVisible();
+    await expect(page.getByText(/Moonshot Marmalade Industries, LLC company-contractor Peregrine Picklesworth/)).toBeVisible();
+    await expect(page.getByText(/Moonshot Marmalade Industries, LLC company-authorized-rep Petunia Picklesworth/)).toBeVisible();
     const preserved = await page.evaluate(async () => {
         const db = await new Promise<IDBDatabase>((resolve, reject) => { const request = indexedDB.open("ELV_VAULT"); request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); });
         const transaction = db.transaction(["parties", "relationships", "facts", "matters", "migration_snapshots"], "readonly");
@@ -103,20 +106,20 @@ test("version-3 encrypted records survive restart, schema upgrade, migration, an
         db.close();
         return { partyIds: parties.map((item) => (item as { id: string }).id).sort(), relationshipIds: relationships.map((item) => (item as { id: string }).id).sort(), factIds: facts.map((item) => (item as { id: string }).id).sort(), matterIds: matters.map((item) => (item as { id: string }).id).sort(), snapshotCount: snapshots.length, encryptedSnapshotContainsPlaintext: JSON.stringify(snapshots).includes("Moonshot Marmalade") };
     });
-    expect(preserved.partyIds).toEqual(["party-basil", "party-moonshot", "party-penelope"]);
-    expect(preserved.relationshipIds).toEqual(["relationship-moonshot-basil", "relationship-moonshot-penelope"]);
+    expect(preserved.partyIds).toEqual(["party-moonshot", "party-peregrine", "party-petunia"]);
+    expect(preserved.relationshipIds).toEqual(["relationship-moonshot-peregrine", "relationship-moonshot-petunia"]);
     expect(preserved.factIds).toHaveLength(6);
     expect(preserved.matterIds).toEqual(["independent-contractor-demo-matter"]);
     expect(preserved.snapshotCount).toBeGreaterThan(0);
     expect(preserved.encryptedSnapshotContainsPlaintext).toBe(false);
 
     await page.getByLabel("Signing for party").selectOption({ label: "Moonshot Marmalade Industries, LLC" });
-    await page.getByLabel("Signatory person").selectOption({ label: "Penelope Fizzlebottom" });
+    await page.getByLabel("Signatory person").selectOption({ label: "Petunia Picklesworth" });
     await page.getByLabel("Title or capacity").fill("Chief Marmalade Officer");
     await page.getByLabel("Signature date").fill("2026-07-15");
     await page.getByLabel("Authority confirmed").check();
     await page.getByRole("button", { name: "Save encrypted signatory" }).click();
-    await expect(page.getByText(/Penelope Fizzlebottom signs for Moonshot Marmalade Industries, LLC as Chief Marmalade Officer/)).toBeVisible();
+    await expect(page.getByText(/Petunia Picklesworth signs for Moonshot Marmalade Industries, LLC as Chief Marmalade Officer/)).toBeVisible();
 
     await expect(page.getByRole("status")).toContainText("Encrypted signatory record saved");
     await page.locator('a[href="/workflow/independent-contractor"]').click();
@@ -179,7 +182,7 @@ test("version-3 encrypted records survive restart, schema upgrade, migration, an
         sourceSchemaVersion: 3,
         targetSchemaVersion: 5,
         preserved,
-        decryptedVisibleRecords: ["Moonshot Marmalade Industries, LLC", "Penelope Fizzlebottom", "Basil Quince"],
+        decryptedVisibleRecords: ["Moonshot Marmalade Industries, LLC", "Petunia Picklesworth", "Peregrine Picklesworth"],
         generatedDocument: path.basename(documentOutputPath),
         provenanceRecord: path.basename(provenanceOutputPath),
         unresolvedTemplateTags: 0,
@@ -196,3 +199,4 @@ test("version-3 encrypted records survive restart, schema upgrade, migration, an
 // 20260715124500.5 - Reopened directly on the vault route to avoid a development-server home-page navigation race.
 // 20260715124500.6 - Matched the confirmation page's actual maintained-document heading.
 // 20260715124500.7 - Asserted the scope's documented deterministic compensation-clause derivation.
+// 20260715124500.8 - Limited the committed old-schema fixture to fictional Moonshot Marmalade and Picklesworth identities and added v1.1 fields.
