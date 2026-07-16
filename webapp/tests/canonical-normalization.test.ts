@@ -1,4 +1,4 @@
-// ver 20260715110500.1
+// ver 20260715110500.2
 
 import "fake-indexeddb/auto";
 import assert from "node:assert/strict";
@@ -75,8 +75,8 @@ test("legacy migration preserves uncertain text, parses only unambiguous address
     await saveParty({ id: "legacy-ambiguous", kind: "person", name: "Prince", address1: "Unknown Road", address2: "Near the old mill", createdAt: now }, key);
     const first = await migrateLegacyParties(key);
     const second = await migrateLegacyParties(key);
-    assert.deepEqual(first, { migrated: 2, unresolved: 2 });
-    assert.deepEqual(second, { migrated: 0, unresolved: 0 });
+    assert.deepEqual(first, { migrated: 2, unresolved: 2, snapshotId: "schema-3-to-5-precanonical", status: "complete" });
+    assert.deepEqual(second, { migrated: 0, unresolved: 0, status: "not-needed" });
     const snapshot = await getCanonicalSnapshot(key);
     assert.equal(snapshot.parties.length, 2);
     assert.equal(snapshot.persons[0].fullLegalName, "Prince");
@@ -117,3 +117,4 @@ test("legacy address parser refuses ambiguous combined text", () => {
 // Version history
 // 20260715110500.0 - Covered canonical acceptance data, state normalization, DBA separation, signatory blocking, safe encrypted migration, and unchanged DOCX tag compatibility.
 // 20260715110500.1 - Proved identical canonical projections produce identical normalized document XML and SHA-256 values.
+// 20260715110500.2 - Asserted encrypted snapshot creation and idempotent version-5 migration status.

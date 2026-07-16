@@ -1,9 +1,10 @@
-// ver 20260714144000.9
+// ver 20260714144000.12
 
 import { expect, test } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import PizZip from "pizzip";
+import { completeVisibleIndependentContractorIntake } from "./intake-helpers";
 
 const outputDirectory = path.resolve(process.cwd(), "../demo-output");
 const firstDocxPath = path.join(outputDirectory, "accepted-generation-1.docx");
@@ -61,14 +62,21 @@ test("all twelve working-proof acceptance steps pass", async ({ page }) => {
     await expect(ownerFactRow).toContainText("normalized-deterministically");
     await expect(ownerFactRow).toContainText("Independent Contractor intake");
 
+    await page.getByLabel("Signing for party").selectOption({ label: "Acme Widgets LLC" });
+    await page.getByLabel("Entered signatory name").fill("Alex Owner");
+    await page.getByLabel("Title or capacity").fill("Managing Member");
+    await page.getByLabel("Authority confirmed").check();
+    await page.getByRole("button", { name: "Save encrypted signatory" }).click();
+    await expect(page.getByText(/Alex Owner signs for Acme Widgets LLC as Managing Member/)).toBeVisible();
+
     await page.getByRole("link", { name: "Independent Contractor" }).click();
     await expect(page.getByText("LegalFlowNC Demonstration Publisher")).toBeVisible();
     await expect(page.getByText("Good standing confirmed")).toBeVisible();
     await expect(page.getByText("North Carolina, USA")).toBeVisible();
     await expect(page.getByText("1.0-recovered-20251231")).toBeVisible();
     await expect(page.getByText("maintained-demo")).toBeVisible();
-    await expect(page.getByText("Acme Widgets LLC")).toBeVisible();
-    await expect(page.getByText("canonical encrypted vault projection").first()).toBeVisible();
+    await expect(page.getByText("Acme Widgets LLC").first()).toBeVisible();
+    await expect(page.getByText("projected authoritative legal name").first()).toBeVisible();
 
     await page.getByLabel("Forum state").fill("California");
     await expect(page.getByRole("heading", { name: "Generation blocked by active scope conditions" })).toBeVisible();
@@ -79,8 +87,8 @@ test("all twelve working-proof acceptance steps pass", async ({ page }) => {
     await page.getByLabel("Forum county").fill("Guilford County");
     await expect(page.getByRole("heading", { name: "Generation blocked by active scope conditions" })).toHaveCount(0);
     await expect(page.getByText("Resolved scope events retained in matter history")).toBeVisible();
-    await page.getByRole("button", { name: "Fill remaining demo values" }).click();
-    await expect(page.getByText("Ready to generate a maintained demo output")).toBeVisible();
+    await completeVisibleIndependentContractorIntake(page);
+    await expect(page.getByText("Ready to generate with complete approved provenance")).toBeVisible();
 
     const firstDownloadPromise = page.waitForEvent("download");
     await page.getByRole("button", { name: "Generate maintained DOCX" }).click();
@@ -104,11 +112,13 @@ test("all twelve working-proof acceptance steps pass", async ({ page }) => {
     await page.getByRole("button", { name: "Save canonical encrypted party" }).click();
     await expect(page.getByText(/Acme Widgets LLC was saved as canonical encrypted records/)).toBeVisible();
     await page.getByRole("link", { name: "Assurance" }).first().click();
+    const priorConfirmationUrl = page.url();
     const regenerateDownloadPromise = page.waitForEvent("download");
-    await page.getByRole("button", { name: "Regenerate with current vault facts" }).click();
+    await page.getByRole("button", { name: "Regenerate with current confirmed records" }).click();
     const regenerateDownload = await regenerateDownloadPromise;
     await regenerateDownload.saveAs(secondDocxPath);
-    await page.waitForURL(/\/confirmation\//);
+    await expect.poll(() => page.url()).not.toBe(priorConfirmationUrl);
+    await expect(page).toHaveURL(/\/confirmation\//);
     const secondXml = documentXml(new Uint8Array(await readFile(secondDocxPath)));
     expect(secondXml).toContain("999 Updated Avenue");
     expect(secondXml).not.toMatch(/\{\{[^{}]+\}\}/);
@@ -172,3 +182,6 @@ test("all twelve working-proof acceptance steps pass", async ({ page }) => {
 // 20260714144000.7 - Expected the compatibility fact provenance to identify its deterministic canonical projection.
 // 20260714144000.8 - Expected workflow provenance to identify the canonical encrypted vault projection.
 // 20260714144000.9 - Asserted the read-only compatibility projection after canonical records became the only editable source.
+// 20260714144000.10 - Replaced removed demo defaults with explicit visible intake and added the required business signatory capacity.
+// 20260714144000.11 - Matched the expanded provenance review without ambiguous text locators.
+// 20260714144000.12 - Waited for regeneration to navigate to a new assurance before opening recourse.

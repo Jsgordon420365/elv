@@ -1,0 +1,37 @@
+{
+  "testedAt": "2026-07-16T04:11:25.056Z",
+  "sourceSchemaVersion": 3,
+  "targetSchemaVersion": 5,
+  "preserved": {
+    "partyIds": [
+      "party-basil",
+      "party-moonshot",
+      "party-penelope"
+    ],
+    "relationshipIds": [
+      "relationship-moonshot-basil",
+      "relationship-moonshot-penelope"
+    ],
+    "factIds": [
+      "party-basil:contr_add1",
+      "party-basil:contr_add2",
+      "party-basil:contractor_name",
+      "party-moonshot:owner_add1",
+      "party-moonshot:owner_add2",
+      "party-moonshot:owner_name"
+    ],
+    "matterIds": [
+      "independent-contractor-demo-matter"
+    ],
+    "snapshotCount": 1,
+    "encryptedSnapshotContainsPlaintext": false
+  },
+  "decryptedVisibleRecords": [
+    "Moonshot Marmalade Industries, LLC",
+    "Penelope Fizzlebottom",
+    "Basil Quince"
+  ],
+  "generatedDocument": "moonshot-marmalade-p0.docx",
+  "provenanceRecord": "moonshot-marmalade-p0-provenance.json",
+  "unresolvedTemplateTags": 0
+}

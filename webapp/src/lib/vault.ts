@@ -1,4 +1,4 @@
-// ver 20260714125800.3
+// ver 20260714125800.4
 
 import { deleteDB, openDB, IDBPDatabase } from "idb";
 import { decryptField, encryptField, EncryptedField } from "./crypto";
@@ -14,9 +14,10 @@ import {
     normalizeUnitedStatesState,
     parseLegacyCombinedAddressLine2,
 } from "./canonical";
+import { GenerationProvenanceEntry, SavedAnswerProvenance } from "./provenance";
 
 const DB_NAME = "ELV_VAULT";
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 
 export const VAULT_STORES = {
     vaultItems: "vault_items",
@@ -32,6 +33,8 @@ export const VAULT_STORES = {
     businesses: "businesses",
     addresses: "addresses",
     signatories: "signatories",
+    migrationSnapshots: "migration_snapshots",
+    migrationMeta: "migration_meta",
 } as const;
 
 type VaultStoreName = typeof VAULT_STORES[keyof typeof VAULT_STORES];
@@ -76,12 +79,17 @@ export interface MatterRecord {
     workflowId: string;
     answers: Record<string, string>;
     auditHistory: MatterAuditEvent[];
+    answerProvenance?: Record<string, SavedAnswerProvenance>;
     updatedAt: string;
 }
 
 export interface AssuranceInput {
     value: string;
     provenance: string;
+    sourceRecord?: string;
+    classification?: GenerationProvenanceEntry["classification"];
+    lastConfirmedAt?: string;
+    transformationApplied?: string;
 }
 
 export interface AssuranceRecord {
@@ -92,6 +100,7 @@ export interface AssuranceRecord {
     intakeVersion: string;
     providerId: string;
     inputsUsed: Record<string, AssuranceInput>;
+    provenanceReport?: Record<string, GenerationProvenanceEntry>;
     activeWarnings: string[];
     resolvedWarnings: string[];
     blockingConditions: string[];
@@ -171,6 +180,25 @@ interface StoredCanonicalRecord extends SecureEnvelope {
     createdAt: string;
 }
 
+interface StoredMigrationSnapshot extends SecureEnvelope {
+    id: string;
+    createdAt: string;
+    sourceSchemaVersion: number;
+}
+
+export interface MigrationResult {
+    migrated: number;
+    unresolved: number;
+    snapshotId?: string;
+    status: "not-needed" | "complete";
+}
+
+export interface MigrationSnapshotSummary {
+    id: string;
+    createdAt: string;
+    sourceSchemaVersion: number;
+}
+
 function isEncryptedField(value: unknown): value is EncryptedField {
     return Boolean(value && typeof value === "object" && "ciphertext" in value && "iv" in value);
 }
@@ -205,6 +233,8 @@ async function getDB(): Promise<IDBPDatabase> {
             for (const storeName of [VAULT_STORES.canonicalParties, VAULT_STORES.persons, VAULT_STORES.businesses, VAULT_STORES.addresses, VAULT_STORES.signatories]) {
                 if (!db.objectStoreNames.contains(storeName)) db.createObjectStore(storeName, { keyPath: "id" });
             }
+            if (!db.objectStoreNames.contains(VAULT_STORES.migrationSnapshots)) db.createObjectStore(VAULT_STORES.migrationSnapshots, { keyPath: "id" });
+            if (!db.objectStoreNames.contains(VAULT_STORES.migrationMeta)) db.createObjectStore(VAULT_STORES.migrationMeta, { keyPath: "id" });
         },
     });
 }
@@ -247,6 +277,21 @@ export async function getAllVaultItems(): Promise<Record<string, unknown>> {
     return Object.fromEntries(keys.map((key, index) => [String(key), values[index] as unknown]));
 }
 
+export async function verifyVaultKey(masterKey: CryptoKey): Promise<void> {
+    const db = await getDB();
+    for (const storeName of [VAULT_STORES.parties, VAULT_STORES.facts, VAULT_STORES.matters] as const) {
+        const records = await db.getAll(storeName) as Array<SecureEnvelope>;
+        if (records.length > 0) {
+            try {
+                await decryptJson<unknown>(records[0].payload, masterKey);
+                return;
+            } catch {
+                throw new Error("This vault already contains encrypted records, but the supplied identity or passphrase cannot decrypt them. No empty vault was initialized and no records were changed.");
+            }
+        }
+    }
+}
+
 export async function saveParty(party: Party, masterKey: CryptoKey): Promise<void> {
     const stored: StoredParty = {
         id: party.id,
@@ -270,9 +315,13 @@ export async function listParties(masterKey: CryptoKey): Promise<Party[]> {
 }
 
 async function saveCanonicalRecord<T extends { id: string; createdAt: string }>(storeName: VaultStoreName, recordType: StoredCanonicalRecord["recordType"], record: T, masterKey: CryptoKey): Promise<void> {
-    const stored: StoredCanonicalRecord = { id: record.id, recordType, createdAt: record.createdAt, payload: await encryptJson(record, masterKey) };
+    const stored = await prepareCanonicalRecord(recordType, record, masterKey);
     const db = await getDB();
     await db.put(storeName, stored);
+}
+
+async function prepareCanonicalRecord<T extends { id: string; createdAt: string }>(recordType: StoredCanonicalRecord["recordType"], record: T, masterKey: CryptoKey): Promise<StoredCanonicalRecord> {
+    return { id: record.id, recordType, createdAt: record.createdAt, payload: await encryptJson(record, masterKey) };
 }
 
 async function listCanonicalRecords<T>(storeName: VaultStoreName, masterKey: CryptoKey): Promise<T[]> {
@@ -330,11 +379,61 @@ export async function getCanonicalSnapshot(masterKey: CryptoKey): Promise<Canoni
     return { parties, persons, businesses, addresses, signatories };
 }
 
-export async function migrateLegacyParties(masterKey: CryptoKey): Promise<{ migrated: number; unresolved: number }> {
-    const [legacyParties, existingCanonical] = await Promise.all([listParties(masterKey), listCanonicalParties(masterKey)]);
+async function createMigrationSnapshot(masterKey: CryptoKey): Promise<MigrationSnapshotSummary> {
+    const db = await getDB();
+    const existing = await db.getAll(VAULT_STORES.migrationSnapshots) as StoredMigrationSnapshot[];
+    const stableId = "schema-3-to-5-precanonical";
+    const prior = existing.find((item) => item.id === stableId);
+    if (prior) return { id: prior.id, createdAt: prior.createdAt, sourceSchemaVersion: prior.sourceSchemaVersion };
+    const sourceStores = [VAULT_STORES.vaultItems, VAULT_STORES.parties, VAULT_STORES.relationships, VAULT_STORES.facts, VAULT_STORES.matters, VAULT_STORES.generations, VAULT_STORES.incidents, VAULT_STORES.documents] as const;
+    const snapshotStores: Record<string, { keys: IDBValidKey[]; records: unknown[] }> = {};
+    for (const storeName of sourceStores) {
+        snapshotStores[storeName] = { keys: await db.getAllKeys(storeName), records: await db.getAll(storeName) as unknown[] };
+    }
+    const createdAt = new Date().toISOString();
+    const stored: StoredMigrationSnapshot = { id: stableId, createdAt, sourceSchemaVersion: 3, payload: await encryptJson({ stores: snapshotStores }, masterKey) };
+    await db.put(VAULT_STORES.migrationSnapshots, stored);
+    return { id: stableId, createdAt, sourceSchemaVersion: 3 };
+}
+
+export async function listMigrationSnapshots(): Promise<MigrationSnapshotSummary[]> {
+    const db = await getDB();
+    const records = await db.getAll(VAULT_STORES.migrationSnapshots) as StoredMigrationSnapshot[];
+    return records.map(({ id, createdAt, sourceSchemaVersion }) => ({ id, createdAt, sourceSchemaVersion }));
+}
+
+export async function restoreMigrationSnapshot(snapshotId: string, masterKey: CryptoKey): Promise<void> {
+    const db = await getDB();
+    const stored = await db.get(VAULT_STORES.migrationSnapshots, snapshotId) as StoredMigrationSnapshot | undefined;
+    if (!stored) throw new Error(`Migration snapshot ${snapshotId} was not found.`);
+    const snapshot = await decryptJson<{ stores: Record<string, { keys: IDBValidKey[]; records: unknown[] }> }>(stored.payload, masterKey);
+    const storeNames = Object.keys(snapshot.stores).filter((storeName) => db.objectStoreNames.contains(storeName)) as VaultStoreName[];
+    const transaction = db.transaction(storeNames, "readwrite");
+    for (const storeName of storeNames) {
+        const objectStore = transaction.objectStore(storeName);
+        await objectStore.clear();
+        const { keys, records } = snapshot.stores[storeName];
+        for (let index = 0; index < records.length; index += 1) {
+            if (storeName === VAULT_STORES.vaultItems) await objectStore.put(records[index], keys[index]);
+            else await objectStore.put(records[index]);
+        }
+    }
+    await transaction.done;
+}
+
+export async function migrateLegacyParties(masterKey: CryptoKey): Promise<MigrationResult> {
+    if (masterKey.extractable) throw new Error("Migration stopped: the vault key must remain non-extractable.");
+    const db = await getDB();
+    const rawLegacy = await db.getAll(VAULT_STORES.parties) as StoredParty[];
+    const existingCanonical = await listCanonicalParties(masterKey);
+    if (rawLegacy.length === 0 || rawLegacy.every((party) => existingCanonical.some((canonical) => canonical.id === party.id))) return { migrated: 0, unresolved: 0, status: "not-needed" };
+    await decryptJson<Pick<Party, "name" | "address1" | "address2">>(rawLegacy[0].payload, masterKey);
+    const snapshot = await createMigrationSnapshot(masterKey);
+    const legacyParties = await listParties(masterKey);
     const existingIds = new Set(existingCanonical.map((party) => party.id));
     let migrated = 0;
     let unresolved = 0;
+    const pending = { canonicalParties: [] as StoredCanonicalRecord[], persons: [] as StoredCanonicalRecord[], businesses: [] as StoredCanonicalRecord[], addresses: [] as StoredCanonicalRecord[] };
     for (const legacy of legacyParties) {
         if (existingIds.has(legacy.id)) continue;
         const now = new Date().toISOString();
@@ -361,29 +460,44 @@ export async function migrateLegacyParties(masterKey: CryptoKey): Promise<{ migr
             createdAt: legacy.createdAt,
             updatedAt: now,
         };
-        await saveAddress(address, masterKey);
+        const normalizedAddress = { ...address, stateOrProvince: normalizeUnitedStatesState(address.stateOrProvince).value };
+        pending.addresses.push(await prepareCanonicalRecord("address", normalizedAddress, masterKey));
         if (legacy.kind === "person") {
             const personId = `person-${legacy.id}`;
-            await savePerson({
+            const person: PersonRecord = {
                 id: personId, fullLegalName: legacy.name, addressId, legacyNameUnresolved: true,
                 fieldProvenance: { fullLegalName: makeProvenance("migrated-unchanged", now, "Preserved as authoritative full legal name; no name components were guessed.") },
                 createdAt: legacy.createdAt, updatedAt: now,
-            }, masterKey);
-            await saveCanonicalParty({ id: legacy.id, kind: "person", personId, createdAt: legacy.createdAt, provenance: "migrated-unchanged" }, masterKey);
+            };
+            pending.persons.push(await prepareCanonicalRecord("person", person, masterKey));
+            pending.canonicalParties.push(await prepareCanonicalRecord("canonical-party", { id: legacy.id, kind: "person" as const, personId, createdAt: legacy.createdAt, provenance: "migrated-unchanged" as const }, masterKey));
             unresolved += 1;
         } else {
             const businessId = `business-${legacy.id}`;
-            await saveBusiness({
+            const business: BusinessRecord = {
                 id: businessId, legalName: legacy.name, principalAddressId: addressId,
                 fieldProvenance: { legalName: makeProvenance("migrated-unchanged", now, "Copied exactly; no entity type or DBA was inferred.") },
                 createdAt: legacy.createdAt, updatedAt: now,
-            }, masterKey);
-            await saveCanonicalParty({ id: legacy.id, kind: "business", businessId, createdAt: legacy.createdAt, provenance: "migrated-unchanged" }, masterKey);
+            };
+            pending.businesses.push(await prepareCanonicalRecord("business", business, masterKey));
+            pending.canonicalParties.push(await prepareCanonicalRecord("canonical-party", { id: legacy.id, kind: "business" as const, businessId, createdAt: legacy.createdAt, provenance: "migrated-unchanged" as const }, masterKey));
         }
         if (!parsed.deterministic) unresolved += 1;
         migrated += 1;
     }
-    return { migrated, unresolved };
+    const transaction = db.transaction([VAULT_STORES.canonicalParties, VAULT_STORES.persons, VAULT_STORES.businesses, VAULT_STORES.addresses, VAULT_STORES.migrationMeta], "readwrite");
+    try {
+        for (const item of pending.canonicalParties) await transaction.objectStore(VAULT_STORES.canonicalParties).put(item);
+        for (const item of pending.persons) await transaction.objectStore(VAULT_STORES.persons).put(item);
+        for (const item of pending.businesses) await transaction.objectStore(VAULT_STORES.businesses).put(item);
+        for (const item of pending.addresses) await transaction.objectStore(VAULT_STORES.addresses).put(item);
+        await transaction.objectStore(VAULT_STORES.migrationMeta).put({ id: "canonical-schema", status: "complete", snapshotId: snapshot.id, completedAt: new Date().toISOString() });
+        await transaction.done;
+    } catch (error) {
+        transaction.abort();
+        throw new Error(`Canonical migration stopped safely; legacy stores remain unchanged and encrypted snapshot ${snapshot.id} is recoverable. ${error instanceof Error ? error.message : "Unknown migration error."}`);
+    }
+    return { migrated, unresolved, snapshotId: snapshot.id, status: "complete" };
 }
 
 export async function saveRelationship(relationship: Relationship): Promise<void> {
@@ -427,7 +541,7 @@ export async function saveMatter(matter: MatterRecord, masterKey: CryptoKey): Pr
         id: matter.id,
         workflowId: matter.workflowId,
         updatedAt: matter.updatedAt,
-        payload: await encryptJson({ answers: matter.answers, auditHistory: matter.auditHistory }, masterKey),
+        payload: await encryptJson({ answers: matter.answers, auditHistory: matter.auditHistory, answerProvenance: matter.answerProvenance ?? {} }, masterKey),
     };
     const db = await getDB();
     await db.put(VAULT_STORES.matters, stored);
@@ -437,7 +551,7 @@ export async function getMatter(id: string, masterKey: CryptoKey): Promise<Matte
     const db = await getDB();
     const stored = await db.get(VAULT_STORES.matters, id) as StoredMatter | undefined;
     if (!stored) return null;
-    const payload = await decryptJson<Pick<MatterRecord, "answers" | "auditHistory">>(stored.payload, masterKey);
+    const payload = await decryptJson<Pick<MatterRecord, "answers" | "auditHistory" | "answerProvenance">>(stored.payload, masterKey);
     return { id: stored.id, workflowId: stored.workflowId, updatedAt: stored.updatedAt, ...payload };
 }
 
@@ -529,3 +643,4 @@ export async function resetVaultDatabaseForTests(): Promise<void> {
 // 20260714125800.1 - Added encrypted generated-DOCX persistence for regeneration and portable export.
 // 20260714125800.2 - Advanced the IndexedDB version so existing Phase 2 databases receive the document store upgrade.
 // 20260714125800.3 - Added encrypted canonical party, person, business, address, and signatory stores plus idempotent legacy migration.
+// 20260714125800.4 - Added an additive version-5 schema, encrypted recovery snapshots, atomic canonical migration, restore support, and matter answer provenance.

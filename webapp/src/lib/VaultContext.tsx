@@ -1,10 +1,11 @@
-// ver 20260714132600.0
+// ver 20260714132600.1
 
 "use client";
 
 import { createContext, ReactNode, useContext, useState } from "react";
 import { deriveMasterKey } from "./crypto";
 import { getDeviceFingerprint, setDeviceToken } from "./device";
+import { verifyVaultKey } from "./vault";
 
 interface VaultContextType {
     masterKey: CryptoKey | null;
@@ -26,7 +27,9 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         const normalizedEmail = email.trim().toLowerCase();
         if (isDemoMode) {
             const localIdentity = normalizedEmail || "local-demo-vault";
-            setMasterKey(await deriveMasterKey(passphrase, `elv-demo:${localIdentity}`));
+            const key = await deriveMasterKey(passphrase, `elv-demo:${localIdentity}`);
+            await verifyVaultKey(key);
+            setMasterKey(key);
             setUserId(localIdentity);
             return;
         }
@@ -39,7 +42,9 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         });
         const result = await response.json() as { success: boolean; error?: string; userId: string; token: string };
         if (!result.success) throw new Error(result.error || "Failed to register device");
-        setMasterKey(await deriveMasterKey(passphrase, result.userId));
+        const key = await deriveMasterKey(passphrase, result.userId);
+        await verifyVaultKey(key);
+        setMasterKey(key);
         setUserId(result.userId);
         setDeviceToken(result.token);
     };
@@ -64,3 +69,4 @@ export function useVault(): VaultContextType {
 
 // Version history
 // 20260714132600.0 - Added local demo unlock that derives the vault key without device registration or network access.
+// 20260714132600.1 - Refused to initialize an apparently empty session when existing encrypted records cannot be decrypted by the supplied identity and passphrase.

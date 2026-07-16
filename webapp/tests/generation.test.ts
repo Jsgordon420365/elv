@@ -1,4 +1,4 @@
-// ver 20260714124000.0
+// ver 20260714124000.1
 
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -27,9 +27,9 @@ function completePayload(): Record<string, string> {
 test("template tags and field schema cover the same 29 fields", async () => {
     const tags = extractTemplateTags(await readTemplate());
     const schemaIds = INDEPENDENT_CONTRACTOR_FIELDS.map((field) => field.id).sort();
-    assert.equal(tags.length, 29);
+    assert.equal(tags.length, 31);
     assert.equal(new Set(tags).size, 29);
-    assert.deepEqual(schemaIds, tags);
+    assert.deepEqual(schemaIds, Array.from(new Set(tags)).sort());
     assert.ok(INDEPENDENT_CONTRACTOR_FIELDS.every((field) => field.label && field.tooltip && field.category && field.whyWeAsk));
 });
 
@@ -51,3 +51,4 @@ test("identical 29-field merges have deterministic document.xml hashes and no un
 
 // Version history
 // 20260714124000.0 - Added schema parity, DOCX validity, deterministic hash, value rendering, and unresolved-tag tests.
+// 20260714124000.1 - Allowed owner and contractor legal-name tags to repeat in signature blocks while retaining exactly 29 unique schema tags.

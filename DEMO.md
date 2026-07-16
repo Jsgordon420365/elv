@@ -1,3 +1,4 @@
+<!-- ver 20260716001500.0 -->
 # ELV / LegalFlowNC Working Proof Demo
 
 ## Start
@@ -8,17 +9,17 @@ Command Prompt launcher: `START_DEMO.cmd`
 
 PowerShell launcher: `.\RUN_DEMO.ps1`
 
-Local URL: `http://localhost:3000`
+Local URL and fixed IndexedDB vault origin: `http://localhost:3004`
 
 The launcher checks for Node.js, installs dependencies only when `webapp\node_modules` is absent, sets `NEXT_PUBLIC_DEMO_MODE=1`, opens the URL, and keeps the Next.js development server attached to the launcher window.
 
 ## Acceptance click path
 
-Open the local URL and unlock the prefilled local demo vault. Open Vault. Add business `Acme Widgets LLC` with two address lines. Add person `Jane Q. Contractor` with two address lines. Relate Acme to Jane as `company-contractor`. Confirm each reusable fact row shows value, source, last-confirmed time, and its Independent Contractor intake role.
+Open the exact local URL and unlock the local demo vault. Open Vault. Add business `Acme Widgets LLC`, leaving address line 2 blank and entering city, state, and postal code separately. Add person `Jane Q. Contractor` the same way. Relate Acme to Jane as `company-contractor`, add a human signatory for Acme, and confirm the signatory's title or capacity. Confirm each compatibility projection shows value, source, last-confirmed time, and its Independent Contractor intake role.
 
-Open Independent Contractor. Confirm provider, good-standing badge, jurisdiction, form/intake versions, scope, and maintenance status are registry-backed. Confirm the six party/address fields appear as vault-prefilled values with provenance and are not asked again. Enter `California` in Forum state and confirm generation is blocked with the attorney-escalation warning. Change Forum state to `North Carolina`, set Forum county to `Guilford County`, and confirm the active block clears while the prior event remains under resolved scope events. Select Fill remaining demo values and generate.
+Open Independent Contractor. Confirm provider, good-standing badge, jurisdiction, form/intake versions, scope, and maintenance status are registry-backed. Confirm the party/address fields appear as vault-prefilled values with provenance. Enter `California` in Forum state and confirm generation is blocked with the attorney-escalation warning. Change Forum state to `North Carolina`, set Forum county to `Guilford County`, and confirm the active block clears while the prior event remains under resolved scope events. Visibly enter or confirm scope of services, business description, compensation structure, and every remaining requested value. Confirm all 29 provenance rows have approved classifications, then generate.
 
-On confirmation, confirm the DOCX download, assurance record, `word/document.xml` SHA-256, resolved warning, and completion checklist. Return to Vault, edit Acme's `owner_add1` reusable fact, open the latest assurance, and select Regenerate with current vault facts. Confirm a new DOCX and assurance record are created without re-answering the intake.
+On confirmation, confirm the DOCX download, assurance record, 29-tag provenance report, `word/document.xml` SHA-256, resolved warning, and completion checklist. Return to Vault, edit Acme's structured address, open the latest assurance, and select Regenerate with current confirmed records. Confirm a new DOCX and assurance record are created without re-answering the intake.
 
 Select the document-failure recourse action. Complete all required fields, save the encrypted incident, confirm the first-response owner and demonstration remedy banner, and download the incident JSON. Return to Vault and select Export customer ZIP after reading the plaintext packaging warning.
 
@@ -32,9 +33,7 @@ Verified generated documents and the portable export are written to `C:\Users\js
 
 ## Current acceptance runtime
 
-The full functional browser path passed at `http://localhost:3001` in installed Chrome because an unrelated Remotion Studio process already owns the required port 3000. The restarted, healthy ELV Next.js listener is Node PID `37400`, address `::`, port `3001`, and returned HTTP 200 after final build. Server output is retained in `demo-output\server.stdout.log` and `demo-output\server.stderr.log`.
-
-The exact `http://localhost:3000` launcher acceptance remains blocked by unrelated Node PID `59884`, whose HTTP response identifies itself as `Remotion Studio` and project `XylephoneVideo`. The launchers now check this non-destructively and stop with an exact error instead of opening the unrelated application or silently changing ELV's port. No unrelated process was terminated.
+The P0 browser regression suite passed at the fixed origin `http://localhost:3004`. IndexedDB is origin-scoped, so changing a localhost port opens a different browser database even though the older encrypted records remain intact at their original origin. Both launchers now refuse to move silently and always target port 3004. The final healthy ELV process receipt is recorded in `CONTINUITY.md`.
 
 Final stable artifacts:
 
@@ -49,3 +48,13 @@ Final stable artifacts:
 `demo-output\acceptance-desktop.png`
 
 `demo-output\acceptance-mobile.png`
+
+`demo-output\moonshot-marmalade-p0.docx`
+
+`demo-output\moonshot-marmalade-p0-provenance.json`
+
+`demo-output\moonshot-marmalade-p0-migration-evidence.json`
+
+<!-- Version history
+20260716001500.0 - Fixed the documented vault origin at port 3004 and replaced hidden demo-fill instructions with explicit provenance review.
+-->

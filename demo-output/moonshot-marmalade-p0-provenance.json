@@ -1,0 +1,212 @@
+{
+  "generationId": "71717ce2-677f-44e6-9d5e-41de59972708",
+  "outputSha256": "65249d391a5f2cdbaa7d49f6d7186cd2dc32732502ab5288450701892eec526b",
+  "templateId": "independent-contractor-fixed2.docx",
+  "formVersion": "1.0-recovered-20251231",
+  "intakeVersion": "1.0",
+  "provenanceReport": {
+    "owner_name": {
+      "renderedValue": "Moonshot Marmalade Industries, LLC",
+      "sourceRecord": "business:business-party-moonshot",
+      "classification": "CANONICAL_VAULT_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:21.337Z",
+      "transformationApplied": "projected authoritative legal name"
+    },
+    "contractor_name": {
+      "renderedValue": "Basil Quince",
+      "sourceRecord": "person:person-party-basil",
+      "classification": "CANONICAL_VAULT_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:21.335Z",
+      "transformationApplied": "projected authoritative legal name"
+    },
+    "owner_business_description": {
+      "renderedValue": "Moonshot Marmalade Industries manufactures and distributes specialty marmalades",
+      "sourceRecord": "matter-answer:owner_business_description",
+      "classification": "CURRENT_INTAKE_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "none"
+    },
+    "scope_agr_longtext": {
+      "renderedValue": "Develop and document a regional wholesale distribution plan for Moonshot Marmalade products\nCompensation structure: Fixed fee.",
+      "sourceRecord": "matter-answer:scope_agr_longtext;matter-answer:compensation_structure",
+      "classification": "DETERMINISTIC_DERIVATION",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "joined confirmed scope with visibly selected compensation structure"
+    },
+    "agreement_start_date": {
+      "renderedValue": "2026-07-15",
+      "sourceRecord": "matter-answer:agreement_start_date",
+      "classification": "CURRENT_INTAKE_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "none"
+    },
+    "agreement_duration_years_text": {
+      "renderedValue": "One",
+      "sourceRecord": "matter-answer:agreement_duration_years_text",
+      "classification": "CURRENT_INTAKE_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "none"
+    },
+    "agreement_duration_years_num": {
+      "renderedValue": "1 year",
+      "sourceRecord": "matter-answer:agreement_duration_years_num",
+      "classification": "DETERMINISTIC_DERIVATION",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "added singular or plural year unit from confirmed numeric value"
+    },
+    "termination_notice_days": {
+      "renderedValue": "30",
+      "sourceRecord": "matter-answer:termination_notice_days",
+      "classification": "CURRENT_INTAKE_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "none"
+    },
+    "owner_add1": {
+      "renderedValue": "2915 Starmount Farms Dr.",
+      "sourceRecord": "address:address-party-moonshot",
+      "classification": "CANONICAL_VAULT_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:21.337Z",
+      "transformationApplied": "joined street and optional unit"
+    },
+    "owner_add2": {
+      "renderedValue": "Greensboro, North Carolina 27408",
+      "sourceRecord": "address:address-party-moonshot",
+      "classification": "CANONICAL_VAULT_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:21.337Z",
+      "transformationApplied": "joined city, normalized full state name, and postal code"
+    },
+    "contr_add1": {
+      "renderedValue": "7 Pectin Place",
+      "sourceRecord": "address:address-party-basil",
+      "classification": "CANONICAL_VAULT_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:21.335Z",
+      "transformationApplied": "joined street and optional unit"
+    },
+    "contr_add2": {
+      "renderedValue": "High Point, North Carolina 27260",
+      "sourceRecord": "address:address-party-basil",
+      "classification": "CANONICAL_VAULT_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:21.335Z",
+      "transformationApplied": "joined city, normalized full state name, and postal code"
+    },
+    "forum_county_comma_state": {
+      "renderedValue": "Guilford County, North Carolina",
+      "sourceRecord": "matter-answer:forum_county;matter-answer:forum_state",
+      "classification": "DETERMINISTIC_DERIVATION",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "joined separately confirmed county and state"
+    },
+    "arbitration_city": {
+      "renderedValue": "Greensboro",
+      "sourceRecord": "matter-answer:arbitration_city",
+      "classification": "CURRENT_INTAKE_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "none"
+    },
+    "arbitration_state": {
+      "renderedValue": "North Carolina",
+      "sourceRecord": "matter-answer:arbitration_state",
+      "classification": "CURRENT_INTAKE_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "none"
+    },
+    "court_amended_miles": {
+      "renderedValue": "25",
+      "sourceRecord": "matter-answer:court_amended_miles",
+      "classification": "CURRENT_INTAKE_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "none"
+    },
+    "court_amended_years": {
+      "renderedValue": "1 year",
+      "sourceRecord": "matter-answer:court_amended_years",
+      "classification": "DETERMINISTIC_DERIVATION",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "added singular or plural year unit from confirmed numeric value"
+    },
+    "hire_away_duration_years_num": {
+      "renderedValue": "1 year",
+      "sourceRecord": "matter-answer:hire_away_duration_years_num",
+      "classification": "DETERMINISTIC_DERIVATION",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "added singular or plural year unit from confirmed numeric value"
+    },
+    "hire_away_duration_years_text": {
+      "renderedValue": "One",
+      "sourceRecord": "matter-answer:hire_away_duration_years_text",
+      "classification": "CURRENT_INTAKE_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "none"
+    },
+    "non_compete_duration_years_num": {
+      "renderedValue": "1 year",
+      "sourceRecord": "matter-answer:non_compete_duration_years_num",
+      "classification": "DETERMINISTIC_DERIVATION",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "added singular or plural year unit from confirmed numeric value"
+    },
+    "non_compete_duration_years_text": {
+      "renderedValue": "One",
+      "sourceRecord": "matter-answer:non_compete_duration_years_text",
+      "classification": "CURRENT_INTAKE_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "none"
+    },
+    "non_compete_radius_miles": {
+      "renderedValue": "25",
+      "sourceRecord": "matter-answer:non_compete_radius_miles",
+      "classification": "CURRENT_INTAKE_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "none"
+    },
+    "non_compete_states": {
+      "renderedValue": "North Carolina",
+      "sourceRecord": "matter-answer:non_compete_states",
+      "classification": "CURRENT_INTAKE_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "none"
+    },
+    "non_solicit_employees_duration_years_num": {
+      "renderedValue": "1 year",
+      "sourceRecord": "matter-answer:non_solicit_employees_duration_years_num",
+      "classification": "DETERMINISTIC_DERIVATION",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "added singular or plural year unit from confirmed numeric value"
+    },
+    "non_solicit_employees_duration_years_text": {
+      "renderedValue": "One",
+      "sourceRecord": "matter-answer:non_solicit_employees_duration_years_text",
+      "classification": "CURRENT_INTAKE_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "none"
+    },
+    "owner_signatory_name": {
+      "renderedValue": "Penelope Fizzlebottom\nTitle/Capacity: Chief Marmalade Officer",
+      "sourceRecord": "signatory:signatory-party-moonshot",
+      "classification": "CANONICAL_VAULT_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:21.879Z",
+      "transformationApplied": "joined human signatory name with confirmed title or capacity"
+    },
+    "owner_signatory_date": {
+      "renderedValue": "2026-07-15",
+      "sourceRecord": "signatory:signatory-party-moonshot",
+      "classification": "CANONICAL_VAULT_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:21.879Z",
+      "transformationApplied": "blank or confirmed execution date"
+    },
+    "contractor_signatory_name": {
+      "renderedValue": "Basil Quince",
+      "sourceRecord": "matter-answer:contractor_signatory_name",
+      "classification": "CURRENT_INTAKE_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "none"
+    },
+    "contractor_signatory_date": {
+      "renderedValue": "2026-07-15",
+      "sourceRecord": "matter-answer:contractor_signatory_date",
+      "classification": "CURRENT_INTAKE_CONFIRMED",
+      "lastConfirmedAt": "2026-07-16T04:11:22.823Z",
+      "transformationApplied": "none"
+    }
+  }
+}

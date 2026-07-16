@@ -1,9 +1,10 @@
-// ver 20260715112000.5
+// ver 20260715112000.6
 
 import { expect, test } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import PizZip from "pizzip";
+import { completeVisibleIndependentContractorIntake } from "./intake-helpers";
 
 const outputDirectory = path.resolve(process.cwd(), "../demo-output");
 const outputPath = path.join(outputDirectory, "canonical-normalization-acceptance.docx");
@@ -70,8 +71,8 @@ test("canonical vault data projects into the unchanged Independent Contractor te
 
     await page.getByRole("link", { name: "Independent Contractor" }).click();
     await expect(page.getByText("A person signing for a business must have a title or capacity.")).toHaveCount(0);
-    await page.getByRole("button", { name: "Fill remaining demo values" }).click();
-    await expect(page.getByText("Ready to generate a maintained demo output")).toBeVisible();
+    await completeVisibleIndependentContractorIntake(page);
+    await expect(page.getByText("Ready to generate with complete approved provenance")).toBeVisible();
     const downloadPromise = page.waitForEvent("download");
     await page.getByRole("button", { name: "Generate maintained DOCX" }).click();
     const download = await downloadPromise;
@@ -97,3 +98,4 @@ test("canonical vault data projects into the unchanged Independent Contractor te
 // 20260715112000.3 - Made the Company relationship locator exact so it cannot match the party edit button.
 // 20260715112000.4 - Asserted the visible DBA-separation notice instead of requiring the trade name to be absent from consistency guidance.
 // 20260715112000.5 - Exercised explicit signatory editing when correcting the missing business-signatory title.
+// 20260715112000.6 - Replaced removed demo defaults with explicit visible, provenance-confirmed intake values.

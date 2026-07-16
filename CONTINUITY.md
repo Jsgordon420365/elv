@@ -307,3 +307,63 @@
 ## READY FOR HUMAN REVIEW — SCHEMA NORMALIZATION
 
 2026-07-15T12:05:00-04:00 — The bounded schema-normalization phase is complete. ELV is healthy at `http://localhost:3003` on Node PID `1272`; HTTP GET returned 200 and title `ELV | Encrypted Legal Vault`. Stable acceptance artifacts are `C:\Users\jsgor\Projects-Arc\elv\demo-output\canonical-normalization-acceptance.docx` and `C:\Users\jsgor\Projects-Arc\elv\demo-output\canonical-normalization-confirmation.png`.
+
+## P0 REGRESSION — VAULT PERSISTENCE AND GENERATION PROVENANCE — COMPLETE
+
+### FOUND
+
+2026-07-16T00:20:00-04:00 — The apparent vault loss was caused by origin drift. IndexedDB is scoped to the full origin, including port, and prior ELV testing moved among ports 3001, 3003, and 3004. Opening a new port created a different empty browser database; it did not delete the encrypted database at the older origin.
+
+2026-07-16T00:20:00-04:00 — A real schema defect also existed: the version-4 canonical migration wrote records sequentially without a recoverable pre-migration snapshot or one atomic transaction. The vault page mounted its canonical editor concurrently with migration, so the editor could remain visually empty even after migration committed until another reload.
+
+2026-07-16T00:20:00-04:00 — The exact unrequested scope and business-description prose came from the `demoDefaults` object in the prior `webapp/src/app/workflow/independent-contractor/page.tsx`. The “Fill remaining demo values” action injected those strings into any blank answers and labeled them as transaction-specific demo entries despite no current confirmation.
+
+### CHOSE
+
+2026-07-16T00:20:00-04:00 — Preserve all legacy stores and IDs as the rollback source. Upgrade additively to IndexedDB version 5, verify the non-extractable derived key and decryptability, create an encrypted raw-record snapshot before canonical mutation, pre-encrypt canonical records, and write all canonical stores plus migration metadata in one abortable transaction.
+
+2026-07-16T00:20:00-04:00 — Fix ELV to `http://localhost:3004` in both launchers. Refuse silent fallback because changing a port changes the browser vault. An older cross-origin vault cannot be accessed by code at the new origin and must be opened at its original URL for an explicit browser-authorized export.
+
+2026-07-16T00:20:00-04:00 — Permit only four approved merge-source classifications: `CURRENT_INTAKE_CONFIRMED`, `CANONICAL_VAULT_CONFIRMED`, `DETERMINISTIC_DERIVATION`, and `APPROVED_FIXED_TEMPLATE_TEXT`. Block generation for any required tag without approved provenance. Treat compensation as a visible selection and append it to the visibly confirmed scope through a documented deterministic transformation.
+
+### CHANGED
+
+2026-07-16T00:20:00-04:00 — Added encrypted migration snapshots and migration metadata, atomic version-3-to-5 canonical migration, wrong-key safe stop, migration/editor sequencing, exact relationship-type display, structured saved-answer provenance, all-29 assurance provenance reporting/download, and stable origin launchers.
+
+2026-07-16T00:20:00-04:00 — Removed the hidden demo defaults and demo-fill control. Restored visible scope, business-description, compensation, scope-check, and missing-value confirmation. Legacy saved matter answers remain visible but are unapproved until the user confirms them.
+
+2026-07-16T00:20:00-04:00 — Repaired only the enumerated template artifacts: pluralized duration remnants, `North Carolina_,_______`, duplicate terminal punctuation from variable projection, `Contractor shall assign not any right`, duplicate execution dates, missing business entity/signatory binding, and unconditional commission language. The original 29 tag names remain unchanged.
+
+### TESTED
+
+2026-07-16T00:20:00-04:00 — `npm run test:e2e` with `ELV_DEMO_URL=http://localhost:3004` exit code 0: all 3 browser tests passed in 37.9 seconds. The P0 case constructed a real encrypted version-3 IndexedDB database, reopened the application, upgraded it to version 5, decrypted and displayed every party, preserved both relationship IDs, all six fact IDs, the matter ID, and generated from the preserved matter.
+
+2026-07-16T00:20:00-04:00 — The browser test proved the encrypted migration snapshot contains no Moonshot plaintext; the Moonshot document is a valid DOCX package with `word/document.xml`; zero `{{...}}` tags remain; the legal entity, human signatory, confirmed capacity, scope, description, and selected fixed-fee treatment render; only two total signature `Date:` treatments remain; and none of the listed template artifacts or old hidden demo prose appears.
+
+2026-07-16T00:20:00-04:00 — Final `npm run lint` exit code 0. Final `npm test` exit code 0 with 16 passed and 0 failed. Final `npm run build` exit code 0 with all 14 routes generated. The only build notice remains Next.js workspace-root inference caused by the higher-level and repository lockfiles.
+
+2026-07-16T00:20:00-04:00 — Stable P0 artifact receipts: `moonshot-marmalade-p0.docx` SHA-256 `C40427678B416B81D15B86D6DDA3F08283D40CCDFD113FB1A51C6EB3E4D01AD3`; `moonshot-marmalade-p0-provenance.json` SHA-256 `CE996CE902219A28CC27E02BBBE2F01BA697EA5EEE44429C3CBCE1AD528F25B7`; `moonshot-marmalade-p0-migration-evidence.json` SHA-256 `16F36B280E1839B735D694FE073AE3C77EA7C70659CEFA0DE93C5D9984AB8783`.
+
+### UNRESOLVED
+
+2026-07-16T00:20:00-04:00 — Data ambiguity: migrated personal names remain authoritative opaque full names until a user confirms optional components. Nonconforming legacy combined-address text remains unchanged and flagged for confirmation; it is never guessed apart.
+
+2026-07-16T00:20:00-04:00 — Technical limitation: browser origin isolation prevents ELV at port 3004 from discovering or reading an IndexedDB vault stored under another port. The fixed launcher prevents new drift, but recovery from an older port requires opening that exact origin and explicitly exporting its data.
+
+2026-07-16T00:20:00-04:00 — Policy: no new legal approval was made. The template edits are limited to the enumerated approved corrections and parameterization; substantive legal suitability remains outside this technical P0 phase.
+
+### CONFLICTS
+
+2026-07-16T00:20:00-04:00 — None with the existing 29-tag compatibility contract. No template, payment, deployment, sync, marketplace, cloud, or LLM feature was added.
+
+## READY FOR HUMAN REVIEW — P0 REGRESSION
+
+2026-07-16T00:20:00-04:00 — The bounded P0 correction is complete. The next executable action is to commit the verified work, restart only the ELV-owned development process on the same fixed port 3004 after the production build cache invalidation, verify HTTP 200/title, and record the final PID below.
+
+### TESTED — FINAL EVIDENCE CORRECTION
+
+2026-07-16T00:40:00-04:00 — Fresh post-change verification supersedes the earlier timing and artifact receipts: `git diff --check` exit code 0; `npm run lint` exit code 0; `npm test` exit code 0 with 16 passed; `npm run test:e2e` exit code 0 with 3 passed in 33.9 seconds; and `npm run build` exit code 0 with 14 routes. The same informational multiple-lockfile workspace-root warning remains.
+
+2026-07-16T00:40:00-04:00 — A three-repeat stress run of the canonical browser case exposed and then verified correction of an early-edit race. Intake controls now remain unavailable until saved-matter decryption completes, stale duplicate development-mode loads are ignored, latest values are held synchronously, and encrypted matter writes are ordered. After correction, all three isolated repetitions passed in 50.4 seconds.
+
+2026-07-16T00:40:00-04:00 — Final stable P0 artifact receipts supersede the earlier receipts: `moonshot-marmalade-p0.docx` SHA-256 `F99AFF41820ADBF24B918400EDFDD38809405034427707E046843646D24F6377`; `moonshot-marmalade-p0-provenance.json` SHA-256 `101E79927006188EE4B9043D6C3999626257A27463053E43B6066723434F23D1`; `moonshot-marmalade-p0-migration-evidence.json` SHA-256 `E8F1BE561B53926B9C1F2D56A5F44874AAF8FF89AD33F1E468A1C4D5C64CB698`.

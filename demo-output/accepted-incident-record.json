@@ -1,7 +1,7 @@
 {
-  "id": "incident-f42d42a6-9d1c-4fbe-888d-b766713fad61",
-  "generationId": "eafc09d5-644a-4465-b8cb-e1abf14f6783",
-  "createdAt": "2026-07-15T22:30:56.734Z",
+  "id": "incident-e45bff09-4f0c-4ef7-9a39-51b6f71bb46f",
+  "generationId": "6e9d8c08-df13-4625-8fbd-e79bace66323",
+  "createdAt": "2026-07-16T04:11:08.629Z",
   "whatHappened": "The recipient rejected the agreement during onboarding.",
   "whoRejectedOrChallenged": "Recipient onboarding team",
   "dateOfFailure": "2026-07-14",
@@ -12,8 +12,8 @@
   "firstResponseOwner": "demo-escalation@legalflownc.example",
   "remedyPolicy": "DEMONSTRATION POLICY — the following support, correction, reissue, refund/credit, review, and escalation paths illustrate the mechanism; no commercial or legal remedy has been approved or is promised.",
   "assuranceRecord": {
-    "generationId": "eafc09d5-644a-4465-b8cb-e1abf14f6783",
-    "timestamp": "2026-07-15T22:30:52.720Z",
+    "generationId": "6e9d8c08-df13-4625-8fbd-e79bace66323",
+    "timestamp": "2026-07-16T04:11:04.909Z",
     "templateId": "independent-contractor-fixed2.docx",
     "formVersion": "1.0-recovered-20251231",
     "intakeVersion": "1.0",
@@ -21,119 +21,440 @@
     "inputsUsed": {
       "owner_name": {
         "value": "Acme Widgets LLC",
-        "provenance": "canonical encrypted vault projection"
+        "provenance": "CANONICAL_VAULT_CONFIRMED",
+        "sourceRecord": "business:business-2be27ad1-eb73-415d-9dd3-c183a10d8920",
+        "classification": "CANONICAL_VAULT_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:04.159Z",
+        "transformationApplied": "projected authoritative legal name"
       },
       "contractor_name": {
         "value": "Jane Q. Contractor",
-        "provenance": "canonical encrypted vault projection"
+        "provenance": "CANONICAL_VAULT_CONFIRMED",
+        "sourceRecord": "person:person-999bdf0f-9a79-4a2a-bdbe-e71841f95be7",
+        "classification": "CANONICAL_VAULT_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:10:57.665Z",
+        "transformationApplied": "projected authoritative legal name"
       },
       "owner_business_description": {
-        "value": "Manufacture and sell commercial widgets.",
-        "provenance": "saved matter answer"
+        "value": "Operate a North Carolina business for the tested engagement",
+        "provenance": "CURRENT_INTAKE_CONFIRMED",
+        "sourceRecord": "matter-answer:owner_business_description",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:00.206Z",
+        "transformationApplied": "none"
       },
       "scope_agr_longtext": {
-        "value": "Provide independent product-design consulting and written recommendations for the owner's widget catalog.",
-        "provenance": "saved matter answer"
+        "value": "Provide the expressly reviewed services and written deliverables described by the parties\nCompensation structure: Fixed fee.",
+        "provenance": "DETERMINISTIC_DERIVATION",
+        "sourceRecord": "matter-answer:scope_agr_longtext;matter-answer:compensation_structure",
+        "classification": "DETERMINISTIC_DERIVATION",
+        "lastConfirmedAt": "2026-07-16T04:11:00.328Z",
+        "transformationApplied": "joined confirmed scope with visibly selected compensation structure"
       },
       "agreement_start_date": {
-        "value": "2026-07-14",
-        "provenance": "saved matter answer"
+        "value": "2026-07-15",
+        "provenance": "CURRENT_INTAKE_CONFIRMED",
+        "sourceRecord": "matter-answer:agreement_start_date",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:00.467Z",
+        "transformationApplied": "none"
       },
       "agreement_duration_years_text": {
         "value": "One",
-        "provenance": "saved matter answer"
+        "provenance": "CURRENT_INTAKE_CONFIRMED",
+        "sourceRecord": "matter-answer:agreement_duration_years_text",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:00.569Z",
+        "transformationApplied": "none"
       },
       "agreement_duration_years_num": {
-        "value": "1",
-        "provenance": "saved matter answer"
+        "value": "1 year",
+        "provenance": "DETERMINISTIC_DERIVATION",
+        "sourceRecord": "matter-answer:agreement_duration_years_num",
+        "classification": "DETERMINISTIC_DERIVATION",
+        "lastConfirmedAt": "2026-07-16T04:11:00.664Z",
+        "transformationApplied": "added singular or plural year unit from confirmed numeric value"
       },
       "termination_notice_days": {
         "value": "30",
-        "provenance": "saved matter answer"
+        "provenance": "CURRENT_INTAKE_CONFIRMED",
+        "sourceRecord": "matter-answer:termination_notice_days",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:00.794Z",
+        "transformationApplied": "none"
       },
       "owner_add1": {
         "value": "999 Updated Avenue",
-        "provenance": "canonical encrypted vault projection"
+        "provenance": "CANONICAL_VAULT_CONFIRMED",
+        "sourceRecord": "address:address-c14b74cf-61ed-4aac-818d-e8845769cbbb",
+        "classification": "CANONICAL_VAULT_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:04.159Z",
+        "transformationApplied": "joined street and optional unit"
       },
       "owner_add2": {
         "value": "Greensboro, North Carolina 27401",
-        "provenance": "canonical encrypted vault projection"
+        "provenance": "CANONICAL_VAULT_CONFIRMED",
+        "sourceRecord": "address:address-c14b74cf-61ed-4aac-818d-e8845769cbbb",
+        "classification": "CANONICAL_VAULT_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:04.159Z",
+        "transformationApplied": "joined city, normalized full state name, and postal code"
       },
       "contr_add1": {
         "value": "456 Contractor Court",
-        "provenance": "canonical encrypted vault projection"
+        "provenance": "CANONICAL_VAULT_CONFIRMED",
+        "sourceRecord": "address:address-4c2c2f2b-c27d-47c9-9476-bdfd5b2ac7c7",
+        "classification": "CANONICAL_VAULT_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:10:57.665Z",
+        "transformationApplied": "joined street and optional unit"
       },
       "contr_add2": {
         "value": "High Point, North Carolina 27260",
-        "provenance": "canonical encrypted vault projection"
+        "provenance": "CANONICAL_VAULT_CONFIRMED",
+        "sourceRecord": "address:address-4c2c2f2b-c27d-47c9-9476-bdfd5b2ac7c7",
+        "classification": "CANONICAL_VAULT_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:10:57.665Z",
+        "transformationApplied": "joined city, normalized full state name, and postal code"
       },
       "forum_county_comma_state": {
         "value": "Guilford County, North Carolina",
-        "provenance": "saved matter answer"
+        "provenance": "DETERMINISTIC_DERIVATION",
+        "sourceRecord": "matter-answer:forum_county;matter-answer:forum_state",
+        "classification": "DETERMINISTIC_DERIVATION",
+        "lastConfirmedAt": "2026-07-16T04:10:59.619Z",
+        "transformationApplied": "joined separately confirmed county and state"
       },
       "arbitration_city": {
         "value": "Greensboro",
-        "provenance": "saved matter answer"
+        "provenance": "CURRENT_INTAKE_CONFIRMED",
+        "sourceRecord": "matter-answer:arbitration_city",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:00.890Z",
+        "transformationApplied": "none"
       },
       "arbitration_state": {
         "value": "North Carolina",
-        "provenance": "saved matter answer"
+        "provenance": "CURRENT_INTAKE_CONFIRMED",
+        "sourceRecord": "matter-answer:arbitration_state",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:00.986Z",
+        "transformationApplied": "none"
       },
       "court_amended_miles": {
         "value": "25",
-        "provenance": "saved matter answer"
+        "provenance": "CURRENT_INTAKE_CONFIRMED",
+        "sourceRecord": "matter-answer:court_amended_miles",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:01.076Z",
+        "transformationApplied": "none"
       },
       "court_amended_years": {
-        "value": "1",
-        "provenance": "saved matter answer"
+        "value": "1 year",
+        "provenance": "DETERMINISTIC_DERIVATION",
+        "sourceRecord": "matter-answer:court_amended_years",
+        "classification": "DETERMINISTIC_DERIVATION",
+        "lastConfirmedAt": "2026-07-16T04:11:01.195Z",
+        "transformationApplied": "added singular or plural year unit from confirmed numeric value"
       },
       "hire_away_duration_years_num": {
-        "value": "1",
-        "provenance": "saved matter answer"
+        "value": "1 year",
+        "provenance": "DETERMINISTIC_DERIVATION",
+        "sourceRecord": "matter-answer:hire_away_duration_years_num",
+        "classification": "DETERMINISTIC_DERIVATION",
+        "lastConfirmedAt": "2026-07-16T04:11:01.288Z",
+        "transformationApplied": "added singular or plural year unit from confirmed numeric value"
       },
       "hire_away_duration_years_text": {
         "value": "One",
-        "provenance": "saved matter answer"
+        "provenance": "CURRENT_INTAKE_CONFIRMED",
+        "sourceRecord": "matter-answer:hire_away_duration_years_text",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:01.362Z",
+        "transformationApplied": "none"
       },
       "non_compete_duration_years_num": {
-        "value": "1",
-        "provenance": "saved matter answer"
+        "value": "1 year",
+        "provenance": "DETERMINISTIC_DERIVATION",
+        "sourceRecord": "matter-answer:non_compete_duration_years_num",
+        "classification": "DETERMINISTIC_DERIVATION",
+        "lastConfirmedAt": "2026-07-16T04:11:01.422Z",
+        "transformationApplied": "added singular or plural year unit from confirmed numeric value"
       },
       "non_compete_duration_years_text": {
         "value": "One",
-        "provenance": "saved matter answer"
+        "provenance": "CURRENT_INTAKE_CONFIRMED",
+        "sourceRecord": "matter-answer:non_compete_duration_years_text",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:01.472Z",
+        "transformationApplied": "none"
       },
       "non_compete_radius_miles": {
         "value": "25",
-        "provenance": "saved matter answer"
+        "provenance": "CURRENT_INTAKE_CONFIRMED",
+        "sourceRecord": "matter-answer:non_compete_radius_miles",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:01.558Z",
+        "transformationApplied": "none"
       },
       "non_compete_states": {
         "value": "North Carolina",
-        "provenance": "saved matter answer"
+        "provenance": "CURRENT_INTAKE_CONFIRMED",
+        "sourceRecord": "matter-answer:non_compete_states",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:01.658Z",
+        "transformationApplied": "none"
       },
       "non_solicit_employees_duration_years_num": {
-        "value": "1",
-        "provenance": "saved matter answer"
+        "value": "1 year",
+        "provenance": "DETERMINISTIC_DERIVATION",
+        "sourceRecord": "matter-answer:non_solicit_employees_duration_years_num",
+        "classification": "DETERMINISTIC_DERIVATION",
+        "lastConfirmedAt": "2026-07-16T04:11:01.758Z",
+        "transformationApplied": "added singular or plural year unit from confirmed numeric value"
       },
       "non_solicit_employees_duration_years_text": {
         "value": "One",
-        "provenance": "saved matter answer"
+        "provenance": "CURRENT_INTAKE_CONFIRMED",
+        "sourceRecord": "matter-answer:non_solicit_employees_duration_years_text",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:01.854Z",
+        "transformationApplied": "none"
       },
       "owner_signatory_name": {
-        "value": "Alex Morgan",
-        "provenance": "saved matter answer"
+        "value": "Alex Owner\nTitle/Capacity: Managing Member",
+        "provenance": "CANONICAL_VAULT_CONFIRMED",
+        "sourceRecord": "signatory:signatory-party-bd6ef0e3-4da7-40b3-9bdb-e9be280b8670",
+        "classification": "CANONICAL_VAULT_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:10:58.464Z",
+        "transformationApplied": "joined human signatory name with confirmed title or capacity"
       },
       "owner_signatory_date": {
-        "value": "2026-07-14",
-        "provenance": "saved matter answer"
+        "value": "",
+        "provenance": "CANONICAL_VAULT_CONFIRMED",
+        "sourceRecord": "signatory:signatory-party-bd6ef0e3-4da7-40b3-9bdb-e9be280b8670",
+        "classification": "CANONICAL_VAULT_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:10:58.464Z",
+        "transformationApplied": "blank or confirmed execution date"
       },
       "contractor_signatory_name": {
-        "value": "Jane Q. Contractor",
-        "provenance": "saved matter answer"
+        "value": "Confirmed Contractor Signatory",
+        "provenance": "CURRENT_INTAKE_CONFIRMED",
+        "sourceRecord": "matter-answer:contractor_signatory_name",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:02.003Z",
+        "transformationApplied": "none"
       },
       "contractor_signatory_date": {
-        "value": "2026-07-14",
-        "provenance": "saved matter answer"
+        "value": "2026-07-15",
+        "provenance": "CURRENT_INTAKE_CONFIRMED",
+        "sourceRecord": "matter-answer:contractor_signatory_date",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:02.081Z",
+        "transformationApplied": "none"
+      }
+    },
+    "provenanceReport": {
+      "owner_name": {
+        "renderedValue": "Acme Widgets LLC",
+        "sourceRecord": "business:business-2be27ad1-eb73-415d-9dd3-c183a10d8920",
+        "classification": "CANONICAL_VAULT_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:04.159Z",
+        "transformationApplied": "projected authoritative legal name"
+      },
+      "contractor_name": {
+        "renderedValue": "Jane Q. Contractor",
+        "sourceRecord": "person:person-999bdf0f-9a79-4a2a-bdbe-e71841f95be7",
+        "classification": "CANONICAL_VAULT_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:10:57.665Z",
+        "transformationApplied": "projected authoritative legal name"
+      },
+      "owner_business_description": {
+        "renderedValue": "Operate a North Carolina business for the tested engagement",
+        "sourceRecord": "matter-answer:owner_business_description",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:00.206Z",
+        "transformationApplied": "none"
+      },
+      "scope_agr_longtext": {
+        "renderedValue": "Provide the expressly reviewed services and written deliverables described by the parties\nCompensation structure: Fixed fee.",
+        "sourceRecord": "matter-answer:scope_agr_longtext;matter-answer:compensation_structure",
+        "classification": "DETERMINISTIC_DERIVATION",
+        "lastConfirmedAt": "2026-07-16T04:11:00.328Z",
+        "transformationApplied": "joined confirmed scope with visibly selected compensation structure"
+      },
+      "agreement_start_date": {
+        "renderedValue": "2026-07-15",
+        "sourceRecord": "matter-answer:agreement_start_date",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:00.467Z",
+        "transformationApplied": "none"
+      },
+      "agreement_duration_years_text": {
+        "renderedValue": "One",
+        "sourceRecord": "matter-answer:agreement_duration_years_text",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:00.569Z",
+        "transformationApplied": "none"
+      },
+      "agreement_duration_years_num": {
+        "renderedValue": "1 year",
+        "sourceRecord": "matter-answer:agreement_duration_years_num",
+        "classification": "DETERMINISTIC_DERIVATION",
+        "lastConfirmedAt": "2026-07-16T04:11:00.664Z",
+        "transformationApplied": "added singular or plural year unit from confirmed numeric value"
+      },
+      "termination_notice_days": {
+        "renderedValue": "30",
+        "sourceRecord": "matter-answer:termination_notice_days",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:00.794Z",
+        "transformationApplied": "none"
+      },
+      "owner_add1": {
+        "renderedValue": "999 Updated Avenue",
+        "sourceRecord": "address:address-c14b74cf-61ed-4aac-818d-e8845769cbbb",
+        "classification": "CANONICAL_VAULT_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:04.159Z",
+        "transformationApplied": "joined street and optional unit"
+      },
+      "owner_add2": {
+        "renderedValue": "Greensboro, North Carolina 27401",
+        "sourceRecord": "address:address-c14b74cf-61ed-4aac-818d-e8845769cbbb",
+        "classification": "CANONICAL_VAULT_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:04.159Z",
+        "transformationApplied": "joined city, normalized full state name, and postal code"
+      },
+      "contr_add1": {
+        "renderedValue": "456 Contractor Court",
+        "sourceRecord": "address:address-4c2c2f2b-c27d-47c9-9476-bdfd5b2ac7c7",
+        "classification": "CANONICAL_VAULT_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:10:57.665Z",
+        "transformationApplied": "joined street and optional unit"
+      },
+      "contr_add2": {
+        "renderedValue": "High Point, North Carolina 27260",
+        "sourceRecord": "address:address-4c2c2f2b-c27d-47c9-9476-bdfd5b2ac7c7",
+        "classification": "CANONICAL_VAULT_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:10:57.665Z",
+        "transformationApplied": "joined city, normalized full state name, and postal code"
+      },
+      "forum_county_comma_state": {
+        "renderedValue": "Guilford County, North Carolina",
+        "sourceRecord": "matter-answer:forum_county;matter-answer:forum_state",
+        "classification": "DETERMINISTIC_DERIVATION",
+        "lastConfirmedAt": "2026-07-16T04:10:59.619Z",
+        "transformationApplied": "joined separately confirmed county and state"
+      },
+      "arbitration_city": {
+        "renderedValue": "Greensboro",
+        "sourceRecord": "matter-answer:arbitration_city",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:00.890Z",
+        "transformationApplied": "none"
+      },
+      "arbitration_state": {
+        "renderedValue": "North Carolina",
+        "sourceRecord": "matter-answer:arbitration_state",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:00.986Z",
+        "transformationApplied": "none"
+      },
+      "court_amended_miles": {
+        "renderedValue": "25",
+        "sourceRecord": "matter-answer:court_amended_miles",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:01.076Z",
+        "transformationApplied": "none"
+      },
+      "court_amended_years": {
+        "renderedValue": "1 year",
+        "sourceRecord": "matter-answer:court_amended_years",
+        "classification": "DETERMINISTIC_DERIVATION",
+        "lastConfirmedAt": "2026-07-16T04:11:01.195Z",
+        "transformationApplied": "added singular or plural year unit from confirmed numeric value"
+      },
+      "hire_away_duration_years_num": {
+        "renderedValue": "1 year",
+        "sourceRecord": "matter-answer:hire_away_duration_years_num",
+        "classification": "DETERMINISTIC_DERIVATION",
+        "lastConfirmedAt": "2026-07-16T04:11:01.288Z",
+        "transformationApplied": "added singular or plural year unit from confirmed numeric value"
+      },
+      "hire_away_duration_years_text": {
+        "renderedValue": "One",
+        "sourceRecord": "matter-answer:hire_away_duration_years_text",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:01.362Z",
+        "transformationApplied": "none"
+      },
+      "non_compete_duration_years_num": {
+        "renderedValue": "1 year",
+        "sourceRecord": "matter-answer:non_compete_duration_years_num",
+        "classification": "DETERMINISTIC_DERIVATION",
+        "lastConfirmedAt": "2026-07-16T04:11:01.422Z",
+        "transformationApplied": "added singular or plural year unit from confirmed numeric value"
+      },
+      "non_compete_duration_years_text": {
+        "renderedValue": "One",
+        "sourceRecord": "matter-answer:non_compete_duration_years_text",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:01.472Z",
+        "transformationApplied": "none"
+      },
+      "non_compete_radius_miles": {
+        "renderedValue": "25",
+        "sourceRecord": "matter-answer:non_compete_radius_miles",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:01.558Z",
+        "transformationApplied": "none"
+      },
+      "non_compete_states": {
+        "renderedValue": "North Carolina",
+        "sourceRecord": "matter-answer:non_compete_states",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:01.658Z",
+        "transformationApplied": "none"
+      },
+      "non_solicit_employees_duration_years_num": {
+        "renderedValue": "1 year",
+        "sourceRecord": "matter-answer:non_solicit_employees_duration_years_num",
+        "classification": "DETERMINISTIC_DERIVATION",
+        "lastConfirmedAt": "2026-07-16T04:11:01.758Z",
+        "transformationApplied": "added singular or plural year unit from confirmed numeric value"
+      },
+      "non_solicit_employees_duration_years_text": {
+        "renderedValue": "One",
+        "sourceRecord": "matter-answer:non_solicit_employees_duration_years_text",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:01.854Z",
+        "transformationApplied": "none"
+      },
+      "owner_signatory_name": {
+        "renderedValue": "Alex Owner\nTitle/Capacity: Managing Member",
+        "sourceRecord": "signatory:signatory-party-bd6ef0e3-4da7-40b3-9bdb-e9be280b8670",
+        "classification": "CANONICAL_VAULT_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:10:58.464Z",
+        "transformationApplied": "joined human signatory name with confirmed title or capacity"
+      },
+      "owner_signatory_date": {
+        "renderedValue": "",
+        "sourceRecord": "signatory:signatory-party-bd6ef0e3-4da7-40b3-9bdb-e9be280b8670",
+        "classification": "CANONICAL_VAULT_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:10:58.464Z",
+        "transformationApplied": "blank or confirmed execution date"
+      },
+      "contractor_signatory_name": {
+        "renderedValue": "Confirmed Contractor Signatory",
+        "sourceRecord": "matter-answer:contractor_signatory_name",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:02.003Z",
+        "transformationApplied": "none"
+      },
+      "contractor_signatory_date": {
+        "renderedValue": "2026-07-15",
+        "sourceRecord": "matter-answer:contractor_signatory_date",
+        "classification": "CURRENT_INTAKE_CONFIRMED",
+        "lastConfirmedAt": "2026-07-16T04:11:02.081Z",
+        "transformationApplied": "none"
       }
     },
     "activeWarnings": [],
@@ -152,12 +473,12 @@
       "Out-of-North-Carolina forum",
       "Minors as parties"
     ],
-    "outputSha256": "e9faead88af611620ee22baf5c8a4cfd63c78235dfc51ae84261a8013b84780e",
-    "fileName": "ELV-Independent-Contractor-Acme-Widgets-LLC-eafc09d5.docx",
+    "outputSha256": "a47fb847f77ee872e39a4fc84b329f9736235bf8284745b6e9f5f07dd2b63888",
+    "fileName": "ELV-Independent-Contractor-Acme-Widgets-LLC-6e9d8c08.docx",
     "matterId": "independent-contractor-demo-matter",
     "approvalRepresentation": "demo-approved"
   },
-  "outputSha256": "e9faead88af611620ee22baf5c8a4cfd63c78235dfc51ae84261a8013b84780e",
+  "outputSha256": "a47fb847f77ee872e39a4fc84b329f9736235bf8284745b6e9f5f07dd2b63888",
   "providerId": "legalflownc-demo-provider",
   "formVersion": "1.0-recovered-20251231",
   "intakeVersion": "1.0",

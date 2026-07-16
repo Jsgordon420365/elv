@@ -1,4 +1,6 @@
-// ver 20260715103800.0
+// ver 20260715103800.2
+
+import { GenerationProvenanceEntry } from "./provenance";
 
 export type FactProvenance =
     | "user-entered"
@@ -99,7 +101,7 @@ export interface CanonicalSnapshot {
 
 export interface ProjectionResult {
     fields: Record<string, string>;
-    provenance: Record<string, string>;
+    provenance: Record<string, GenerationProvenanceEntry>;
     checks: ConsistencyResult[];
 }
 
@@ -167,6 +169,10 @@ function signatoryName(signatory: SignatoryRecord | undefined, snapshot: Canonic
     return snapshot.persons.find((person) => person.id === signatory.personId)?.fullLegalName ?? signatory.enteredSignatoryName ?? "";
 }
 
+function canonicalProvenance(renderedValue: string, sourceRecord: string, lastConfirmedAt: string, transformationApplied: string): GenerationProvenanceEntry {
+    return { renderedValue, sourceRecord, classification: "CANONICAL_VAULT_CONFIRMED", lastConfirmedAt, transformationApplied };
+}
+
 export function evaluateCanonicalConsistency(snapshot: CanonicalSnapshot, ownerPartyId: string, contractorPartyId: string, ownerBusinessDescription = ""): ConsistencyResult[] {
     const results: ConsistencyResult[] = [];
     const selectedParties = [ownerPartyId, contractorPartyId].map((id) => snapshot.parties.find((party) => party.id === id)).filter((party): party is CanonicalParty => Boolean(party));
@@ -187,6 +193,8 @@ export function evaluateCanonicalConsistency(snapshot: CanonicalSnapshot, ownerP
             if (person?.legacyNameUnresolved) results.push({ code: "AMBIGUOUS_LEGACY_NAME", classification: "CONFIRMATION_REQUIRED", message: "The full legal name was preserved without guessing how to split it into name components.", partyId: party.id });
         } else {
             const business = snapshot.businesses.find((item) => item.id === party.businessId);
+            const businessSignatory = snapshot.signatories.find((item) => item.partyId === party.id);
+            if (!businessSignatory) results.push({ code: "BUSINESS_SIGNATORY_REQUIRED", classification: "BLOCKING", message: "A business contracting party must have a confirmed human signatory record.", partyId: party.id });
             if (business?.noticeAddressId && business.noticeAddressId !== business.principalAddressId) results.push({ code: "NOTICE_ADDRESS_DIFFERS", classification: "CONFIRMATION_REQUIRED", message: "The notice address differs from the selected principal party address.", partyId: party.id });
             if (business?.tradeNameOrDba) results.push({ code: "DBA_RETAINED_SEPARATELY", classification: "INFORMATIONAL", message: `${business.tradeNameOrDba} remains a trade name and was not substituted for the legal entity name.`, partyId: party.id });
         }
@@ -216,16 +224,37 @@ export function projectIndependentContractor(snapshot: CanonicalSnapshot, ownerP
         contractor_name: partyName(contractor, snapshot), contr_add1: contractorLines.line1, contr_add2: contractorLines.line2,
     };
     if (ownerSignatory) {
-        fields.owner_signatory_name = signatoryName(ownerSignatory, snapshot);
+        const name = signatoryName(ownerSignatory, snapshot);
+        fields.owner_signatory_name = ownerSignatory.titleOrCapacity ? `${name}\nTitle/Capacity: ${ownerSignatory.titleOrCapacity}` : name;
         fields.owner_signatory_date = ownerSignatory.signatureDate;
     }
     if (contractorSignatory) {
-        fields.contractor_signatory_name = signatoryName(contractorSignatory, snapshot);
+        const name = signatoryName(contractorSignatory, snapshot);
+        fields.contractor_signatory_name = contractorSignatory.titleOrCapacity ? `${name}\nTitle/Capacity: ${contractorSignatory.titleOrCapacity}` : name;
         fields.contractor_signatory_date = contractorSignatory.signatureDate;
     }
-    const provenance = Object.fromEntries(Object.keys(fields).map((fieldId) => [fieldId, "canonical encrypted vault projection"]));
+    const ownerNameRecord = owner.kind === "business" ? snapshot.businesses.find((item) => item.id === owner.businessId) : snapshot.persons.find((item) => item.id === owner.personId);
+    const contractorNameRecord = contractor.kind === "business" ? snapshot.businesses.find((item) => item.id === contractor.businessId) : snapshot.persons.find((item) => item.id === contractor.personId);
+    const provenance: Record<string, GenerationProvenanceEntry> = {
+        owner_name: canonicalProvenance(fields.owner_name, `${owner.kind}:${ownerNameRecord?.id ?? owner.id}`, ownerNameRecord?.updatedAt ?? owner.createdAt, "projected authoritative legal name"),
+        contractor_name: canonicalProvenance(fields.contractor_name, `${contractor.kind}:${contractorNameRecord?.id ?? contractor.id}`, contractorNameRecord?.updatedAt ?? contractor.createdAt, "projected authoritative legal name"),
+        owner_add1: canonicalProvenance(fields.owner_add1, `address:${ownerAddress?.id ?? "missing"}`, ownerAddress?.updatedAt ?? owner.createdAt, "joined street and optional unit"),
+        owner_add2: canonicalProvenance(fields.owner_add2, `address:${ownerAddress?.id ?? "missing"}`, ownerAddress?.updatedAt ?? owner.createdAt, "joined city, normalized full state name, and postal code"),
+        contr_add1: canonicalProvenance(fields.contr_add1, `address:${contractorAddress?.id ?? "missing"}`, contractorAddress?.updatedAt ?? contractor.createdAt, "joined street and optional unit"),
+        contr_add2: canonicalProvenance(fields.contr_add2, `address:${contractorAddress?.id ?? "missing"}`, contractorAddress?.updatedAt ?? contractor.createdAt, "joined city, normalized full state name, and postal code"),
+    };
+    if (ownerSignatory) {
+        provenance.owner_signatory_name = canonicalProvenance(fields.owner_signatory_name, `signatory:${ownerSignatory.id}`, ownerSignatory.updatedAt, "joined human signatory name with confirmed title or capacity");
+        provenance.owner_signatory_date = canonicalProvenance(fields.owner_signatory_date, `signatory:${ownerSignatory.id}`, ownerSignatory.updatedAt, "blank or confirmed execution date");
+    }
+    if (contractorSignatory) {
+        provenance.contractor_signatory_name = canonicalProvenance(fields.contractor_signatory_name, `signatory:${contractorSignatory.id}`, contractorSignatory.updatedAt, "joined human signatory name with title or capacity when supplied");
+        provenance.contractor_signatory_date = canonicalProvenance(fields.contractor_signatory_date, `signatory:${contractorSignatory.id}`, contractorSignatory.updatedAt, "blank or confirmed execution date");
+    }
     return { fields, provenance, checks: evaluateCanonicalConsistency(snapshot, ownerPartyId, contractorPartyId, ownerBusinessDescription) };
 }
 
 // Version history
 // 20260715103800.0 - Added canonical party, person, business, address, signatory, provenance, migration parsing, consistency, and deterministic form projection primitives.
+// 20260715103800.1 - Added structured approved provenance and bound signatory title or capacity into the existing signature-name tags.
+// 20260715103800.2 - Blocked business-party generation until a human signatory record exists with confirmed capacity checks.

@@ -1,4 +1,4 @@
-// ver 20260714134000.7
+// ver 20260714134000.9
 
 "use client";
 
@@ -37,10 +37,20 @@ export default function VaultPage() {
     const [toPartyId, setToPartyId] = useState("");
     const [notice, setNotice] = useState("");
     const [exporting, setExporting] = useState(false);
+    const [migrationError, setMigrationError] = useState("");
+    const [migrationReady, setMigrationReady] = useState(false);
 
     const reload = useCallback(async () => {
         if (!masterKey) return;
-        await migrateLegacyParties(masterKey);
+        setMigrationError("");
+        setMigrationReady(false);
+        try {
+            const migration = await migrateLegacyParties(masterKey);
+            if (migration.status === "complete") setNotice(`Legacy encrypted records migrated atomically. Recovery snapshot: ${migration.snapshotId}.`);
+        } catch (caught) {
+            setMigrationError(caught instanceof Error ? caught.message : "Canonical migration stopped safely.");
+            return;
+        }
         const [nextParties, nextRelationships, nextFacts, nextGenerations] = await Promise.all([
             listParties(masterKey),
             listRelationships(),
@@ -51,6 +61,7 @@ export default function VaultPage() {
         setRelationships(nextRelationships);
         setFacts(nextFacts);
         setGenerations(nextGenerations.sort((a, b) => b.timestamp.localeCompare(a.timestamp)));
+        setMigrationReady(true);
     }, [masterKey]);
 
     useEffect(() => { void reload(); }, [reload]);
@@ -92,7 +103,9 @@ export default function VaultPage() {
                     {notice && <p role="status" className="mt-3 text-sm text-indigo-300">{notice}</p>}
                 </header>
 
-                {masterKey && <CanonicalVaultEditor masterKey={masterKey} onChanged={async (message) => { setNotice(message); await reload(); }} />}
+                {migrationError && <section role="alert" className="rounded-2xl border border-red-500/40 bg-red-500/10 p-5"><h2 className="font-bold text-red-100">Migration stopped safely</h2><p className="mt-2 text-sm leading-6 text-red-100/80">{migrationError}</p></section>}
+
+                {masterKey && migrationReady && <CanonicalVaultEditor masterKey={masterKey} onChanged={async (message) => { setNotice(message); await reload(); }} />}
 
                 <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
                     <h2 className="flex items-center gap-2 text-lg font-bold"><Link2 className="h-5 w-5 text-indigo-300" />Company-contractor relationship</h2>
@@ -101,7 +114,7 @@ export default function VaultPage() {
                         <select aria-label="Contractor" required value={toPartyId} onChange={(event) => setToPartyId(event.target.value)} className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-3 text-sm"><option value="">Select contractor</option>{parties.filter((party) => party.id !== fromPartyId).map((party) => <option key={party.id} value={party.id}>{party.name}</option>)}</select>
                         <button type="submit" className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-bold hover:bg-indigo-500">Relate parties</button>
                     </form>
-                    <div className="mt-4 space-y-2">{relationships.map((relationship) => <p key={relationship.id} className="rounded-lg bg-slate-950 px-4 py-3 text-sm text-slate-300">{partyName(relationship.fromPartyId)} <span className="text-indigo-300">company-contractor</span> {partyName(relationship.toPartyId)}</p>)}</div>
+                    <div className="mt-4 space-y-2">{relationships.map((relationship) => <p key={relationship.id} className="rounded-lg bg-slate-950 px-4 py-3 text-sm text-slate-300">{partyName(relationship.fromPartyId)} <span className="text-indigo-300">{relationship.type}</span> {partyName(relationship.toPartyId)}</p>)}</div>
                 </section>
 
                 <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
@@ -135,3 +148,5 @@ export default function VaultPage() {
 // 20260714134000.5 - Replaced template-shaped party entry with canonical encrypted person, business, address, and signatory editing while retaining compatibility facts.
 // 20260714134000.6 - Restored the legacy Party type import used by the compatibility relationship selector.
 // 20260714134000.7 - Made template-shaped compatibility values read-only so canonical records remain the durable editing surface.
+// 20260714134000.8 - Displayed atomic migration completion and stopped the vault UI safely when encrypted migration fails.
+// 20260714134000.9 - Delayed canonical editor loading until migration completes and preserved displayed relationship types.
