@@ -453,3 +453,17 @@
 ### CONFLICTS
 
 2026-07-16T04:01:10-04:00 — None. The supplied Fable handoff was treated as current in substance, but its stale embedded `a_now` was not recorded as the July 16 execution time. No actual user vault or export was copied into the repository or any report.
+
+## INDEPENDENT VERIFICATION — P0 TRUST CLOSURE
+
+### TESTED
+
+2026-07-16T07:28:18-04:00 — Independent verification in a clean cloud clone of `origin/proof/working-demo-20260713` at `c472034`. Dependencies installed fresh from a clean tree (no prior `node_modules`); install exited 0. `npx tsx --test tests/*.test.ts` exit code 0: 22 tests, 22 passed, 0 failed. The trust-closure suite `tests/trust-closure.test.ts` passed 6 of 6 (T1–T4 plus the fixture-privacy gate). The committed red baseline `proof-p0/test-red.txt` was preserved and still records the pre-implementation state of 5 failures, confirming red-then-green.
+
+2026-07-16T07:28:18-04:00 — F1–F6 closure independently confirmed: F1 via T1 (v3→v5 migration preserves party, relationship, fact, and matter IDs; encrypted pre-migration snapshot; simulated mid-migration failure rejects and leaves the old vault recoverable; two idempotent restarts return `not-needed`); F2 via T2 (stale prior-transaction scope and business description resolve to missing provenance and block generation); F3 and F4 via T3/T4 (entity/name/title signature separation and a single confirmed execution-date mode); F5 by direct inspection; F6 because T1 is a genuine old-schema migration test that fails on data loss rather than a fresh-install-only check.
+
+2026-07-16T07:28:18-04:00 — Generated evidence document `proof-p0/moonshot-marmalade-p0-v1.1.docx` re-inspected directly: zero unresolved double-brace tags and none of the listed F5 defect strings (`One (1) years`, `1 years`, `North Carolina_,_______`, `assign not any right`). Its `word/document.xml` SHA-256 `0e725091060fdf4ae0dd60fccdf6169eba592284058d114b9e36477bc6ff25ce` and package SHA-256 `d3a141fe11888782bf6508993b4d983e0a823365f5bfbdefa72ba56f89b4a5ac` matched the proof ledger and `moonshot-marmalade-p0-v1.1-provenance.json` exactly.
+
+2026-07-16T07:28:18-04:00 — Provenance ledger contained 32 of 32 tag entries, all in allowed production classes (`CURRENT_INTAKE_CONFIRMED` 16, `CANONICAL_VAULT_CONFIRMED` 9, `DETERMINISTIC_DERIVATION` 7) with no prohibited, demo, or hidden-default class, and each entry carried the required tag, value, class, source record and field, last-confirmed time, transformation, template id and version, intake version, generation id, and timestamp. The `/proof-p0/` evidence package was complete (old-schema fixture archive, migration before/after inventory, generated DOCX, provenance ledger, both hashes, review screenshots, red baseline, and unit-test output).
+
+2026-07-16T07:28:18-04:00 — Verification-only entry. No implementation, test, fixture, proof artifact, or hash was modified. This independent verification used its own accurate execution time and did not reuse any stale handoff `a_now` value.
