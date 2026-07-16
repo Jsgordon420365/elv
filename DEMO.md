@@ -1,4 +1,4 @@
-<!-- ver 20260716001500.0 -->
+<!-- ver 20260716001500.1 -->
 # ELV / LegalFlowNC Working Proof Demo
 
 ## Start
@@ -33,7 +33,7 @@ Verified generated documents and the portable export are written to `C:\Users\js
 
 ## Current acceptance runtime
 
-The P0 browser regression suite passed at the fixed origin `http://localhost:3004`. IndexedDB is origin-scoped, so changing a localhost port opens a different browser database even though the older encrypted records remain intact at their original origin. Both launchers now refuse to move silently and always target port 3004. The final healthy ELV process receipt is recorded in `CONTINUITY.md`.
+The P0 browser regression suite passed at the fixed origin `http://localhost:3004`. IndexedDB is origin-scoped, so changing a localhost port opens a different browser database even though the older encrypted records remain intact at their original origin. Both launchers now refuse to move silently and always target port 3004. After the final production build, the ELV-owned development server was restarted on the same origin. Node listener PID `2240` returns HTTP 200 with title `ELV | Encrypted Legal Vault`.
 
 Final stable artifacts:
 
@@ -57,4 +57,5 @@ Final stable artifacts:
 
 <!-- Version history
 20260716001500.0 - Fixed the documented vault origin at port 3004 and replaced hidden demo-fill instructions with explicit provenance review.
+20260716001500.1 - Recorded the final same-origin ELV listener PID and HTTP health receipt.
 -->

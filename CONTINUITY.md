@@ -367,3 +367,7 @@
 2026-07-16T00:40:00-04:00 — A three-repeat stress run of the canonical browser case exposed and then verified correction of an early-edit race. Intake controls now remain unavailable until saved-matter decryption completes, stale duplicate development-mode loads are ignored, latest values are held synchronously, and encrypted matter writes are ordered. After correction, all three isolated repetitions passed in 50.4 seconds.
 
 2026-07-16T00:40:00-04:00 — Final stable P0 artifact receipts supersede the earlier receipts: `moonshot-marmalade-p0.docx` SHA-256 `F99AFF41820ADBF24B918400EDFDD38809405034427707E046843646D24F6377`; `moonshot-marmalade-p0-provenance.json` SHA-256 `101E79927006188EE4B9043D6C3999626257A27463053E43B6066723434F23D1`; `moonshot-marmalade-p0-migration-evidence.json` SHA-256 `E8F1BE561B53926B9C1F2D56A5F44874AAF8FF89AD33F1E468A1C4D5C64CB698`.
+
+## READY FOR HUMAN REVIEW — P0 FINAL RUNTIME
+
+2026-07-16T00:45:00-04:00 — Commit `e0c13ed` contains the bounded P0 correction. After the production build invalidated the development cache, only the verified ELV-owned listener was stopped and restarted on the same fixed vault origin. `http://localhost:3004` now returns HTTP 200 with title `ELV | Encrypted Legal Vault`; the running Node listener PID is `2240` and its command line resolves to `C:\Users\jsgor\Projects-Arc\elv\webapp\node_modules\next\dist\server\lib\start-server.js`. Remotion and all other listeners were left untouched.
