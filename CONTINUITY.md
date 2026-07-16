@@ -423,3 +423,33 @@
 ### UNRESOLVED — GREEN CONTRACT SLICE
 
 2026-07-16T03:29:00-04:00 — The prior-version-generated fixture archive, browser migration recovery/idempotence proof, browser review screenshot, full E2E compatibility updates, confirmation-page dual-hash display, and final `/proof-p0/` package remain incomplete. The production build has invalidated the running development cache; no listener will be stopped until the selected ELV PID is reverified.
+
+## READY FOR HUMAN REVIEW — P0 TRUST CLOSURE
+
+### CHANGED
+
+2026-07-16T04:01:10-04:00 — Commit `f250ed764fe8cc0e010be343431ad99f77e08b4e` closes the bounded P0 migration and provenance gaps. It adds the separate 32-tag v1.1 template and ledger, transaction-bound granular review, dual hashes, explicit compensation and execution-date treatments, fictional historical fixture capture, encrypted snapshot recovery proof, and stable `/proof-p0/` evidence. No template beyond v1.1, payment, deployment, sync, marketplace, cloud, or LLM work was added.
+
+### TESTED
+
+2026-07-16T04:01:10-04:00 — Final supported-script receipts: `npm test` exit 0 with 22 passed; `npm run lint` exit 0; `npm run test:e2e` exit 0 with all 3 browser tests passed in 44.5 seconds; `npm run build` exit 0 with 14 routes. The only build notice is the pre-existing multiple-lockfile workspace-root warning.
+
+2026-07-16T04:01:10-04:00 — The schema-v3 browser fixture preserved party IDs `party-moonshot`, `party-peregrine`, and `party-petunia`; both relationship IDs; all six fact IDs; and matter ID `independent-contractor-demo-matter`. The encrypted snapshot contains no fixture plaintext. Two reload-unlock cycles passed before generation. The focused failure test aborts after one simulated canonical write, restores the encrypted snapshot, retries successfully, preserves decryptability and IDs, and returns `not-needed` on two subsequent checks.
+
+2026-07-16T04:01:10-04:00 — Generated `proof-p0/moonshot-marmalade-p0-v1.1.docx` is a valid DOCX package with `word/document.xml`, 32 documented tag sources, zero unresolved tags, logical XML SHA-256 `0e725091060fdf4ae0dd60fccdf6169eba592284058d114b9e36477bc6ff25ce`, and package SHA-256 `d3a141fe11888782bf6508993b4d983e0a823365f5bfbdefa72ba56f89b4a5ac`.
+
+2026-07-16T04:01:10-04:00 — Browser evidence confirms individual, grouped-address, stated-concern, and informational review categories. Scope and business description are visibly confirmed `CURRENT_INTAKE_CONFIRMED` matter answers; the prior product-design and widget prose is absent. Petunia Picklesworth is separately bound to Moonshot Marmalade Industries, LLC with title Chief Marmalade Officer, Peregrine Picklesworth is the contractor signatory, and execution dates follow one explicit treatment.
+
+### FOUND — FINAL RUNTIME
+
+2026-07-16T04:01:10-04:00 — After the production build, port 3004's verified ELV process was the only process restarted. `http://localhost:3004` returns HTTP 200/title `ELV | Encrypted Legal Vault`; PID `16060`, start time `2026-07-16T03:57:45.4607153-04:00`, command line resolves to this exact repository's Next.js dependency tree. Remotion PID `3388` on port 3000 and PID `62240` on port 3001 were not stopped or restarted and both still return HTTP 200/title `Remotion Studio`.
+
+### UNRESOLVED
+
+2026-07-16T04:01:10-04:00 — Technical: none within the bounded P0 acceptance contract. Intentional data ambiguity remains for personal-name components and nonconforming legacy combined addresses; the system preserves those values unchanged and requires confirmation instead of guessing.
+
+2026-07-16T04:01:10-04:00 — Policy: the provider approval and remedy mechanisms remain explicitly labeled demonstration policy and promise no commercial, insurance, indemnity, support, correction, refund, or legal remedy.
+
+### CONFLICTS
+
+2026-07-16T04:01:10-04:00 — None. The supplied Fable handoff was treated as current in substance, but its stale embedded `a_now` was not recorded as the July 16 execution time. No actual user vault or export was copied into the repository or any report.

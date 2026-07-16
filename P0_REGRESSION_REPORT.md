@@ -1,4 +1,4 @@
-<!-- ver 20260716002000.2 -->
+<!-- ver 20260716002000.3 -->
 # ELV P0 Trust-Closure Regression Report
 
 ## Result
@@ -33,7 +33,7 @@ Stable evidence is in `proof-p0`, including the fictional historical fixture, mi
 
 ## Runtime identity
 
-Verified ELV: `http://localhost:3004`, PID 16060, exact project `C:\Users\jsgor\Projects-Arc\elv\webapp`, HTTP 200, title `ELV | Encrypted Legal Vault`, started `2026-07-16T03:57:45.4607153-04:00`.
+Verified ELV: `http://localhost:3004`, PID 16060, exact project `C:\Users\jsgor\Projects-Arc\elv\webapp`, implementation commit `f250ed764fe8cc0e010be343431ad99f77e08b4e`, HTTP 200, title `ELV | Encrypted Legal Vault`, started `2026-07-16T03:57:45.4607153-04:00`.
 
 Verified Remotion listeners were not stopped or restarted: PID 3388 on port 3000 from `C:\Users\jsgor\Projects\XylephoneVideo`, and PID 62240 on port 3001 from `C:\Projects\XylephoneVideo`; both returned HTTP 200 with title `Remotion Studio`.
 
@@ -45,4 +45,5 @@ Policy only: the demonstration publisher, approval, and remedy labels remain dem
 20260716002000.0 - Recorded the bounded P0 root causes, migration behavior, generation provenance, template corrections, and verified evidence.
 20260716002000.1 - Added intake sequencing evidence and refreshed final test timing and artifact hashes.
 20260716002000.2 - Updated the report for v1.1, 32-tag provenance, fictional fixture privacy, recovery evidence, dual hashes, and verified runtime coexistence.
+20260716002000.3 - Recorded the exact bounded implementation commit served by the verified ELV runtime.
 -->
