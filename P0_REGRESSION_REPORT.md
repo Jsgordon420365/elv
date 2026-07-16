@@ -1,47 +1,48 @@
-<!-- ver 20260716002000.1 -->
-# ELV P0 Regression Report
+<!-- ver 20260716002000.2 -->
+# ELV P0 Trust-Closure Regression Report
 
 ## Result
 
-PASS. The version-3 encrypted browser vault fixture survives reopen and the additive version-5 upgrade with party, fact, matter, relationship, record ID, timestamp, and provenance continuity. The preserved records generate the Moonshot Marmalade DOCX with 29 documented tag sources and zero unresolved tags.
+PASS. A fictional schema-v3 Moonshot Marmalade / Picklesworth vault survived additive upgrade to schema 5, two reload-unlock cycles, generation, and export. All 32 v1.1 template tags have approved transaction-bound provenance and the generated DOCX has zero unresolved tags.
 
-## Data-loss cause and correction
+## Data continuity and recovery
 
-The observed empty vault was caused first by changing the localhost port: IndexedDB is scoped to the exact origin, so an ELV session moved from one port to another opens a different database while the older database remains at its original origin. The launchers are now fixed to `http://localhost:3004` and refuse silent port fallback.
+The human-observed empty vault had two concrete causes. IndexedDB is origin-scoped, so changing the localhost port exposed a different database while the original remained at its original origin. The earlier canonical migration also wrote new records incrementally without an encrypted recovery snapshot or one atomic commit boundary.
 
-The prior canonical migration also lacked a recoverable snapshot and atomic canonical write boundary. Schema version 5 adds encrypted `migration_snapshots` and `migration_meta` stores. Migration verifies the existing non-extractable key, decryptability, and raw legacy data before mutation; encrypts a full pre-migration snapshot; prepares canonical records without changing legacy stores; and commits canonical people, businesses, addresses, parties, and migration metadata in one IndexedDB transaction. Failure aborts that transaction and leaves the original stores plus encrypted snapshot intact. Unlock with a wrong identity or passphrase stops instead of creating an empty vault. The workflow now waits for saved-matter decryption before exposing intake controls and serializes rapid edits, preventing late loads or overlapping writes from dropping confirmed provenance.
+Schema 5 now preserves legacy stores, the non-extractable WebCrypto key, encrypted payloads, IDs, timestamps, facts, matters, and relationships. Before canonical writes, it verifies decryptability and creates an encrypted snapshot. Canonical writes and migration metadata commit in one IndexedDB transaction. A simulated mid-migration failure aborts safely; the encrypted snapshot restores the old stores; retry succeeds; two further migration checks are idempotent. Ambiguous names remain opaque authoritative strings, and ambiguous combined addresses remain unchanged and marked for confirmation.
 
-Legacy names remain authoritative opaque strings and are marked for confirmation. Combined legacy address line 2 is retained verbatim; it is split only for the exact recognized `city, state postal-code` pattern. IDs, relationships, facts, matters, timestamps, and encrypted payloads are preserved unchanged.
+## Generation provenance
 
-## Hidden generation values and provenance
+The unrequested scope and business-description sentences came from `demoDefaults` in the prior workflow page at commit `c35dcbf` and the former “Fill remaining demo values” path. Those defaults are removed. Scope and business description are now visible, individually confirmed inputs. The Moonshot proof records both as `CURRENT_INTAKE_CONFIRMED` from their respective `matter-answer` records.
 
-Both unrequested sentences came from `demoDefaults` in the prior Independent Contractor page and were injected by the removed “Fill remaining demo values” action. That fallback and its prose are gone. Scope, business description, compensation, and all other variable inputs now require visible entry or confirmation.
+The v1.1 ledger covers 32 tags and records rendered value, source record, classification, last-confirmed timestamp, transformation, transaction, template, intake, generation, and timestamp identity. Accepted classifications are `CURRENT_INTAKE_CONFIRMED`, `CANONICAL_VAULT_CONFIRMED`, `DETERMINISTIC_DERIVATION`, and `APPROVED_FIXED_TEMPLATE_TEXT`. Missing or stale provenance blocks generation. Review confirmations are granular and fingerprint-bound; the browser proof shows individual, grouped-address, stated-concern, and informational categories.
 
-Generation blocks unless every one of the 29 tags has a rendered value where required and one approved classification: `CURRENT_INTAKE_CONFIRMED`, `CANONICAL_VAULT_CONFIRMED`, `DETERMINISTIC_DERIVATION`, or `APPROVED_FIXED_TEMPLATE_TEXT`. The assurance record retains rendered value, source record, classification, confirmation timestamp, and transformation for every tag. Moonshot scope is a documented deterministic derivation from the confirmed scope plus selected fixed-fee compensation; business description is current-intake confirmed.
+## Rendering corrections
 
-## Signature and template corrections
+The owner signature block separates Moonshot Marmalade Industries, LLC from human signatory Petunia Picklesworth and the confirmed title Chief Marmalade Officer. The contractor block separately renders Peregrine Picklesworth and capacity. The selected execution-date treatment supplies exactly two populated date lines or two blank date lines; mixed treatment blocks generation. Compensation comes only from the visible selected structure. The v1.1 template contains none of the listed pluralization, punctuation, assignment-grammar, forum-placeholder, duplicate-date, or unconditional-commission artifacts.
 
-The owner signature block renders `Moonshot Marmalade Industries, LLC`, one `By:` line, `Penelope Fizzlebottom`, `Chief Marmalade Officer`, and one owner date treatment. The contractor block has its own single date treatment. A business signatory without a confirmed title or capacity blocks generation.
+## Verification
 
-The bounded template repair removes the listed pluralization artifacts, stray North Carolina underscores/commas, double terminal punctuation introduced by merged values, reversed assignment grammar, duplicate execution dates, and unconditional commission compensation. Compensation is rendered only from the visible selected structure. No unrelated substantive legal-language rewrite was made.
+`npm test`: 22 passed. `npm run lint`: passed. `npm run test:e2e`: 3 passed, including the schema-v3 browser migration and generation. `npm run build`: passed with 14 routes. The only build warning is the pre-existing multiple-lockfile workspace-root warning.
 
-## Evidence
+Logical `word/document.xml` SHA-256: `0e725091060fdf4ae0dd60fccdf6169eba592284058d114b9e36477bc6ff25ce`.
 
-`npm run lint` passed. `npm test` passed 16 of 16. `npm run build` passed with 14 routes; the existing multiple-lockfile workspace-root warning remains informational. `npm run test:e2e` passed all 3 browser cases in 33.9 seconds. The timing-sensitive canonical browser case also passed three consecutive isolated repetitions after the load/persistence sequencing correction.
+Downloaded DOCX package SHA-256: `d3a141fe11888782bf6508993b4d983e0a823365f5bfbdefa72ba56f89b4a5ac`.
 
-Stable artifacts are `demo-output/moonshot-marmalade-p0.docx`, `demo-output/moonshot-marmalade-p0-provenance.json`, and `demo-output/moonshot-marmalade-p0-migration-evidence.json`.
+Stable evidence is in `proof-p0`, including the fictional historical fixture, migration inventory, failure/recovery unit transcript, browser transcript, generated DOCX, 32-tag provenance JSON, and review screenshots. No actual user vault or export was copied into the repository or reports.
 
-DOCX SHA-256: `F99AFF41820ADBF24B918400EDFDD38809405034427707E046843646D24F6377`.
+## Runtime identity
 
-Provenance JSON SHA-256: `101E79927006188EE4B9043D6C3999626257A27463053E43B6066723434F23D1`.
+Verified ELV: `http://localhost:3004`, PID 16060, exact project `C:\Users\jsgor\Projects-Arc\elv\webapp`, HTTP 200, title `ELV | Encrypted Legal Vault`, started `2026-07-16T03:57:45.4607153-04:00`.
 
-Migration evidence SHA-256: `E8F1BE561B53926B9C1F2D56A5F44874AAF8FF89AD33F1E468A1C4D5C64CB698`.
+Verified Remotion listeners were not stopped or restarted: PID 3388 on port 3000 from `C:\Users\jsgor\Projects\XylephoneVideo`, and PID 62240 on port 3001 from `C:\Projects\XylephoneVideo`; both returned HTTP 200 with title `Remotion Studio`.
 
 ## Remaining ambiguity
 
-The migration intentionally does not guess personal-name components or split nonconforming legacy address text. Those values remain preserved and flagged for confirmation. IndexedDB cannot be read across localhost ports by web application code; the fixed launcher origin prevents recurrence, but an older vault must be opened at its original exact origin for browser-authorized export or migration.
+Policy only: the demonstration publisher, approval, and remedy labels remain demonstration policy and promise no commercial or legal benefit. Technical ambiguity intentionally retained: personal-name components and nonconforming legacy combined addresses are not guessed and require human confirmation.
 
 <!-- Version history
 20260716002000.0 - Recorded the bounded P0 root causes, migration behavior, generation provenance, template corrections, and verified evidence.
 20260716002000.1 - Added intake sequencing evidence and refreshed final test timing and artifact hashes.
+20260716002000.2 - Updated the report for v1.1, 32-tag provenance, fictional fixture privacy, recovery evidence, dual hashes, and verified runtime coexistence.
 -->

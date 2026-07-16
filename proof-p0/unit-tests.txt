@@ -1,0 +1,34 @@
+
+> webapp@0.1.0 test
+> tsx --test tests/*.test.ts
+
+✔ canonical names, optional address line 2, state normalization, DBA separation, and signatory checks are deterministic (4.1098ms)
+✔ legacy migration preserves uncertain text, parses only unambiguous addresses, and encrypts canonical values (229.8369ms)
+✔ canonical projection merges through all v1.1 32 DOCX tags with no unresolved tags (164.9911ms)
+✔ legacy address parser refuses ambiguous combined text (0.584ms)
+✔ v1.1 template tags and field schema cover the same 32 fields (32.9728ms)
+✔ identical 32-field merges have deterministic document.xml and package hashes with no unresolved tags (198.7492ms)
+✔ the essential intake contains no hidden demo prose (14.1203ms)
+✔ the maintained v1.1 template contains 32 unique tags and none of the approved P0 artifacts (30.0652ms)
+✔ canonical projection exposes structured approved provenance instead of display-only strings (2.5177ms)
+✔ incident record carries generation integrity, provider versions, warnings, and failure facts (5.3156ms)
+✔ maintained in-scope registry state is representable as demo-approved (3.3733ms)
+✔ provider not in good standing cannot be represented as approved and records a warning (0.5633ms)
+✔ suspended form cannot be represented as approved and records a warning (0.338ms)
+✔ out-of-state forum and employment characterization are blocking scope warnings (0.3633ms)
+✔ T1 simulated migration failure preserves the encrypted old-schema parties (250.6665ms)
+✔ T2 stale prior-transaction scope and business description cannot be generated (2.3186ms)
+✔ T3 v1.1 exposes 32 tags, complete ledger metadata, migration map, and package hash (148.9477ms)
+✔ T4 review and rendering enforce granular confirmation and one execution-date mode (2.3576ms)
+✔ T4 confirmed signature-blanks treatment supplies approved provenance for both blank date tags (0.5786ms)
+✔ fixture privacy permits only Moonshot Marmalade and Picklesworth identities (5.675ms)
+✔ all user-authored vault values are encrypted at rest and decrypt through the vault key (222.2767ms)
+✔ out-of-scope audit event remains recorded and becomes resolved after correction (3.582ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2168.4982

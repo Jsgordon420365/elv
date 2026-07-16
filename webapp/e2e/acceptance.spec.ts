@@ -1,16 +1,17 @@
-// ver 20260714144000.12
+// ver 20260714144000.15
 
 import { expect, test } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import PizZip from "pizzip";
-import { completeVisibleIndependentContractorIntake } from "./intake-helpers";
+import { completeVisibleIndependentContractorIntake, confirmAllRequiredReviewItems } from "./intake-helpers";
 
 const outputDirectory = path.resolve(process.cwd(), "../demo-output");
 const firstDocxPath = path.join(outputDirectory, "accepted-generation-1.docx");
 const secondDocxPath = path.join(outputDirectory, "accepted-generation-2-regenerated.docx");
 const incidentPath = path.join(outputDirectory, "accepted-incident-record.json");
 const exportPath = path.join(outputDirectory, "accepted-portable-export.zip");
+const reviewEvidencePath = path.resolve(process.cwd(), "../proof-p0/granular-review-categories.png");
 
 function documentXml(bytes: Uint8Array): string {
     const xml = new PizZip(bytes).file("word/document.xml")?.asText();
@@ -39,7 +40,7 @@ test("all twelve working-proof acceptance steps pass", async ({ page }) => {
     await page.getByLabel("Business legal name").fill("Acme Widgets LLC");
     await page.getByLabel("Address line 1").fill("123 Widget Way");
     await page.getByLabel("City", { exact: true }).fill("Greensboro");
-    await page.getByLabel("State or province").fill("NC");
+    await page.getByLabel("State or province").fill("North Carolina");
     await page.getByLabel("Postal code").fill("27401");
     await page.getByRole("button", { name: "Save canonical encrypted party" }).click();
     await expect(page.getByText(/Acme Widgets LLC was saved as canonical encrypted records/)).toBeVisible();
@@ -48,7 +49,7 @@ test("all twelve working-proof acceptance steps pass", async ({ page }) => {
     await page.getByLabel("Full legal name").fill("Jane Q. Contractor");
     await page.getByLabel("Address line 1").fill("456 Contractor Court");
     await page.getByLabel("City", { exact: true }).fill("High Point");
-    await page.getByLabel("State or province").fill("NC");
+    await page.getByLabel("State or province").fill("North Carolina");
     await page.getByLabel("Postal code").fill("27260");
     await page.getByRole("button", { name: "Save canonical encrypted party" }).click();
     await expect(page.getByText(/Jane Q. Contractor was saved as canonical encrypted records/)).toBeVisible();
@@ -73,7 +74,8 @@ test("all twelve working-proof acceptance steps pass", async ({ page }) => {
     await expect(page.getByText("LegalFlowNC Demonstration Publisher")).toBeVisible();
     await expect(page.getByText("Good standing confirmed")).toBeVisible();
     await expect(page.getByText("North Carolina, USA")).toBeVisible();
-    await expect(page.getByText("1.0-recovered-20251231")).toBeVisible();
+    await expect(page.getByText("Form 1.1")).toBeVisible();
+    await expect(page.getByText("Intake 1.1")).toBeVisible();
     await expect(page.getByText("maintained-demo")).toBeVisible();
     await expect(page.getByText("Acme Widgets LLC").first()).toBeVisible();
     await expect(page.getByText("projected authoritative legal name").first()).toBeVisible();
@@ -88,7 +90,13 @@ test("all twelve working-proof acceptance steps pass", async ({ page }) => {
     await expect(page.getByRole("heading", { name: "Generation blocked by active scope conditions" })).toHaveCount(0);
     await expect(page.getByText("Resolved scope events retained in matter history")).toBeVisible();
     await completeVisibleIndependentContractorIntake(page);
-    await expect(page.getByText("Ready to generate with complete approved provenance")).toBeVisible();
+    await page.getByLabel("Compensation structure").selectOption("commissions");
+    await expect(page.getByText("Grouped address confirmation", { exact: true })).toBeVisible();
+    await expect(page.getByText("Confirm with stated concern", { exact: true }).first()).toBeVisible();
+    await page.screenshot({ path: reviewEvidencePath, fullPage: true });
+    await page.getByLabel("Compensation structure").selectOption("fixed-fee");
+    await confirmAllRequiredReviewItems(page);
+    await expect(page.getByText("Ready to generate with complete approved provenance and review")).toBeVisible();
 
     const firstDownloadPromise = page.waitForEvent("download");
     await page.getByRole("button", { name: "Generate maintained DOCX" }).click();
@@ -111,13 +119,14 @@ test("all twelve working-proof acceptance steps pass", async ({ page }) => {
     await canonicalAddress.fill("999 Updated Avenue");
     await page.getByRole("button", { name: "Save canonical encrypted party" }).click();
     await expect(page.getByText(/Acme Widgets LLC was saved as canonical encrypted records/)).toBeVisible();
-    await page.getByRole("link", { name: "Assurance" }).first().click();
-    const priorConfirmationUrl = page.url();
+    await page.getByRole("link", { name: "Independent Contractor" }).click();
+    await expect(page.getByLabel("Scope of services", { exact: true })).toHaveValue("Provide the expressly reviewed services and written deliverables described by the parties");
+    const changedAddressReview = page.getByRole("article").filter({ has: page.getByRole("heading", { name: "Stable party addresses", exact: true }) });
+    await changedAddressReview.getByRole("button", { name: "Confirm" }).click();
     const regenerateDownloadPromise = page.waitForEvent("download");
-    await page.getByRole("button", { name: "Regenerate with current confirmed records" }).click();
+    await page.getByRole("button", { name: "Generate maintained DOCX" }).click();
     const regenerateDownload = await regenerateDownloadPromise;
     await regenerateDownload.saveAs(secondDocxPath);
-    await expect.poll(() => page.url()).not.toBe(priorConfirmationUrl);
     await expect(page).toHaveURL(/\/confirmation\//);
     const secondXml = documentXml(new Uint8Array(await readFile(secondDocxPath)));
     expect(secondXml).toContain("999 Updated Avenue");
@@ -185,3 +194,6 @@ test("all twelve working-proof acceptance steps pass", async ({ page }) => {
 // 20260714144000.10 - Replaced removed demo defaults with explicit visible intake and added the required business signatory capacity.
 // 20260714144000.11 - Matched the expanded provenance review without ambiguous text locators.
 // 20260714144000.12 - Waited for regeneration to navigate to a new assurance before opening recourse.
+// 20260714144000.13 - Confirmed v1.1 execution treatment and each required provenance-ledger review item.
+// 20260714144000.14 - Reconfirmed only the changed canonical address before regeneration while proving the persisted transaction intake was not re-entered.
+// 20260714144000.15 - Captured browser evidence showing individual, grouped, informational, and stated-concern review categories before the maintained path was reconfirmed.

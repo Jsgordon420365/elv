@@ -1,0 +1,49 @@
+
+> webapp@0.1.0 build
+> next build
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\jsgor\package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * C:\Users\jsgor\Projects-Arc\elv\webapp\package-lock.json
+
+   ▲ Next.js 15.5.9
+   - Environments: .env.local, .env
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 5.4s
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/14) ...
+   Generating static pages (3/14) 
+   Generating static pages (6/14) 
+   Generating static pages (10/14) 
+ ✓ Generating static pages (14/14)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                    2.44 kB         117 kB
+├ ○ /_not-found                            995 B         103 kB
+├ ƒ /api/auth/register-device              140 B         102 kB
+├ ƒ /api/checkout                          140 B         102 kB
+├ ƒ /api/save                              140 B         102 kB
+├ ƒ /api/templates                         140 B         102 kB
+├ ƒ /api/webhook/stripe                    140 B         102 kB
+├ ƒ /confirmation/[generationId]         3.08 kB         218 kB
+├ ○ /dashboard                             140 B         102 kB
+├ ○ /marketplace                           140 B         102 kB
+├ ƒ /recourse/[generationId]             6.57 kB         121 kB
+├ ○ /vault                               9.38 kB         214 kB
+└ ○ /workflow/independent-contractor     5.92 kB         221 kB
++ First Load JS shared by all             102 kB
+  ├ chunks/255-cb395327542b56ef.js       45.9 kB
+  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB
+  └ other shared chunks (total)          1.99 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

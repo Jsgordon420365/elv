@@ -1,4 +1,4 @@
-// ver 20260715103800.3
+// ver 20260715103800.4
 
 import { GenerationProvenanceEntry } from "./provenance";
 
@@ -173,6 +173,12 @@ function canonicalProvenance(renderedValue: string, sourceRecord: string, lastCo
     return { renderedValue, sourceRecord, classification: "CANONICAL_VAULT_CONFIRMED", lastConfirmedAt, transformationApplied };
 }
 
+function localityProjectionDescription(address: AddressRecord | undefined): string {
+    return address?.fieldProvenance.stateOrProvince?.source === "normalized-deterministically"
+        ? "joined city, normalized full state name, and postal code"
+        : "joined confirmed city, state, and postal code";
+}
+
 export function evaluateCanonicalConsistency(snapshot: CanonicalSnapshot, ownerPartyId: string, contractorPartyId: string, ownerBusinessDescription = ""): ConsistencyResult[] {
     const results: ConsistencyResult[] = [];
     const selectedParties = [ownerPartyId, contractorPartyId].map((id) => snapshot.parties.find((party) => party.id === id)).filter((party): party is CanonicalParty => Boolean(party));
@@ -241,9 +247,9 @@ export function projectIndependentContractor(snapshot: CanonicalSnapshot, ownerP
         owner_name: canonicalProvenance(fields.owner_name, `${owner.kind}:${ownerNameRecord?.id ?? owner.id}`, ownerNameRecord?.updatedAt ?? owner.createdAt, "projected authoritative legal name"),
         contractor_name: canonicalProvenance(fields.contractor_name, `${contractor.kind}:${contractorNameRecord?.id ?? contractor.id}`, contractorNameRecord?.updatedAt ?? contractor.createdAt, "projected authoritative legal name"),
         owner_add1: canonicalProvenance(fields.owner_add1, `address:${ownerAddress?.id ?? "missing"}`, ownerAddress?.updatedAt ?? owner.createdAt, "joined street and optional unit"),
-        owner_add2: canonicalProvenance(fields.owner_add2, `address:${ownerAddress?.id ?? "missing"}`, ownerAddress?.updatedAt ?? owner.createdAt, "joined city, normalized full state name, and postal code"),
+        owner_add2: canonicalProvenance(fields.owner_add2, `address:${ownerAddress?.id ?? "missing"}`, ownerAddress?.updatedAt ?? owner.createdAt, localityProjectionDescription(ownerAddress)),
         contr_add1: canonicalProvenance(fields.contr_add1, `address:${contractorAddress?.id ?? "missing"}`, contractorAddress?.updatedAt ?? contractor.createdAt, "joined street and optional unit"),
-        contr_add2: canonicalProvenance(fields.contr_add2, `address:${contractorAddress?.id ?? "missing"}`, contractorAddress?.updatedAt ?? contractor.createdAt, "joined city, normalized full state name, and postal code"),
+        contr_add2: canonicalProvenance(fields.contr_add2, `address:${contractorAddress?.id ?? "missing"}`, contractorAddress?.updatedAt ?? contractor.createdAt, localityProjectionDescription(contractorAddress)),
     };
     if (ownerSignatory) {
         provenance.owner_signatory_name = canonicalProvenance(fields.owner_signatory_name, `signatory:${ownerSignatory.id}`, ownerSignatory.updatedAt, "joined human signatory name with confirmed title or capacity");
@@ -263,3 +269,4 @@ export function projectIndependentContractor(snapshot: CanonicalSnapshot, ownerP
 // 20260715103800.1 - Added structured approved provenance and bound signatory title or capacity into the existing signature-name tags.
 // 20260715103800.2 - Blocked business-party generation until a human signatory record exists with confirmed capacity checks.
 // 20260715103800.3 - Projected signatory names and titles into separate v1.1 template fields.
+// 20260715103800.4 - Marked locality projection as normalized only when the stored state provenance actually records deterministic normalization.

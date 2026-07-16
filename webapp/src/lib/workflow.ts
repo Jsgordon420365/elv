@@ -1,4 +1,4 @@
-// ver 20260714133400.3
+// ver 20260714133400.4
 
 import { generateDocument, GeneratedDocument } from "./generate";
 import { evaluateRegistryGate, getForm, getProvider } from "./registry";
@@ -173,7 +173,7 @@ export function prepareGenerationInputs(answers: Record<string, string>, provena
         const original = answers[fieldId]?.trim() ?? "";
         const source = provenance[fieldId];
         if (!original && !DATE_FIELDS.includes(fieldId as typeof DATE_FIELDS[number])) missingValues.push(fieldId);
-        if (!approvedForTransaction(source, context)) missingProvenance.push(fieldId);
+        if (!approvedForTransaction(source, context) && !DATE_FIELDS.includes(fieldId as typeof DATE_FIELDS[number])) missingProvenance.push(fieldId);
         inputs[fieldId] = original;
         if (source) report[fieldId] = ledgerEntry(fieldId, original, source, context);
     }
@@ -270,3 +270,4 @@ export async function generateWorkflowDocument(masterKey: CryptoKey, answers: Re
 // 20260714133400.1 - Projected canonical party records into unchanged template tags and enforced canonical pre-generation checks.
 // 20260714133400.2 - Removed hidden defaults, required approved provenance for all 29 tags, transformed grammar deterministically, and recorded a complete generation provenance report.
 // 20260714133400.3 - Added transaction-bound 32-tag ledger entries, explicit compensation, one date mode, granular review gating, and dual hashes.
+// 20260714133400.4 - Deferred execution-date provenance checks to the selected treatment so two confirmed blank lines derive from one approved choice.

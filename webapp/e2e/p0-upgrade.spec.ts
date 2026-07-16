@@ -1,14 +1,16 @@
-// ver 20260715124500.8
+// ver 20260715124500.10
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
 import PizZip from "pizzip";
+import { confirmAllRequiredReviewItems } from "./intake-helpers";
 
-const outputDirectory = path.resolve("..", "demo-output");
-const documentOutputPath = path.join(outputDirectory, "moonshot-marmalade-p0.docx");
-const provenanceOutputPath = path.join(outputDirectory, "moonshot-marmalade-p0-provenance.json");
+const outputDirectory = path.resolve("..", "proof-p0");
+const documentOutputPath = path.join(outputDirectory, "moonshot-marmalade-p0-v1.1.docx");
+const provenanceOutputPath = path.join(outputDirectory, "moonshot-marmalade-p0-v1.1-provenance.json");
 const migrationEvidencePath = path.join(outputDirectory, "moonshot-marmalade-p0-migration-evidence.json");
+const reviewScreenshotPath = path.join(outputDirectory, "moonshot-marmalade-pre-generation-review.png");
 
 const oldMatterAnswers: Record<string, string> = {
     owner_business_description: "Moonshot Marmalade Industries manufactures and distributes specialty marmalades",
@@ -46,7 +48,7 @@ const oldMatterAnswers: Record<string, string> = {
 
 test("version-3 encrypted records survive restart, schema upgrade, migration, and generation", async ({ page }) => {
     await page.goto("/");
-    await page.evaluate(async ({ answers }) => {
+    const beforeInventory = await page.evaluate(async ({ answers }) => {
         await new Promise<void>((resolve, reject) => {
             const request = indexedDB.deleteDatabase("ELV_VAULT");
             request.onsuccess = () => resolve(); request.onerror = () => reject(request.error); request.onblocked = () => reject(new Error("Legacy database deletion was blocked during isolated test setup."));
@@ -89,6 +91,12 @@ test("version-3 encrypted records survive restart, schema upgrade, migration, an
         transaction.objectStore("matters").put({ id: "independent-contractor-demo-matter", workflowId: "independent-contractor-nc", updatedAt: createdAt, payload: await encrypt({ answers, auditHistory: [] }) });
         await new Promise<void>((resolve, reject) => { transaction.oncomplete = () => resolve(); transaction.onerror = () => reject(transaction.error); });
         db.close();
+        return {
+            partyIds: parties.map((party) => party.id).sort(),
+            relationshipIds: ["relationship-moonshot-peregrine", "relationship-moonshot-petunia"],
+            factIds: facts.map(([fieldId, , partyId]) => `${partyId}:${fieldId}`).sort(),
+            matterIds: ["independent-contractor-demo-matter"],
+        };
     }, { answers: oldMatterAnswers });
 
     await page.goto("/vault");
@@ -113,6 +121,13 @@ test("version-3 encrypted records survive restart, schema upgrade, migration, an
     expect(preserved.snapshotCount).toBeGreaterThan(0);
     expect(preserved.encryptedSnapshotContainsPlaintext).toBe(false);
 
+    for (let restart = 0; restart < 2; restart += 1) {
+        await page.reload();
+        await page.getByRole("button", { name: "Unlock local vault" }).click();
+        await expect(page.getByRole("button", { name: "Edit Moonshot Marmalade Industries, LLC" })).toBeVisible();
+        await expect(page.getByText(/Moonshot Marmalade Industries, LLC company-contractor Peregrine Picklesworth/)).toBeVisible();
+    }
+
     await page.getByLabel("Signing for party").selectOption({ label: "Moonshot Marmalade Industries, LLC" });
     await page.getByLabel("Signatory person").selectOption({ label: "Petunia Picklesworth" });
     await page.getByLabel("Title or capacity").fill("Chief Marmalade Officer");
@@ -127,11 +142,21 @@ test("version-3 encrypted records survive restart, schema upgrade, migration, an
     await expect(page.getByLabel("Owner business description")).toHaveValue(oldMatterAnswers.owner_business_description);
     await expect(page.getByLabel("Scope of services")).toHaveValue(oldMatterAnswers.scope_agr_longtext);
     await expect(page.getByLabel("Compensation structure")).toHaveValue("fixed-fee");
-    await page.getByRole("button", { name: /Confirm all displayed saved answers/ }).click();
-    await expect(page.getByText("Ready to generate with complete approved provenance")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Generation provenance review — 29 template tags" })).toBeVisible();
+    await page.getByLabel("Compensation structure").selectOption("fixed-fee");
+    await page.getByLabel("Execution-date treatment").selectOption("populated-dates");
+    await page.getByLabel("Relationship characterization").selectOption("independent-contractor");
+    await page.getByLabel("Any minor party", { exact: true }).selectOption("no");
+    await page.getByLabel("Forum state").fill("California");
+    await page.getByLabel("Forum state").fill("North Carolina");
+    await page.getByLabel("Forum county").fill("");
+    await page.getByLabel("Forum county").fill("Guilford County");
+    while (await page.getByRole("button", { name: "Confirm this saved answer" }).count()) await page.getByRole("button", { name: "Confirm this saved answer" }).first().click();
+    await confirmAllRequiredReviewItems(page);
+    await expect(page.getByText("Ready to generate with complete approved provenance and review")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Generation provenance review — 32 template tags" })).toBeVisible();
 
     await mkdir(outputDirectory, { recursive: true });
+    await page.screenshot({ path: reviewScreenshotPath, fullPage: true });
     const generationDownload = page.waitForEvent("download");
     await page.getByRole("button", { name: "Generate maintained DOCX" }).click();
     const generated = await generationDownload;
@@ -150,11 +175,11 @@ test("version-3 encrypted records survive restart, schema upgrade, migration, an
     const documentXml = documentXmlFile!.asText();
     expect(documentXml).not.toMatch(/{{[^{}]+}}/);
     expect(documentXml).toContain("Moonshot Marmalade Industries, LLC");
-    expect(documentXml).toContain("Penelope Fizzlebottom");
+    expect(documentXml).toContain("Petunia Picklesworth");
     expect(documentXml).toContain("Chief Marmalade Officer");
     expect(documentXml).toContain(oldMatterAnswers.scope_agr_longtext);
     expect(documentXml).toContain(oldMatterAnswers.owner_business_description);
-    expect(documentXml).toContain("Compensation structure: Fixed fee.");
+    expect(documentXml).toContain("fixed-fee compensation expressly confirmed by the parties");
     expect(documentXml).not.toContain("Provide independent product-design consulting and written recommendations for the owner's widget catalog.");
     expect(documentXml).not.toContain("Manufacture and sell commercial widgets.");
     expect(documentXml).not.toContain("One (1) years");
@@ -164,8 +189,10 @@ test("version-3 encrypted records survive restart, schema upgrade, migration, an
     expect(documentXml).not.toContain("Owner shall compensate Contractor on a commission basis");
     expect((documentXml.match(/Date:/g) ?? [])).toHaveLength(2);
 
-    const provenanceRecord = JSON.parse(await readFile(provenanceOutputPath, "utf8")) as { provenanceReport: Record<string, { renderedValue: string; sourceRecord: string; classification: string; lastConfirmedAt: string; transformationApplied: string }> };
-    expect(Object.keys(provenanceRecord.provenanceReport)).toHaveLength(29);
+    const provenanceRecord = JSON.parse(await readFile(provenanceOutputPath, "utf8")) as { packageSha256: string; reviewConfirmations: Record<string, unknown>; provenanceReport: Record<string, { renderedValue: string; sourceRecord: string; classification: string; lastConfirmedAt: string; transformationApplied: string }> };
+    expect(Object.keys(provenanceRecord.provenanceReport)).toHaveLength(32);
+    expect(provenanceRecord.packageSha256).toMatch(/^[a-f0-9]{64}$/);
+    expect(Object.keys(provenanceRecord.reviewConfirmations).length).toBeGreaterThanOrEqual(9);
     const allowedClassifications = new Set(["CURRENT_INTAKE_CONFIRMED", "CANONICAL_VAULT_CONFIRMED", "DETERMINISTIC_DERIVATION", "APPROVED_FIXED_TEMPLATE_TEXT"]);
     for (const entry of Object.values(provenanceRecord.provenanceReport)) {
         expect(allowedClassifications.has(entry.classification)).toBe(true);
@@ -173,15 +200,18 @@ test("version-3 encrypted records survive restart, schema upgrade, migration, an
         expect(entry.lastConfirmedAt).not.toBe("");
         expect(entry.transformationApplied).not.toBe("");
     }
-    expect(provenanceRecord.provenanceReport.scope_agr_longtext.classification).toBe("DETERMINISTIC_DERIVATION");
+    expect(provenanceRecord.provenanceReport.scope_agr_longtext.classification).toBe("CURRENT_INTAKE_CONFIRMED");
     expect(provenanceRecord.provenanceReport.scope_agr_longtext.sourceRecord).toContain("matter-answer:scope_agr_longtext");
     expect(provenanceRecord.provenanceReport.owner_business_description.classification).toBe("CURRENT_INTAKE_CONFIRMED");
+    expect(provenanceRecord.provenanceReport.compensation_terms.classification).toBe("DETERMINISTIC_DERIVATION");
 
     const migrationEvidence = {
         testedAt: new Date().toISOString(),
         sourceSchemaVersion: 3,
         targetSchemaVersion: 5,
+        beforeInventory,
         preserved,
+        twoReloadUnlockCyclesPassed: true,
         decryptedVisibleRecords: ["Moonshot Marmalade Industries, LLC", "Petunia Picklesworth", "Peregrine Picklesworth"],
         generatedDocument: path.basename(documentOutputPath),
         provenanceRecord: path.basename(provenanceOutputPath),
@@ -200,3 +230,5 @@ test("version-3 encrypted records survive restart, schema upgrade, migration, an
 // 20260715124500.6 - Matched the confirmation page's actual maintained-document heading.
 // 20260715124500.7 - Asserted the scope's documented deterministic compensation-clause derivation.
 // 20260715124500.8 - Limited the committed old-schema fixture to fictional Moonshot Marmalade and Picklesworth identities and added v1.1 fields.
+// 20260715124500.9 - Exercised field-level legacy confirmation, granular review, v1.1 32-tag ledger, and package identity.
+// 20260715124500.10 - Wrote the stable proof package, recorded before/after inventories, captured review evidence, and verified two reload-unlock cycles.

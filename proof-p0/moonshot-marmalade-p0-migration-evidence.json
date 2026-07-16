@@ -1,7 +1,29 @@
 {
-  "testedAt": "2026-07-16T07:40:35.091Z",
+  "testedAt": "2026-07-16T07:56:12.027Z",
   "sourceSchemaVersion": 3,
   "targetSchemaVersion": 5,
+  "beforeInventory": {
+    "partyIds": [
+      "party-moonshot",
+      "party-peregrine",
+      "party-petunia"
+    ],
+    "relationshipIds": [
+      "relationship-moonshot-peregrine",
+      "relationship-moonshot-petunia"
+    ],
+    "factIds": [
+      "party-moonshot:owner_add1",
+      "party-moonshot:owner_add2",
+      "party-moonshot:owner_name",
+      "party-peregrine:contr_add1",
+      "party-peregrine:contr_add2",
+      "party-peregrine:contractor_name"
+    ],
+    "matterIds": [
+      "independent-contractor-demo-matter"
+    ]
+  },
   "preserved": {
     "partyIds": [
       "party-moonshot",
@@ -26,12 +48,13 @@
     "snapshotCount": 1,
     "encryptedSnapshotContainsPlaintext": false
   },
+  "twoReloadUnlockCyclesPassed": true,
   "decryptedVisibleRecords": [
     "Moonshot Marmalade Industries, LLC",
     "Petunia Picklesworth",
     "Peregrine Picklesworth"
   ],
-  "generatedDocument": "moonshot-marmalade-p0.docx",
-  "provenanceRecord": "moonshot-marmalade-p0-provenance.json",
+  "generatedDocument": "moonshot-marmalade-p0-v1.1.docx",
+  "provenanceRecord": "moonshot-marmalade-p0-v1.1-provenance.json",
   "unresolvedTemplateTags": 0
 }

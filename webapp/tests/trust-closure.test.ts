@@ -1,4 +1,4 @@
-// ver 20260716032000.0
+// ver 20260716032000.2
 
 import "fake-indexeddb/auto";
 import assert from "node:assert/strict";
@@ -12,7 +12,7 @@ import { buildDocument } from "../src/lib/generate";
 import { GenerationProvenanceEntry } from "../src/lib/provenance";
 import { INDEPENDENT_CONTRACTOR_FIELDS } from "../src/lib/variables";
 import { prepareGenerationInputs } from "../src/lib/workflow";
-import { clearVault, listParties, migrateLegacyParties, saveParty } from "../src/lib/vault";
+import { clearVault, getCanonicalSnapshot, listMigrationSnapshots, listParties, migrateLegacyParties, restoreMigrationSnapshot, saveParty } from "../src/lib/vault";
 
 const templateV11Path = path.resolve(process.cwd(), "public/templates/independent-contractor-v1.1.docx");
 const registryPath = path.resolve(process.cwd(), "src/registry/registry.json");
@@ -40,6 +40,15 @@ test("T1 simulated migration failure preserves the encrypted old-schema parties"
     const migrateWithFailure = migrateLegacyParties as unknown as (masterKey: CryptoKey, options: { simulateFailureAfterCanonicalWrites: number }) => Promise<unknown>;
     await assert.rejects(() => migrateWithFailure(key, { simulateFailureAfterCanonicalWrites: 1 }), /simulated migration failure/i);
     assert.deepEqual((await listParties(key)).map((party) => party.id).sort(), ["party-moonshot", "party-picklesworth"]);
+    const snapshots = await listMigrationSnapshots();
+    assert.equal(snapshots.length, 1);
+    await restoreMigrationSnapshot(snapshots[0].id, key);
+    assert.deepEqual((await listParties(key)).map((party) => party.id).sort(), ["party-moonshot", "party-picklesworth"]);
+    const completed = await migrateLegacyParties(key);
+    assert.equal(completed.status, "complete");
+    assert.deepEqual((await getCanonicalSnapshot(key)).parties.map((party) => party.id).sort(), ["party-moonshot", "party-picklesworth"]);
+    assert.equal((await migrateLegacyParties(key)).status, "not-needed");
+    assert.equal((await migrateLegacyParties(key)).status, "not-needed");
 });
 
 test("T2 stale prior-transaction scope and business description cannot be generated", () => {
@@ -98,6 +107,17 @@ test("T4 review and rendering enforce granular confirmation and one execution-da
     assert.ok(prepared.missingValues.includes("execution_date_treatment"));
 });
 
+test("T4 confirmed signature-blanks treatment supplies approved provenance for both blank date tags", () => {
+    const { answers, provenance } = currentPayload();
+    delete provenance.owner_signatory_date;
+    delete provenance.contractor_signatory_date;
+    const prepared = prepareGenerationInputs(answers, provenance);
+    assert.equal(prepared.report.owner_signatory_date?.renderedValue, "");
+    assert.equal(prepared.report.contractor_signatory_date?.renderedValue, "");
+    assert.equal(prepared.missingProvenance.includes("owner_signatory_date"), false);
+    assert.equal(prepared.missingProvenance.includes("contractor_signatory_date"), false);
+});
+
 test("fixture privacy permits only Moonshot Marmalade and Picklesworth identities", async () => {
     const fixtureSource = await readFile(oldFixtureTestPath, "utf8");
     assert.match(fixtureSource, /Moonshot Marmalade/);
@@ -107,3 +127,5 @@ test("fixture privacy permits only Moonshot Marmalade and Picklesworth identitie
 
 // Version history
 // 20260716032000.0 - Added the red T1-T4 trust-closure contracts and fictional-fixture privacy gate before production changes.
+// 20260716032000.1 - Locked the two-blank execution-date treatment to complete deterministic provenance for both date tags.
+// 20260716032000.2 - Proved encrypted snapshot recovery, successful retry, preserved IDs, decryptability, and two idempotent restart-equivalent migration checks.
