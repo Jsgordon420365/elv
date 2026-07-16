@@ -371,3 +371,39 @@
 ## READY FOR HUMAN REVIEW — P0 FINAL RUNTIME
 
 2026-07-16T00:45:00-04:00 — Commit `e0c13ed` contains the bounded P0 correction. After the production build invalidated the development cache, only the verified ELV-owned listener was stopped and restarted on the same fixed vault origin. `http://localhost:3004` now returns HTTP 200 with title `ELV | Encrypted Legal Vault`; the running Node listener PID is `2240` and its command line resolves to `C:\Users\jsgor\Projects-Arc\elv\webapp\node_modules\next\dist\server\lib\start-server.js`. Remotion and all other listeners were left untouched.
+
+## P0 TRUST CLOSURE — INSPECTION / RED PHASE
+
+### FOUND
+
+2026-07-16T03:16:12-04:00 — The July 16 handoff was read from the supplied attachment; its embedded `a_now` value was treated as stale and was not reused as the handoff time. The repository is clean on `proof/working-demo-20260713` at `f3c433e`; the handoff's `c35dcbf` is the canonical-schema ancestor, followed by P0 commits `e0c13ed` and `f3c433e`.
+
+2026-07-16T03:16:12-04:00 — Runtime coexistence: port 3000 PID `3388` runs `C:\Users\jsgor\Projects\XylephoneVideo` Remotion Studio and returns HTTP 200/title `Remotion Studio`; port 3001 PID `62240` runs `C:\Projects\XylephoneVideo` Remotion Studio and returns HTTP 200/title `Remotion Studio`. Ports 3002 PID `39960`, 3003 PID `1272`, and 3004 PID `2240` run Next.js from this exact `C:\Users\jsgor\Projects-Arc\elv\webapp` dependency tree and return HTTP 200/title `ELV | Encrypted Legal Vault`. Port 3004 is selected for reuse; no process was stopped or started.
+
+2026-07-16T03:16:12-04:00 — Browser plugin setup failed twice before page acquisition with exact error `Cannot redefine property: process`, including after a clean automation-kernel reset. The repository Playwright path is the permitted fallback because the handoff explicitly requires automated browser evidence. The ambient open-tab URL was not treated as proof by itself.
+
+2026-07-16T03:16:12-04:00 — Current IndexedDB schema is additive version 5 with encrypted `migration_snapshots` and atomic canonical writes; prior history shows version 3 at `1acfa72` and version 4 at `c35dcbf`. Current migration tests manually construct a version-3 database rather than producing the committed fixture archive from prior app code, do not simulate mid-migration failure, and do not prove recovery plus two idempotent restarts.
+
+2026-07-16T03:16:12-04:00 — Current authoritative `independent-contractor-fixed2.docx` has 29 unique tags and 31 occurrences. The schema and review UI are 29-tag. The requested v1.1 tags `owner_signatory_title`, `contractor_signatory_title`, and `compensation_terms`, the 29-to-32 map, registry changelog, and intake-version bump do not exist.
+
+2026-07-16T03:16:12-04:00 — Current per-tag provenance carries rendered value, source record, classification, confirmation time, and transformation, but not template/version, intake version, generation ID, or generation timestamp per entry. Assurance records contain logical `document.xml` SHA-256 only, not package SHA-256, and do not persist item-level review confirmations or stated-concern decisions.
+
+2026-07-16T03:16:12-04:00 — Current review is rendered from prepared provenance but provides only ordinary field edits plus a bulk legacy-answer confirmation. It does not implement required individual confirmations, grouped stable-address confirmation, execution-date-mode confirmation, stated-concern confirmation, or demo-class production rejection/watermark semantics.
+
+### CHOSE
+
+2026-07-16T03:16:12-04:00 — Preserve the working 29-tag v1.0 file as the authoritative predecessor and add only the permitted v1.1 template. Create T1–T4 tests and capture their expected failures before altering production behavior. The committed old-schema fixture and evidence will contain fictional Moonshot Marmalade / Picklesworth data only; no actual browser vault or export will be copied into the repository or reports.
+
+### TESTED
+
+2026-07-16T03:16:12-04:00 — Read-only git, process, HTTP, code-path, history, registry, and DOCX-package inspection completed. No application file, IndexedDB database, listener, or user vault was changed during inspection.
+
+### UNRESOLVED
+
+2026-07-16T03:16:12-04:00 — T1–T4 red fixtures, v1.1 implementation, browser review evidence, failure/recovery transcript, green output, and `/proof-p0/` evidence package remain to be executed.
+
+### TESTED — RED CONTRACT
+
+2026-07-16T03:18:23-04:00 — Added tests only and ran `npx tsx --test tests/trust-closure.test.ts`. Exit code `1` was expected and captured verbatim in `proof-p0/test-red.txt`: 5 tests, 0 passed, 5 failed. T1 failed because migration ignored the simulated-failure request; T2 failed because prior-transaction scope remained approved; T3 failed because the v1.1 template does not exist; T4 failed because granular review/date-mode controls do not exist; fixture privacy failed because the old browser fixture still contains Basil Quince rather than Picklesworth.
+
+2026-07-16T03:18:23-04:00 — No production code or template was changed before this red run. The next executable action is the minimal green implementation for the recorded failures.

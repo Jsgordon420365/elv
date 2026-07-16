@@ -1,0 +1,382 @@
+# ver 20260716032200.0
+Command: cd webapp && npx tsx --test tests/trust-closure.test.ts
+Expected red-phase exit code: 1
+Captured: 2026-07-16T03:18:23-04:00
+
+✖ T1 simulated migration failure preserves the encrypted old-schema parties (128.311ms)
+✖ T2 stale prior-transaction scope and business description cannot be generated (4.2244ms)
+✖ T3 v1.1 exposes 32 tags, complete ledger metadata, migration map, and package hash (1.5099ms)
+✖ T4 review and rendering enforce granular confirmation and one execution-date mode (4.8445ms)
+✖ fixture privacy permits only Moonshot Marmalade and Picklesworth identities (3.9592ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 0
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 790.3854
+
+✖ failing tests:
+
+test at tests\trust-closure.test.ts:2:2598
+✖ T1 simulated migration failure preserves the encrypted old-schema parties (128.311ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (C:\Users\jsgor\Projects-Arc\elv\webapp\tests\trust-closure.test.ts:41:5)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /simulated migration failure/i,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at tests\trust-closure.test.ts:2:3579
+✖ T2 stale prior-transaction scope and business description cannot be generated (4.2244ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(prepared.missingProvenance.includes("scope_agr_longtext"))
+  
+      at TestContext.<anonymous> (C:\Users\jsgor\Projects-Arc\elv\webapp\tests\trust-closure.test.ts:53:12)
+      at Test.runInAsyncScope (node:async_hooks:213:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\trust-closure.test.ts:2:4402
+✖ T3 v1.1 exposes 32 tags, complete ledger metadata, migration map, and package hash (1.5099ms)
+  AssertionError [ERR_ASSERTION]: The permitted v1.1 template must exist.
+  
+  false !== true
+  
+      at TestContext.<anonymous> (C:\Users\jsgor\Projects-Arc\elv\webapp\tests\trust-closure.test.ts:58:12)
+      at Test.runInAsyncScope (node:async_hooks:213:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\trust-closure.test.ts:2:6340
+✖ T4 review and rendering enforce granular confirmation and one execution-date mode (4.8445ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /Individual confirmation/. Input:
+  
+  '// ver 20260714134800.7\n' +
+    '\n' +
+    '"use client";\n' +
+    '\n' +
+    'import { useCallback, useEffect, useMemo, useRef, useState } from "react";\n' +
+    'import { useRouter } from "next/navigation";\n' +
+    'import { AlertTriangle, CheckCircle2, FileDown, Info, Loader2, ShieldCheck } from "lucide-react";\n' +
+    'import { AppHeader } from "@/components/AppHeader";\n' +
+    'import { UnlockOverlay } from "@/components/UnlockOverlay";\n' +
+    'import { useVault } from "@/lib/VaultContext";\n' +
+    'import { getForm, getProvider } from "@/lib/registry";\n' +
+    'import { INDEPENDENT_CONTRACTOR_FIELDS } from "@/lib/variables";\n' +
+    'import {\n' +
+    '    OUT_OF_SCOPE_MESSAGE,\n' +
+    '    generateWorkflowDocument,\n' +
+    '    getWorkflowGate,\n' +
+    '    loadWorkflowState,\n' +
+    '    persistMatter,\n' +
+    '    prepareGenerationInputs,\n' +
+    '    updateScopeAudit,\n' +
+    '} from "@/lib/workflow";\n' +
+    'import { MatterAuditEvent } from "@/lib/vault";\n' +
+    'import { ConsistencyResult } from "@/lib/canonical";\n' +
+    'import { GenerationProvenanceEntry, currentIntakeProvenance, isApprovedGenerationProvenance } from "@/lib/provenance";\n' +
+    '\n' +
+    'const canonicalFieldIds = new Set(["owner_name", "owner_add1", "owner_add2", "contractor_name", "contr_add1", "contr_add2", "owner_signatory_name", "owner_signatory_date", "contractor_signatory_name", "contractor_signatory_date"]);\n' +
+    '\n' +
+    'export default function IndependentContractorWorkflow() {\n' +
+    '    const { masterKey, isLocked } = useVault();\n' +
+    '    const router = useRouter();\n' +
+    '    const form = getForm("independent-contractor-nc");\n' +
+    '    const provider = getProvider(form.providerId);\n' +
+    '    const [answers, setAnswers] = useState<Record<string, string>>({});\n' +
+    '    const [provenance, setProvenance] = useState<Record<string, GenerationProvenanceEntry>>({});\n' +
+    '    const [auditHistory, setAuditHistory] = useState<MatterAuditEvent[]>([]);\n' +
+    '    const [baseConsistencyChecks, setBaseConsistencyChecks] = useState<ConsistencyResult[]>([]);\n' +
+    '    const [loaded, setLoaded] = useState(false);\n' +
+    '    const [generating, setGenerating] = useState(false);\n' +
+    '    const [error, setError] = useState("");\n' +
+    '    const answersRef = useRef<Record<string, string>>({});\n' +
+    '    const provenanceRef = useRef<Record<string, GenerationProvenanceEntry>>({});\n' +
+    '    const auditHistoryRef = useRef<MatterAuditEvent[]>([]);\n' +
+    '    const persistQueueRef = useRef<Promise<void>>(Promise.resolve());\n' +
+    '    const loadSequenceRef = useRef(0);\n' +
+    '\n' +
+    '    const load = useCallback(async () => {\n' +
+    '        if (!masterKey) return;\n' +
+    '        const loadSequence = ++loadSequenceRef.current;\n' +
+    '        try {\n' +
+    '            const state = await loadWorkflowState(masterKey);\n' +
+    '            if (loadSequence !== loadSequenceRef.current) return;\n' +
+    '            setAnswers(state.answers);\n' +
+    '            setProvenance(state.provenance);\n' +
+    '            setAuditHistory(state.matter.auditHistory);\n' +
+    '            answersRef.current = state.answers;\n' +
+    '            provenanceRef.current = state.provenance;\n' +
+    '            auditHistoryRef.current = state.matter.auditHistory;\n' +
+    '            setBaseConsistencyChecks(state.consistencyChecks);\n' +
+    '            setLoaded(true);\n' +
+    '        } catch (caught) {\n' +
+    '            setError(caught instanceof Error ? caught.message : "Unable to load the encrypted workflow state.");\n' +
+    '        }\n' +
+    '    }, [masterKey]);\n' +
+    '\n' +
+    '    useEffect(() => { void load(); }, [load]);\n' +
+    '\n' +
+    '    const gate = useMemo(() => getWorkflowGate(answers), [answers]);\n' +
+    '    const merged = useMemo(() => {\n' +
+    '        const nextAnswers = { ...answers };\n' +
+    '        const nextProvenance = { ...provenance };\n' +
+    '        if (answers.forum_county && answers.forum_state && provenance.forum_county && provenance.forum_state) {\n' +
+    '            const renderedValue = `${answers.forum_county}, ${answers.forum_state}`;\n' +
+    '            nextAnswers.forum_county_comma_state = renderedValue;\n' +
+    '            nextProvenance.forum_county_comma_state = { renderedValue, sourceRecord: `${provenance.forum_county.sourceRecord};${provenance.forum_state.sourceRecord}`, classification: "DETERMINISTIC_DERIVATION", lastConfirmedAt: [provenance.forum_county.lastConfirmedAt, provenance.forum_state.lastConfirmedAt].sort().at(-1) ?? "", transformationApplied: "joined separately confirmed county and state" };\n' +
+    '        }\n' +
+    '        return { answers: nextAnswers, provenance: nextProvenance };\n' +
+    '    }, [answers, provenance]);\n' +
+    '    const prepared = useMemo(() => prepareGenerationInputs(merged.answers, merged.provenance), [merged]);\n' +
+    '    const visibleFields = INDEPENDENT_CONTRACTOR_FIELDS.filter((field) => field.id !== "forum_county_comma_state" && (!canonicalFieldIds.has(field.id) || !provenance[field.id]));\n' +
+    '    const unconfirmedFields = Object.entries(answers).filter(([fieldId, value]) => value.trim() && fieldId !== "forum_county_comma_state" && !isApprovedGenerationProvenance(provenance[fieldId])).map(([fieldId]) => fieldId);\n' +
+    '    const consistencyChecks = useMemo(() => {\n' +
+    '        const withoutDescriptionCheck = baseConsistencyChecks.filter((check) => check.code !== "DBA_EMBEDDED_IN_DESCRIPTION");\n' +
+    '        return /\\b(?:d\\/?b\\/?a|dba|doing business as)\\b/i.test(answers.owner_business_description ?? "")\n' +
+    '            ? [...withoutDescriptionCheck, { code: "DBA_EMBEDDED_IN_DESCRIPTION", classification: "CONFIRMATION_REQUIRED" as const, message: "DBA language appears in the business-description field; use the separate trade-name record instead." }]\n' +
+    '            : withoutDescriptionCheck;\n' +
+    '    }, [answers.owner_business_description, baseConsistencyChecks]);\n' +
+    '    const consistencyBlocking = consistencyChecks.filter((check) => check.classification === "BLOCKING");\n' +
+    '\n' +
+    '    const persist = async (nextAnswers: Record<string, string>, nextAudit: MatterAuditEvent[], nextProvenance: Record<string, GenerationProvenanceEntry>) => {\n' +
+    '        if (!masterKey) return;\n' +
+    '        const pending = persistQueueRef.current.then(async () => { await persistMatter(masterKey, nextAnswers, nextAudit, nextProvenance); });\n' +
+    '        persistQueueRef.current = pending.catch(() => undefined);\n' +
+    '        await pending;\n' +
+    '    };\n' +
+    '\n' +
+    '    const updateAnswer = async (fieldId: string, value: string) => {\n' +
+    '        const confirmedAt = new Date().toISOString();\n' +
+    '        const nextAnswers = { ...answersRef.current, [fieldId]: value };\n' +
+    '        const nextProvenance = { ...provenanceRef.current };\n' +
+    '        if (value.trim()) nextProvenance[fieldId] = currentIntakeProvenance(fieldId, value, confirmedAt);\n' +
+    '        else delete nextProvenance[fieldId];\n' +
+    '        let nextAudit = auditHistoryRef.current;\n' +
+    '        if (fieldId === "forum_state") nextAudit = updateScopeAudit(nextAudit, "OUT_OF_STATE_FORUM", `Out-of-North-Carolina forum encountered. ${OUT_OF_SCOPE_MESSAGE}`, value.trim().toLowerCase() !== "north carolina");\n' +
+    '        if (fieldId === "arbitration_state") nextAudit = updateScopeAudit(nextAudit, "OUT_OF_STATE_ARBITRATION", `Out-of-North-Carolina arbitration state encountered. ${OUT_OF_SCOPE_MESSAGE}`, value.trim().toLowerCase() !== "north carolina");\n' +
+    '        if (fieldId === "relationship_characterization") nextAudit = updateScopeAudit(nextAudit, "EMPLOYMENT_RELATIONSHIP", `Employment characterization encountered. ${OUT_OF_SCOPE_MESSAGE}`, value === "employment");\n' +
+    '        setAnswers(nextAnswers);\n' +
+    '        setProvenance(nextProvenance);\n' +
+    '        setAuditHistory(nextAudit);\n' +
+    '        answersRef.current = nextAnswers;\n' +
+    '        provenanceRef.current = nextProvenance;\n' +
+    '        auditHistoryRef.current = nextAudit;\n' +
+    '        await persist(nextAnswers, nextAudit, nextProvenance);\n' +
+    '    };\n' +
+    '\n' +
+    '    const confirmDisplayedSavedAnswers = async () => {\n' +
+    '        const confirmedAt = new Date().toISOString();\n' +
+    '        const nextAnswers = answersRef.current;\n' +
+    '        const nextAudit = auditHistoryRef.current;\n' +
+    '        const nextProvenance = { ...provenanceRef.current };\n' +
+    '        for (const [fieldId, value] of Object.entries(nextAnswers)) {\n' +
+    '            if (value.trim() && fieldId !== "forum_county_comma_state" && !isApprovedGenerationProvenance(nextProvenance[fieldId])) nextProvenance[fieldId] = currentIntakeProvenance(fieldId, value, confirmedAt);\n' +
+    '        }\n' +
+    '        setProvenance(nextProvenance);\n' +
+    '        provenanceRef.current = nextProvenance;\n' +
+    '        await persist(nextAnswers, nextAudit, nextProvenance);\n' +
+    '    };\n' +
+    '\n' +
+    '    const handleGenerate = async () => {\n' +
+    '        if (!masterKey) return;\n' +
+    '        setGenerating(true);\n' +
+    '        setError("");\n' +
+    '        try {\n' +
+    '            const result = await generateWorkflowDocument(masterKey, merged.answers, merged.provenance, auditHistory, true);\n' +
+    '            router.push(`/confirmation/${result.assurance.generationId}`);\n' +
+    '        } catch (caught) {\n' +
+    '            setError(caught instanceof Error ? caught.message : "Document generation failed.");\n' +
+    '        } finally {\n' +
+    '            setGenerating(false);\n' +
+    '        }\n' +
+    '    };\n' +
+    '\n' +
+    '    return (\n' +
+    '        <main className="min-h-screen bg-[#0a0a0c] text-slate-100">\n' +
+    '            <AppHeader />\n' +
+    '            <div className="mx-auto max-w-6xl space-y-8 px-6 py-10">\n' +
+    '                <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">\n' +
+    '                    <div className="flex flex-wrap items-start justify-between gap-5"><div><h1 className="text-2xl font-bold text-white">Independent Contractor — North Carolina</h1><p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">{form.scope}</p></div><span className="flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs font-bold text-emerald-200"><ShieldCheck className="h-4 w-4" />{provider.goodStanding ? "Good standing confirmed" : "Good standing unavailable"}</span></div>\n' +
+    '                    <dl className="mt-6 grid gap-4 border-t border-slate-800 pt-5 text-sm sm:grid-cols-2 lg:grid-cols-4"><div><dt className="text-xs uppercase text-slate-500">Provider</dt><dd className="mt-1 font-semibold">{provider.name}</dd></div><div><dt className="text-xs uppercase text-slate-500">Jurisdiction</dt><dd className="mt-1 font-semibold">{form.jurisdiction}</dd></div><div><dt className="text-xs uppercase text-slate-500">Versions</dt><dd className="mt-1 font-semibold">Form {form.formVersion}<br />Intake {form.intakeVersion}</dd></div><div><dt className="text-xs uppercase text-slate-500">Maintenance</dt><dd className="mt-1 font-semibold">{form.maintenanceStatus}</dd></div></'... 12108 more characters
+  
+      at TestContext.<anonymous> (C:\Users\jsgor\Projects-Arc\elv\webapp\tests\trust-closure.test.ts:84:12)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '// ver 20260714134800.7\n\n"use client";\n\nimport { useCallback, useEffect, useMemo, useRef, useState } from "react";\nimport { useRouter } from "next/navigation";\nimport { AlertTriangle, CheckCircle2, FileDown, Info, Loader2, ShieldCheck } from "lucide-react";\nimport { AppHeader } from "@/components/AppHeader";\nimport { UnlockOverlay } from "@/components/UnlockOverlay";\nimport { useVault } from "@/lib/VaultContext";\nimport { getForm, getProvider } from "@/lib/registry";\nimport { INDEPENDENT_CONTRACTOR_FIELDS } from "@/lib/variables";\nimport {\n    OUT_OF_SCOPE_MESSAGE,\n    generateWorkflowDocument,\n    getWorkflowGate,\n    loadWorkflowState,\n    persistMatter,\n    prepareGenerationInputs,\n    updateScopeAudit,\n} from "@/lib/workflow";\nimport { MatterAuditEvent } from "@/lib/vault";\nimport { ConsistencyResult } from "@/lib/canonical";\nimport { GenerationProvenanceEntry, currentIntakeProvenance, isApprovedGenerationProvenance } from "@/lib/provenance";\n\nconst canonicalFieldIds = new Set(["owner_name", "owner_add1", "owner_add2", "contractor_name", "contr_add1", "contr_add2", "owner_signatory_name", "owner_signatory_date", "contractor_signatory_name", "contractor_signatory_date"]);\n\nexport default function IndependentContractorWorkflow() {\n    const { masterKey, isLocked } = useVault();\n    const router = useRouter();\n    const form = getForm("independent-contractor-nc");\n    const provider = getProvider(form.providerId);\n    const [answers, setAnswers] = useState<Record<string, string>>({});\n    const [provenance, setProvenance] = useState<Record<string, GenerationProvenanceEntry>>({});\n    const [auditHistory, setAuditHistory] = useState<MatterAuditEvent[]>([]);\n    const [baseConsistencyChecks, setBaseConsistencyChecks] = useState<ConsistencyResult[]>([]);\n    const [loaded, setLoaded] = useState(false);\n    const [generating, setGenerating] = useState(false);\n    const [error, setError] = useState("");\n    const answersRef = useRef<Record<string, string>>({});\n    const provenanceRef = useRef<Record<string, GenerationProvenanceEntry>>({});\n    const auditHistoryRef = useRef<MatterAuditEvent[]>([]);\n    const persistQueueRef = useRef<Promise<void>>(Promise.resolve());\n    const loadSequenceRef = useRef(0);\n\n    const load = useCallback(async () => {\n        if (!masterKey) return;\n        const loadSequence = ++loadSequenceRef.current;\n        try {\n            const state = await loadWorkflowState(masterKey);\n            if (loadSequence !== loadSequenceRef.current) return;\n            setAnswers(state.answers);\n            setProvenance(state.provenance);\n            setAuditHistory(state.matter.auditHistory);\n            answersRef.current = state.answers;\n            provenanceRef.current = state.provenance;\n            auditHistoryRef.current = state.matter.auditHistory;\n            setBaseConsistencyChecks(state.consistencyChecks);\n            setLoaded(true);\n        } catch (caught) {\n            setError(caught instanceof Error ? caught.message : "Unable to load the encrypted workflow state.");\n        }\n    }, [masterKey]);\n\n    useEffect(() => { void load(); }, [load]);\n\n    const gate = useMemo(() => getWorkflowGate(answers), [answers]);\n    const merged = useMemo(() => {\n        const nextAnswers = { ...answers };\n        const nextProvenance = { ...provenance };\n        if (answers.forum_county && answers.forum_state && provenance.forum_county && provenance.forum_state) {\n            const renderedValue = `${answers.forum_county}, ${answers.forum_state}`;\n            nextAnswers.forum_county_comma_state = renderedValue;\n            nextProvenance.forum_county_comma_state = { renderedValue, sourceRecord: `${provenance.forum_county.sourceRecord};${provenance.forum_state.sourceRecord}`, classification: "DETERMINISTIC_DERIVATION", lastConfirmedAt: [provenance.forum_county.lastConfirmedAt, provenance.forum_state.lastConfirmedAt].sort().at(-1) ?? "", transformationApplied: "joined separately confirmed county and state" };\n        }\n        return { answers: nextAnswers, provenance: nextProvenance };\n    }, [answers, provenance]);\n    const prepared = useMemo(() => prepareGenerationInputs(merged.answers, merged.provenance), [merged]);\n    const visibleFields = INDEPENDENT_CONTRACTOR_FIELDS.filter((field) => field.id !== "forum_county_comma_state" && (!canonicalFieldIds.has(field.id) || !provenance[field.id]));\n    const unconfirmedFields = Object.entries(answers).filter(([fieldId, value]) => value.trim() && fieldId !== "forum_county_comma_state" && !isApprovedGenerationProvenance(provenance[fieldId])).map(([fieldId]) => fieldId);\n    const consistencyChecks = useMemo(() => {\n        const withoutDescriptionCheck = baseConsistencyChecks.filter((check) => check.code !== "DBA_EMBEDDED_IN_DESCRIPTION");\n        return /\\b(?:d\\/?b\\/?a|dba|doing business as)\\b/i.test(answers.owner_business_description ?? "")\n            ? [...withoutDescriptionCheck, { code: "DBA_EMBEDDED_IN_DESCRIPTION", classification: "CONFIRMATION_REQUIRED" as const, message: "DBA language appears in the business-description field; use the separate trade-name record instead." }]\n            : withoutDescriptionCheck;\n    }, [answers.owner_business_description, baseConsistencyChecks]);\n    const consistencyBlocking = consistencyChecks.filter((check) => check.classification === "BLOCKING");\n\n    const persist = async (nextAnswers: Record<string, string>, nextAudit: MatterAuditEvent[], nextProvenance: Record<string, GenerationProvenanceEntry>) => {\n        if (!masterKey) return;\n        const pending = persistQueueRef.current.then(async () => { await persistMatter(masterKey, nextAnswers, nextAudit, nextProvenance); });\n        persistQueueRef.current = pending.catch(() => undefined);\n        await pending;\n    };\n\n    const updateAnswer = async (fieldId: string, value: string) => {\n        const confirmedAt = new Date().toISOString();\n        const nextAnswers = { ...answersRef.current, [fieldId]: value };\n        const nextProvenance = { ...provenanceRef.current };\n        if (value.trim()) nextProvenance[fieldId] = currentIntakeProvenance(fieldId, value, confirmedAt);\n        else delete nextProvenance[fieldId];\n        let nextAudit = auditHistoryRef.current;\n        if (fieldId === "forum_state") nextAudit = updateScopeAudit(nextAudit, "OUT_OF_STATE_FORUM", `Out-of-North-Carolina forum encountered. ${OUT_OF_SCOPE_MESSAGE}`, value.trim().toLowerCase() !== "north carolina");\n        if (fieldId === "arbitration_state") nextAudit = updateScopeAudit(nextAudit, "OUT_OF_STATE_ARBITRATION", `Out-of-North-Carolina arbitration state encountered. ${OUT_OF_SCOPE_MESSAGE}`, value.trim().toLowerCase() !== "north carolina");\n        if (fieldId === "relationship_characterization") nextAudit = updateScopeAudit(nextAudit, "EMPLOYMENT_RELATIONSHIP", `Employment characterization encountered. ${OUT_OF_SCOPE_MESSAGE}`, value === "employment");\n        setAnswers(nextAnswers);\n        setProvenance(nextProvenance);\n        setAuditHistory(nextAudit);\n        answersRef.current = nextAnswers;\n        provenanceRef.current = nextProvenance;\n        auditHistoryRef.current = nextAudit;\n        await persist(nextAnswers, nextAudit, nextProvenance);\n    };\n\n    const confirmDisplayedSavedAnswers = async () => {\n        const confirmedAt = new Date().toISOString();\n        const nextAnswers = answersRef.current;\n        const nextAudit = auditHistoryRef.current;\n        const nextProvenance = { ...provenanceRef.current };\n        for (const [fieldId, value] of Object.entries(nextAnswers)) {\n            if (value.trim() && fieldId !== "forum_county_comma_state" && !isApprovedGenerationProvenance(nextProvenance[fieldId])) nextProvenance[fieldId] = currentIntakeProvenance(fieldId, value, confirmedAt);\n        }\n        setProvenance(nextProvenance);\n        provenanceRef.current = nextProvenance;\n        await persist(nextAnswers, nextAudit, nextProvenance);\n    };\n\n    const handleGenerate = async () => {\n        if (!masterKey) return;\n        setGenerating(true);\n        setError("");\n        try {\n            const result = await generateWorkflowDocument(masterKey, merged.answers, merged.provenance, auditHistory, true);\n            router.push(`/confirmation/${result.assurance.generationId}`);\n        } catch (caught) {\n            setError(caught instanceof Error ? caught.message : "Document generation failed.");\n        } finally {\n            setGenerating(false);\n        }\n    };\n\n    return (\n        <main className="min-h-screen bg-[#0a0a0c] text-slate-100">\n            <AppHeader />\n            <div className="mx-auto max-w-6xl space-y-8 px-6 py-10">\n                <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">\n                    <div className="flex flex-wrap items-start justify-between gap-5"><div><h1 className="text-2xl font-bold text-white">Independent Contractor — North Carolina</h1><p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">{form.scope}</p></div><span className="flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs font-bold text-emerald-200"><ShieldCheck className="h-4 w-4" />{provider.goodStanding ? "Good standing confirmed" : "Good standing unavailable"}</span></div>\n                    <dl className="mt-6 grid gap-4 border-t border-slate-800 pt-5 text-sm sm:grid-cols-2 lg:grid-cols-4"><div><dt className="text-xs uppercase text-slate-500">Provider</dt><dd className="mt-1 font-semibold">{provider.name}</dd></div><div><dt className="text-xs uppercase text-slate-500">Jurisdiction</dt><dd className="mt-1 font-semibold">{form.jurisdiction}</dd></div><div><dt className="text-xs uppercase text-slate-500">Versions</dt><dd className="mt-1 font-semibold">Form {form.formVersion}<br />Intake {form.intakeVersion}</dd></div><div><dt className="text-xs uppercase text-slate-500">Maintenance</dt><dd className="mt-1 font-semibold">{form.maintenanceStatus}</dd></div></'... 12108 more characters,
+    expected: /Individual confirmation/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests\trust-closure.test.ts:2:7548
+✖ fixture privacy permits only Moonshot Marmalade and Picklesworth identities (3.9592ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /Picklesworth/. Input:
+  
+  '// ver 20260715124500.7\n' +
+    '\n' +
+    'import { mkdir, readFile, writeFile } from "node:fs/promises";\n' +
+    'import path from "node:path";\n' +
+    'import { expect, test } from "@playwright/test";\n' +
+    'import PizZip from "pizzip";\n' +
+    '\n' +
+    'const outputDirectory = path.resolve("..", "demo-output");\n' +
+    'const documentOutputPath = path.join(outputDirectory, "moonshot-marmalade-p0.docx");\n' +
+    'const provenanceOutputPath = path.join(outputDirectory, "moonshot-marmalade-p0-provenance.json");\n' +
+    'const migrationEvidencePath = path.join(outputDirectory, "moonshot-marmalade-p0-migration-evidence.json");\n' +
+    '\n' +
+    'const oldMatterAnswers: Record<string, string> = {\n' +
+    '    owner_business_description: "Moonshot Marmalade Industries manufactures and distributes specialty marmalades",\n' +
+    '    scope_agr_longtext: "Develop and document a regional wholesale distribution plan for Moonshot Marmalade products",\n' +
+    '    agreement_start_date: "2026-07-15",\n' +
+    '    agreement_duration_years_text: "One",\n' +
+    '    agreement_duration_years_num: "1",\n' +
+    '    termination_notice_days: "30",\n' +
+    '    forum_state: "North Carolina",\n' +
+    '    forum_county: "Guilford County",\n' +
+    '    forum_county_comma_state: "Guilford County, North Carolina",\n' +
+    '    arbitration_city: "Greensboro",\n' +
+    '    arbitration_state: "North Carolina",\n' +
+    '    court_amended_miles: "25",\n' +
+    '    court_amended_years: "1",\n' +
+    '    hire_away_duration_years_num: "1",\n' +
+    '    hire_away_duration_years_text: "One",\n' +
+    '    non_compete_duration_years_num: "1",\n' +
+    '    non_compete_duration_years_text: "One",\n' +
+    '    non_compete_radius_miles: "25",\n' +
+    '    non_compete_states: "North Carolina",\n' +
+    '    non_solicit_employees_duration_years_num: "1",\n' +
+    '    non_solicit_employees_duration_years_text: "One",\n' +
+    '    owner_signatory_name: "Penelope Fizzlebottom",\n' +
+    '    owner_signatory_date: "2026-07-15",\n' +
+    '    contractor_signatory_name: "Basil Quince",\n' +
+    '    contractor_signatory_date: "2026-07-15",\n' +
+    '    relationship_characterization: "independent-contractor",\n' +
+    '    includes_minor: "no",\n' +
+    '    compensation_structure: "fixed-fee",\n' +
+    '};\n' +
+    '\n' +
+    'test("version-3 encrypted records survive restart, schema upgrade, migration, and generation", async ({ page }) => {\n' +
+    '    await page.goto("/");\n' +
+    '    await page.evaluate(async ({ answers }) => {\n' +
+    '        await new Promise<void>((resolve, reject) => {\n' +
+    '            const request = indexedDB.deleteDatabase("ELV_VAULT");\n' +
+    '            request.onsuccess = () => resolve(); request.onerror = () => reject(request.error); request.onblocked = () => reject(new Error("Legacy database deletion was blocked during isolated test setup."));\n' +
+    '        });\n' +
+    '        const keyMaterial = await crypto.subtle.importKey("raw", new TextEncoder().encode("legalflownc-demo"), "PBKDF2", false, ["deriveKey"]);\n' +
+    '        const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt: new TextEncoder().encode("elv-demo:demo@local.test"), iterations: 600000, hash: "SHA-256" }, keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);\n' +
+    '        if (key.extractable) throw new Error("Legacy key fixture must be non-extractable.");\n' +
+    '        const base64 = (value: ArrayBuffer) => btoa(String.fromCharCode(...new Uint8Array(value)));\n' +
+    '        const encrypt = async (value: unknown) => { const iv = crypto.getRandomValues(new Uint8Array(12)); const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv, tagLength: 128 }, key, new TextEncoder().encode(JSON.stringify(value))); return { ciphertext: base64(ciphertext), iv: base64(iv.buffer) }; };\n' +
+    '        const db = await new Promise<IDBDatabase>((resolve, reject) => {\n' +
+    '            const request = indexedDB.open("ELV_VAULT", 3);\n' +
+    '            request.onupgradeneeded = () => {\n' +
+    '                const next = request.result;\n' +
+    '                next.createObjectStore("vault_items");\n' +
+    '                next.createObjectStore("parties", { keyPath: "id" });\n' +
+    '                next.createObjectStore("relationships", { keyPath: "id" });\n' +
+    '                next.createObjectStore("facts", { keyPath: "id" });\n' +
+    '                next.createObjectStore("matters", { keyPath: "id" });\n' +
+    '                next.createObjectStore("generations", { keyPath: "generationId" });\n' +
+    '                next.createObjectStore("incidents", { keyPath: "id" });\n' +
+    '                next.createObjectStore("documents", { keyPath: "generationId" });\n' +
+    '            };\n' +
+    '            request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error);\n' +
+    '        });\n' +
+    '        const createdAt = "2026-07-14T16:00:00.000Z";\n' +
+    '        const parties = [\n' +
+    '            { id: "party-moonshot", kind: "business", name: "Moonshot Marmalade Industries, LLC", address1: "2915 Starmount Farms Dr.", address2: "Greensboro, NC 27408", createdAt },\n' +
+    '            { id: "party-penelope", kind: "person", name: "Penelope Fizzlebottom", address1: "44 Effervescence Lane", address2: "Greensboro, NC 27408", createdAt },\n' +
+    '            { id: "party-basil", kind: "person", name: "Basil Quince", address1: "7 Pectin Place", address2: "High Point, NC 27260", createdAt },\n' +
+    '        ];\n' +
+    '        const transaction = db.transaction(["parties", "relationships", "facts", "matters"], "readwrite");\n' +
+    '        for (const party of parties) transaction.objectStore("parties").put({ id: party.id, kind: party.kind, createdAt: party.createdAt, payload: await encrypt({ name: party.name, address1: party.address1, address2: party.address2 }) });\n' +
+    '        transaction.objectStore("relationships").put({ id: "relationship-moonshot-basil", fromPartyId: "party-moonshot", toPartyId: "party-basil", type: "company-contractor", createdAt });\n' +
+    '        transaction.objectStore("relationships").put({ id: "relationship-moonshot-penelope", fromPartyId: "party-moonshot", toPartyId: "party-penelope", type: "company-authorized-rep", createdAt });\n' +
+    '        const facts = [\n' +
+    '            ["owner_name", "Moonshot Marmalade Industries, LLC", "party-moonshot"], ["owner_add1", "2915 Starmount Farms Dr.", "party-moonshot"], ["owner_add2", "Greensboro, NC 27408", "party-moonshot"],\n' +
+    '            ["contractor_name", "Basil Quince", "party-basil"], ["contr_add1", "7 Pectin Place", "party-basil"], ["contr_add2", "High Point, NC 27260", "party-basil"],\n' +
+    '        ];\n' +
+    '        for (const [fieldId, value, partyId] of facts) transaction.objectStore("facts").put({ id: `${partyId}:${fieldId}`, partyId, fieldId, source: "user-entered", lastConfirmedAt: createdAt, payload: await encrypt({ value, notes: "Legacy confirmed fact." }) });\n' +
+    '        transaction.objectStore("matters").put({ id: "independent-contractor-demo-matter", workflowId: "independent-contractor-nc", updatedAt: createdAt, payload: await encrypt({ answers, auditHistory: [] }) });\n' +
+    '        await new Promise<void>((resolve, reject) => { transaction.oncomplete = () => resolve(); transaction.onerror = () => reject(transaction.error); });\n' +
+    '        db.close();\n' +
+    '    }, { answers: oldMatterAnswers });\n' +
+    '\n' +
+    '    await page.goto("/vault");\n' +
+    '    await page.getByRole("button", { name: "Unlock local vault" }).click();\n' +
+    '    await expect(page.getByRole("button", { name: "Edit Moonshot Marmalade Industries, LLC" })).toBeVisible();\n' +
+    '    await expect(page.getByRole("button", { name: "Edit Penelope Fizzlebottom" })).toBeVisible();\n' +
+    '    await expect(page.getByRole("button", { name: "Edit Basil Quince" })).toBeVisible();\n' +
+    '    await expect(page.getByText(/Moonshot Marmalade Industries, LLC company-contractor Basil Quince/)).toBeVisible();\n' +
+    '    await expect(page.getByText(/Moonshot Marmalade Industries, LLC company-authorized-rep Penelope Fizzlebottom/)).toBeVisible();\n' +
+    '    const preserved = await page.evaluate(async () => {\n' +
+    '        const db = await new Promise<IDBDatabase>((resolve, reject) => { const request = indexedDB.open("ELV_VAULT"); request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); });\n' +
+    '        const transaction = db.transaction(["parties", "relationships", "facts", "matters", "migration_snapshots"], "readonly");\n' +
+    '        const getAll = (store: string) => new Promise<unknown[]>((resolve, reject) => { const request = transaction.objectStore(store).getAll(); request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); });\n' +
+    '        const [parties, relationships, facts, matters, snapshots] = await Promise.all([getAll("parties"), getAll("relationships"), getAll("facts"), getAll("matters"), getAll("migration_snapshots")]);\n' +
+    '        db.close();\n' +
+    '        return { partyIds: parties.map((item) => (item as { id: string }).id).sort(), relationshipIds: relationships.map((item) => (item as { id: string }).id).sort(), factIds: facts.map((item) => (item as { id: string }).id).sort(), matterIds: matters.map((item) => (item as { id: string }).id).sort(), snapshotCount: snapshots.length, encryptedSnapshotContainsPlaintext: JSON.stringify(snapshots).includes("Moonshot Marmalade") };\n' +
+    '    });\n' +
+    '    expect(preserved.partyIds).toEqual(["party-basil", "party-moonshot", "party-penelope"]);\n' +
+    '    expect(preserved.relationshipIds).toEqual(["relationship-moonshot-basil", "relationship-moonshot-penelope"]);\n' +
+    '    expect(preserved.factIds).toHaveLength(6);\n' +
+    '    expect(preserved.matterIds).toEqual(["independent-contractor-demo-matter"]);\n' +
+    '    expect(preserved.snapshotCount).toBeGreaterThan(0);\n' +
+    '    expect(preserved.encryptedSnapshotContainsPlaintext).toBe(false);\n' +
+    '\n' +
+    '    await page.getByLabel("Signing for party").selectOption({ label: "Moonshot Marmalade Industries, LLC" });\n' +
+    '    await page.getByLabel("Signatory person").selectOption({ label: "Penelope Fizzlebottom" });\n' +
+    '    await page.getByLabel("Title or capacity").fill("Chief Marmalade Officer");\n' +
+    '    await page.getByLabel("Signature date").fill("2026-07-15");\n' +
+    '    await page.getByLabel("Authority confirmed").check();\n' +
+    '    await page.getByRole("button", { name: "Save encrypted signatory" }).click();\n' +
+    '    await expect(page.getByText(/Penelope Fizzlebottom signs for Moonshot Marmalade Industries, LLC as Chief Marmalade Officer/)).toBeVisible();\n' +
+    '\n' +
+    '    await expect(page.getByRole("status")).toContainText("Encrypted signatory record saved");\n' +
+    `    await page.locator('a[href="/workflow/independent-contractor"]').click();\n` +
+    '    await page.waitForURL(/\\/workflow\\/inde'... 5326 more characters
+  
+      at TestContext.<anonymous> (C:\Users\jsgor\Projects-Arc\elv\webapp\tests\trust-closure.test.ts:104:12)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '// ver 20260715124500.7\n\nimport { mkdir, readFile, writeFile } from "node:fs/promises";\nimport path from "node:path";\nimport { expect, test } from "@playwright/test";\nimport PizZip from "pizzip";\n\nconst outputDirectory = path.resolve("..", "demo-output");\nconst documentOutputPath = path.join(outputDirectory, "moonshot-marmalade-p0.docx");\nconst provenanceOutputPath = path.join(outputDirectory, "moonshot-marmalade-p0-provenance.json");\nconst migrationEvidencePath = path.join(outputDirectory, "moonshot-marmalade-p0-migration-evidence.json");\n\nconst oldMatterAnswers: Record<string, string> = {\n    owner_business_description: "Moonshot Marmalade Industries manufactures and distributes specialty marmalades",\n    scope_agr_longtext: "Develop and document a regional wholesale distribution plan for Moonshot Marmalade products",\n    agreement_start_date: "2026-07-15",\n    agreement_duration_years_text: "One",\n    agreement_duration_years_num: "1",\n    termination_notice_days: "30",\n    forum_state: "North Carolina",\n    forum_county: "Guilford County",\n    forum_county_comma_state: "Guilford County, North Carolina",\n    arbitration_city: "Greensboro",\n    arbitration_state: "North Carolina",\n    court_amended_miles: "25",\n    court_amended_years: "1",\n    hire_away_duration_years_num: "1",\n    hire_away_duration_years_text: "One",\n    non_compete_duration_years_num: "1",\n    non_compete_duration_years_text: "One",\n    non_compete_radius_miles: "25",\n    non_compete_states: "North Carolina",\n    non_solicit_employees_duration_years_num: "1",\n    non_solicit_employees_duration_years_text: "One",\n    owner_signatory_name: "Penelope Fizzlebottom",\n    owner_signatory_date: "2026-07-15",\n    contractor_signatory_name: "Basil Quince",\n    contractor_signatory_date: "2026-07-15",\n    relationship_characterization: "independent-contractor",\n    includes_minor: "no",\n    compensation_structure: "fixed-fee",\n};\n\ntest("version-3 encrypted records survive restart, schema upgrade, migration, and generation", async ({ page }) => {\n    await page.goto("/");\n    await page.evaluate(async ({ answers }) => {\n        await new Promise<void>((resolve, reject) => {\n            const request = indexedDB.deleteDatabase("ELV_VAULT");\n            request.onsuccess = () => resolve(); request.onerror = () => reject(request.error); request.onblocked = () => reject(new Error("Legacy database deletion was blocked during isolated test setup."));\n        });\n        const keyMaterial = await crypto.subtle.importKey("raw", new TextEncoder().encode("legalflownc-demo"), "PBKDF2", false, ["deriveKey"]);\n        const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt: new TextEncoder().encode("elv-demo:demo@local.test"), iterations: 600000, hash: "SHA-256" }, keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);\n        if (key.extractable) throw new Error("Legacy key fixture must be non-extractable.");\n        const base64 = (value: ArrayBuffer) => btoa(String.fromCharCode(...new Uint8Array(value)));\n        const encrypt = async (value: unknown) => { const iv = crypto.getRandomValues(new Uint8Array(12)); const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv, tagLength: 128 }, key, new TextEncoder().encode(JSON.stringify(value))); return { ciphertext: base64(ciphertext), iv: base64(iv.buffer) }; };\n        const db = await new Promise<IDBDatabase>((resolve, reject) => {\n            const request = indexedDB.open("ELV_VAULT", 3);\n            request.onupgradeneeded = () => {\n                const next = request.result;\n                next.createObjectStore("vault_items");\n                next.createObjectStore("parties", { keyPath: "id" });\n                next.createObjectStore("relationships", { keyPath: "id" });\n                next.createObjectStore("facts", { keyPath: "id" });\n                next.createObjectStore("matters", { keyPath: "id" });\n                next.createObjectStore("generations", { keyPath: "generationId" });\n                next.createObjectStore("incidents", { keyPath: "id" });\n                next.createObjectStore("documents", { keyPath: "generationId" });\n            };\n            request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error);\n        });\n        const createdAt = "2026-07-14T16:00:00.000Z";\n        const parties = [\n            { id: "party-moonshot", kind: "business", name: "Moonshot Marmalade Industries, LLC", address1: "2915 Starmount Farms Dr.", address2: "Greensboro, NC 27408", createdAt },\n            { id: "party-penelope", kind: "person", name: "Penelope Fizzlebottom", address1: "44 Effervescence Lane", address2: "Greensboro, NC 27408", createdAt },\n            { id: "party-basil", kind: "person", name: "Basil Quince", address1: "7 Pectin Place", address2: "High Point, NC 27260", createdAt },\n        ];\n        const transaction = db.transaction(["parties", "relationships", "facts", "matters"], "readwrite");\n        for (const party of parties) transaction.objectStore("parties").put({ id: party.id, kind: party.kind, createdAt: party.createdAt, payload: await encrypt({ name: party.name, address1: party.address1, address2: party.address2 }) });\n        transaction.objectStore("relationships").put({ id: "relationship-moonshot-basil", fromPartyId: "party-moonshot", toPartyId: "party-basil", type: "company-contractor", createdAt });\n        transaction.objectStore("relationships").put({ id: "relationship-moonshot-penelope", fromPartyId: "party-moonshot", toPartyId: "party-penelope", type: "company-authorized-rep", createdAt });\n        const facts = [\n            ["owner_name", "Moonshot Marmalade Industries, LLC", "party-moonshot"], ["owner_add1", "2915 Starmount Farms Dr.", "party-moonshot"], ["owner_add2", "Greensboro, NC 27408", "party-moonshot"],\n            ["contractor_name", "Basil Quince", "party-basil"], ["contr_add1", "7 Pectin Place", "party-basil"], ["contr_add2", "High Point, NC 27260", "party-basil"],\n        ];\n        for (const [fieldId, value, partyId] of facts) transaction.objectStore("facts").put({ id: `${partyId}:${fieldId}`, partyId, fieldId, source: "user-entered", lastConfirmedAt: createdAt, payload: await encrypt({ value, notes: "Legacy confirmed fact." }) });\n        transaction.objectStore("matters").put({ id: "independent-contractor-demo-matter", workflowId: "independent-contractor-nc", updatedAt: createdAt, payload: await encrypt({ answers, auditHistory: [] }) });\n        await new Promise<void>((resolve, reject) => { transaction.oncomplete = () => resolve(); transaction.onerror = () => reject(transaction.error); });\n        db.close();\n    }, { answers: oldMatterAnswers });\n\n    await page.goto("/vault");\n    await page.getByRole("button", { name: "Unlock local vault" }).click();\n    await expect(page.getByRole("button", { name: "Edit Moonshot Marmalade Industries, LLC" })).toBeVisible();\n    await expect(page.getByRole("button", { name: "Edit Penelope Fizzlebottom" })).toBeVisible();\n    await expect(page.getByRole("button", { name: "Edit Basil Quince" })).toBeVisible();\n    await expect(page.getByText(/Moonshot Marmalade Industries, LLC company-contractor Basil Quince/)).toBeVisible();\n    await expect(page.getByText(/Moonshot Marmalade Industries, LLC company-authorized-rep Penelope Fizzlebottom/)).toBeVisible();\n    const preserved = await page.evaluate(async () => {\n        const db = await new Promise<IDBDatabase>((resolve, reject) => { const request = indexedDB.open("ELV_VAULT"); request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); });\n        const transaction = db.transaction(["parties", "relationships", "facts", "matters", "migration_snapshots"], "readonly");\n        const getAll = (store: string) => new Promise<unknown[]>((resolve, reject) => { const request = transaction.objectStore(store).getAll(); request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); });\n        const [parties, relationships, facts, matters, snapshots] = await Promise.all([getAll("parties"), getAll("relationships"), getAll("facts"), getAll("matters"), getAll("migration_snapshots")]);\n        db.close();\n        return { partyIds: parties.map((item) => (item as { id: string }).id).sort(), relationshipIds: relationships.map((item) => (item as { id: string }).id).sort(), factIds: facts.map((item) => (item as { id: string }).id).sort(), matterIds: matters.map((item) => (item as { id: string }).id).sort(), snapshotCount: snapshots.length, encryptedSnapshotContainsPlaintext: JSON.stringify(snapshots).includes("Moonshot Marmalade") };\n    });\n    expect(preserved.partyIds).toEqual(["party-basil", "party-moonshot", "party-penelope"]);\n    expect(preserved.relationshipIds).toEqual(["relationship-moonshot-basil", "relationship-moonshot-penelope"]);\n    expect(preserved.factIds).toHaveLength(6);\n    expect(preserved.matterIds).toEqual(["independent-contractor-demo-matter"]);\n    expect(preserved.snapshotCount).toBeGreaterThan(0);\n    expect(preserved.encryptedSnapshotContainsPlaintext).toBe(false);\n\n    await page.getByLabel("Signing for party").selectOption({ label: "Moonshot Marmalade Industries, LLC" });\n    await page.getByLabel("Signatory person").selectOption({ label: "Penelope Fizzlebottom" });\n    await page.getByLabel("Title or capacity").fill("Chief Marmalade Officer");\n    await page.getByLabel("Signature date").fill("2026-07-15");\n    await page.getByLabel("Authority confirmed").check();\n    await page.getByRole("button", { name: "Save encrypted signatory" }).click();\n    await expect(page.getByText(/Penelope Fizzlebottom signs for Moonshot Marmalade Industries, LLC as Chief Marmalade Officer/)).toBeVisible();\n\n    await expect(page.getByRole("status")).toContainText("Encrypted signatory record saved");\n    await page.locator(\'a[href="/workflow/independent-contractor"]\').click();\n    await page.waitForURL(/\\/workflow\\/inde'... 5326 more characters,
+    expected: /Picklesworth/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+Version history
+20260716032200.0 - Captured the pre-implementation T1-T4 and fixture-privacy failures.
